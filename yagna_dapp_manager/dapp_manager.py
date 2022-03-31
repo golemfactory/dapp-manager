@@ -3,11 +3,12 @@ import uuid
 from typing import List, Union
 from os import PathLike
 
+from .storage import SimpleStorage
 
 PathType = Union[str, bytes, PathLike]
 
 
-class DappManager():
+class DappManager:
     """Manage multiple dapps
 
     General notes:
@@ -21,6 +22,7 @@ class DappManager():
     #   MINIMAL INTERFACE
     def __init__(self, app_id: str):
         self.app_id = app_id
+        self.storage = SimpleStorage(app_id)
 
     @classmethod
     def list(cls) -> List[str]:
