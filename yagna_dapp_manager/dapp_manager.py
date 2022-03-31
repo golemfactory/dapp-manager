@@ -1,9 +1,11 @@
 from datetime import timedelta
 import uuid
-from typing import List, Union
+from typing import List, Optional, Union
 from os import PathLike
+from pathlib import Path
 
 from .storage import SimpleStorage
+from .dapp_starter import DappStarter
 
 PathType = Union[str, bytes, PathLike]
 
@@ -32,7 +34,20 @@ class DappManager:
     @classmethod
     def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
         """Start a new app"""
-        return cls(uuid.uuid4().hex)
+        app_id = uuid.uuid4().hex
+
+        #   TODO: ensure files exist
+        descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
+        config_path = Path(config)
+
+        starter = DappStarter(descriptor_paths, config_path, SimpleStorage(app_id))
+        starter.start()
+
+        return cls(app_id)
+
+    @property
+    def pid(self) -> Optional[int]:
+        return self.storage.pid
 
     def raw_status(self) -> str:
         """Return raw, unparsed contents of the 'status' stream"""
