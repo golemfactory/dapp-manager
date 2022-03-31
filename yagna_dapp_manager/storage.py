@@ -1,18 +1,24 @@
 from pathlib import Path
 from typing import Optional
+import os
 
 
 class SimpleStorage:
     DEFAULT_BASE_DIR = '_dapp_data'
 
-    def __init__(self, app_id: str, base_dir: str = DEFAULT_BASE_DIR):
+    def __init__(self, app_id: str, base_dir: str = None):
         self.app_id = app_id
-        self.base_dir = Path(base_dir)
+        self.base_dir = Path(base_dir if base_dir is not None else self.DEFAULT_BASE_DIR)
 
     def save_pid(self, pid: int) -> None:
         self._ensure_data_dir_exists()
         with open(self.pid_file, 'w') as f:
             f.write(str(pid))
+
+    @classmethod
+    def app_id_list(cls):
+        paths = sorted(Path(cls.DEFAULT_BASE_DIR).iterdir(), key=os.path.getmtime)
+        return [path.stem for path in paths]
 
     @property
     def pid(self) -> Optional[int]:

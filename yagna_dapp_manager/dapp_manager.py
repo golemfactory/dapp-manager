@@ -28,8 +28,8 @@ class DappManager:
 
     @classmethod
     def list(cls) -> List[str]:
-        """Return a list of ids of all known apps"""
-        return [uuid.uuid4().hex]
+        """Return a list of ids of all known apps, sorted by the creation date"""
+        return SimpleStorage.app_id_list()
 
     @classmethod
     def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
