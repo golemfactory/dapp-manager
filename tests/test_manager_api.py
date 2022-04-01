@@ -6,7 +6,6 @@ import psutil
 import pytest
 import uuid
 from time import sleep
-from datetime import timedelta
 
 from yagna_dapp_manager import DappManager
 from yagna_dapp_manager.storage import SimpleStorage
@@ -85,6 +84,20 @@ def test_stop(test_dir, create_dapp_manager):
 
     #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
     #         but it for sure should succeed for the command we're running here
-    assert dapp.stop(timeout=timedelta(1))
+    assert dapp.stop(1)
+    sleep(0.01)  # wait just a moment for the process to stop
+    assert not process_is_running(dapp.pid)
+
+
+def test_stop_timeout_kill(test_dir):
+    dapp = start_dapp(['tests/sleep_no_sigint.sh', '10'])
+    sleep(0.01)
+
+    #   stop times out because command ignores sigint
+    assert not dapp.stop(1)
+    assert process_is_running(dapp.pid)
+
+    #   but this can't be ignored
+    dapp.kill()
     sleep(0.01)  # wait just a moment for the process to stop
     assert not process_is_running(dapp.pid)

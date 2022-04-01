@@ -1,4 +1,4 @@
-from datetime import timedelta
+from contextlib import contextmanager
 import uuid
 from typing import List, Optional, Union
 import os
@@ -9,6 +9,24 @@ from .storage import SimpleStorage
 from .dapp_starter import DappStarter
 
 PathType = Union[str, bytes, os.PathLike]
+
+
+@contextmanager
+def enforce_timeout(seconds: int):
+    """Commands in this context manager will stop after `seconds`"""
+
+    def raise_timeout_error(signum, frame):
+        raise TimeoutError
+
+    signal.signal(signal.SIGALRM, raise_timeout_error)
+    signal.alarm(seconds)
+
+    try:
+        yield
+    except TimeoutError:
+        pass
+    finally:
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)
 
 
 class DappManager:
@@ -58,10 +76,17 @@ class DappManager:
         """Return raw, unparsed contents of the 'data' stream"""
         return f"data of the app {self.app_id}"
 
-    def stop(self, timeout=timedelta(seconds=15)) -> bool:
+    def stop(self, timeout_seconds) -> bool:
         """Stop the app gracefully. Returned value indicates if the app was succesfully stopped."""
-        os.kill(self.pid, signal.SIGINT)
-        return True
+        with enforce_timeout(timeout_seconds):
+            os.kill(self.pid, signal.SIGINT)
+            os.waitpid(self.pid, 0)
+            return True
+        return False
+
+    def kill(self) -> None:
+        """Stop the app in a non-gracfeul way"""
+        os.kill(self.pid, signal.SIGKILL)
 
     #   EXTENDED INTERFACE (this part requires further considerations)
     def stdout(self) -> str:
@@ -79,9 +104,6 @@ class DappManager:
     def data(self) -> dict:
         """Parsed contents od the 'data' stream"""
         return {'resource_x': {'IP': '127.0.0.1'}}
-
-    def kill(self) -> None:
-        """Stop the app in a non-gracfeul way"""
 
     @classmethod
     def prune(cls) -> List[str]:
