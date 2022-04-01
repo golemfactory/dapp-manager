@@ -6,6 +6,7 @@ import psutil
 import pytest
 import uuid
 from time import sleep
+from datetime import timedelta
 
 from yagna_dapp_manager import DappManager
 from yagna_dapp_manager.storage import SimpleStorage
@@ -35,6 +36,20 @@ def start_dapp(command):
         return DappManager.start(descriptor_file, config=config_file)
 
 
+def process_is_running(pid):
+    try:
+        process = psutil.Process(pid)
+
+        #   TODO
+        #   Is there any way **not** to have defunct processes, but just make them
+        #   disappear forever? Or maybe this isn't harmful at all? We'd rather
+        #   avoid having thousands of defunct processes when using a single
+        #   process to manage multiple apps.
+        return process.status() != psutil.STATUS_ZOMBIE
+    except psutil.NoSuchProcess:
+        return False
+
+
 def test_start(test_dir):
     command = ['sleep', '1']
     dapp = start_dapp(command)
@@ -52,3 +67,24 @@ def test_list(test_dir):
     dapp_2 = start_dapp(['echo', 'bar'])
 
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
+
+
+@pytest.mark.parametrize('create_dapp_manager', (
+    #   Start and stop with the same manager instance
+    start_dapp,
+
+    #   Stop with another manager instance then the one that started
+    lambda command: DappManager(start_dapp(command).app_id),
+
+    #   TODO
+    #   Start in a process, get app_id, stop in this process
+))
+def test_stop(test_dir, create_dapp_manager):
+    dapp = create_dapp_manager(['sleep', '3'])
+    assert process_is_running(dapp.pid)
+
+    #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
+    #         but it for sure should succeed for the command we're running here
+    assert dapp.stop(timeout=timedelta(1))
+    sleep(0.01)  # wait just a moment for the process to stop
+    assert not process_is_running(dapp.pid)

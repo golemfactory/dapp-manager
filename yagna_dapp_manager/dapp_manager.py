@@ -1,13 +1,14 @@
 from datetime import timedelta
 import uuid
 from typing import List, Optional, Union
-from os import PathLike
+import os
+import signal
 from pathlib import Path
 
 from .storage import SimpleStorage
 from .dapp_starter import DappStarter
 
-PathType = Union[str, bytes, PathLike]
+PathType = Union[str, bytes, os.PathLike]
 
 
 class DappManager:
@@ -59,6 +60,7 @@ class DappManager:
 
     def stop(self, timeout=timedelta(seconds=15)) -> bool:
         """Stop the app gracefully. Returned value indicates if the app was succesfully stopped."""
+        os.kill(self.pid, signal.SIGINT)
         return True
 
     #   EXTENDED INTERFACE (this part requires further considerations)

@@ -27,7 +27,9 @@ class DappStarter:
 
     def _dapp_runner_command(self) -> List[str]:
         #   TODO - this is just a "mock" implementation, we don't care about the
-        #          final interface of dapp_runner yet
+        #          final interface of dapp_runner yet and we don't use this.
+        #          This will be done in
+        #          https://github.com/golemfactory/dapp-manager/issues/5
         command = []
 
         command.append('dapp-runner')
