@@ -70,11 +70,11 @@ class DappManager:
 
     def raw_status(self) -> str:
         """Return raw, unparsed contents of the 'status' stream"""
-        return f"status of the app {self.app_id}"
+        return self.storage.status
 
     def raw_data(self) -> str:
         """Return raw, unparsed contents of the 'data' stream"""
-        return f"data of the app {self.app_id}"
+        return self.storage.data
 
     def stop(self, timeout_seconds) -> bool:
         """Stop the app gracefully. Returned value indicates if the app was succesfully stopped."""

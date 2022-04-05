@@ -15,6 +15,22 @@ class SimpleStorage:
         with open(self.pid_file, 'w') as f:
             f.write(str(pid))
 
+    @property
+    def status(self) -> str:
+        try:
+            with open(self.status_file, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            return ''
+
+    @property
+    def data(self) -> str:
+        try:
+            with open(self.data_file, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            return ''
+
     @classmethod
     def app_id_list(cls):
         paths = sorted(Path(cls.DEFAULT_BASE_DIR).iterdir(), key=os.path.getmtime)

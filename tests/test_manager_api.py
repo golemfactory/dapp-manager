@@ -25,13 +25,19 @@ def test_dir(monkeypatch):
         pass
 
 
-def start_dapp(command):
+def start_dapp(base_command, status_file=False, data_file=False):
     descriptor_file = '.gitignore'  # any existing file will do
     config_file = '.gitignore'  # any existing file will do
 
-    with mock.patch("yagna_dapp_manager.dapp_starter.DappStarter._get_command") as _get_command:
-        _get_command.return_value = command
+    def _get_command(self):
+        command = base_command.copy()
+        if status_file:
+            command = command + [str(self.storage.status_file.resolve())]
+        if data_file:
+            command = command + [str(self.storage.data_file.resolve())]
+        return command
 
+    with mock.patch("yagna_dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command):
         return DappManager.start(descriptor_file, config=config_file)
 
 
@@ -101,3 +107,14 @@ def test_stop_timeout_kill(test_dir):
     dapp.kill()
     sleep(0.01)  # wait just a moment for the process to stop
     assert not process_is_running(dapp.pid)
+
+
+def test_raw_status_raw_data(test_dir):
+    dapp = start_dapp(['tests/write_mock_files.sh'], status_file=True, data_file=True)
+    sleep(0.01)
+
+    with open('tests/mock_status_file.txt') as f:
+        assert dapp.raw_status() == f.read()
+
+    with open('tests/mock_data_file.txt') as f:
+        assert dapp.raw_data() == f.read()
