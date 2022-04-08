@@ -22,21 +22,5 @@ class DappStarter:
         self.storage.save_pid(proc.pid)
 
     def _get_command(self):
+        # TODO: https://github.com/golemfactory/dapp-manager/issues/5
         raise NotImplementedError
-        return self._dapp_runner_command()
-
-    def _dapp_runner_command(self) -> List[str]:
-        #   TODO - this is just a "mock" implementation, we don't care about the
-        #          final interface of dapp_runner yet and we don't use this.
-        #          This will be done in
-        #          https://github.com/golemfactory/dapp-manager/issues/5
-        command = []
-
-        command.append('dapp-runner')
-        command += ['--config', str(self.config.resolve())]
-        for descriptor in self.descriptors:
-            command += ['--desciptor', str(descriptor.resolve())]
-        command += ['--data-file', str(self.storage.data_file.resolve())]
-        command += ['--status-file', str(self.storage.status_file.resolve())]
-
-        return command

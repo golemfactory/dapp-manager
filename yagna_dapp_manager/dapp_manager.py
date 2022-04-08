@@ -53,13 +53,15 @@ class DappManager:
     @classmethod
     def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
         """Start a new app"""
-        app_id = uuid.uuid4().hex
-
         #   TODO: ensure files exist
         descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
         config_path = Path(config)
 
-        starter = DappStarter(descriptor_paths, config_path, SimpleStorage(app_id))
+        app_id = uuid.uuid4().hex
+        storage = SimpleStorage(app_id)
+        storage.init()
+
+        starter = DappStarter(descriptor_paths, config_path, storage)
         starter.start()
 
         return cls(app_id)

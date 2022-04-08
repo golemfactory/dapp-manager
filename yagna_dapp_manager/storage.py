@@ -6,12 +6,18 @@ import os
 class SimpleStorage:
     DEFAULT_BASE_DIR = '_dapp_data'
 
-    def __init__(self, app_id: str, base_dir: str = None):
+    def __init__(self, app_id: str):
         self.app_id = app_id
-        self.base_dir = Path(base_dir if base_dir is not None else self.DEFAULT_BASE_DIR)
+        self.base_dir = Path(self.DEFAULT_BASE_DIR)
+
+    def init(self) -> None:
+        """Initialize storage for `self.app_id`
+
+        NOTE: we don't want to do this in __init__ because SimpleStorage doesn't
+        know if `self.app_id` makes any sense."""
+        self._data_dir.mkdir(parents=True)
 
     def save_pid(self, pid: int) -> None:
-        self._ensure_data_dir_exists()
         with open(self.pid_file, 'w') as f:
             f.write(str(pid))
 
@@ -58,9 +64,6 @@ class SimpleStorage:
 
     def _fname(self, name) -> Path:
         return self._data_dir / name
-
-    def _ensure_data_dir_exists(self) -> None:
-        self._data_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     def _data_dir(self) -> Path:
