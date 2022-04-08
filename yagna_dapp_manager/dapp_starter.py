@@ -11,7 +11,7 @@ class DappStarter:
         self.config = config
         self.storage = storage
 
-    def start(self) -> int:
+    def start(self) -> None:
         command = self._get_command()
 
         #   NOTE: Stdout and stderr are redirected to /dev/null.

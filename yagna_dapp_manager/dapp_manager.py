@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 import uuid
-from typing import List, Optional, Union
+from typing import List, Union
 import os
 import signal
 from pathlib import Path
@@ -8,25 +8,7 @@ from pathlib import Path
 from .storage import SimpleStorage
 from .dapp_starter import DappStarter
 
-PathType = Union[str, bytes, os.PathLike]
-
-
-@contextmanager
-def enforce_timeout(seconds: int):
-    """This context manager exits after `seconds`"""
-
-    def raise_timeout_error(signum, frame):
-        raise TimeoutError
-
-    signal.signal(signal.SIGALRM, raise_timeout_error)
-    signal.alarm(seconds)
-
-    try:
-        yield
-    except TimeoutError:
-        pass
-    finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
+PathType = Union[str, os.PathLike]
 
 
 class DappManager:
@@ -53,7 +35,7 @@ class DappManager:
     @classmethod
     def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
         """Start a new app"""
-        #   TODO: ensure files exist
+        #   TODO: https://github.com/golemfactory/dapp-manager/issues/7
         descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
         config_path = Path(config)
 
@@ -67,7 +49,7 @@ class DappManager:
         return cls(app_id)
 
     @property
-    def pid(self) -> Optional[int]:
+    def pid(self) -> int:
         return self.storage.pid
 
     def raw_status(self) -> str:
@@ -79,7 +61,12 @@ class DappManager:
         return self.storage.data
 
     def stop(self, timeout_seconds) -> bool:
-        """Stop the app gracefully. Returned value indicates if the app was succesfully stopped."""
+        """Stop the dapp gracefully (SIGINT), waiting at most `timeout_seconds`.
+
+        Returned value indicates if the app was succesfully stopped."""
+
+        # TODO: https://github.com/golemfactory/dapp-manager/issues/11
+
         with enforce_timeout(timeout_seconds):
             os.kill(self.pid, signal.SIGINT)
             os.waitpid(self.pid, 0)
@@ -88,6 +75,9 @@ class DappManager:
 
     def kill(self) -> None:
         """Stop the app in a non-gracfeul way"""
+
+        # TODO: https://github.com/golemfactory/dapp-manager/issues/11
+
         os.kill(self.pid, signal.SIGKILL)
 
     #   EXTENDED INTERFACE (this part requires further considerations)
@@ -115,3 +105,22 @@ class DappManager:
         all of the data passed from the dapp-runner (e.g. data, status etc).
 
         Returns a list of app_ids of the pruned apps."""
+
+
+@contextmanager
+def enforce_timeout(seconds: int):
+    """This context manager exits after `seconds`."""
+    # TODO: https://github.com/golemfactory/dapp-manager/issues/10
+
+    def raise_timeout_error(signum, frame):
+        raise TimeoutError
+
+    signal.signal(signal.SIGALRM, raise_timeout_error)
+    signal.alarm(seconds)
+
+    try:
+        yield
+    except TimeoutError:
+        pass
+    finally:
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)

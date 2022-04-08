@@ -4,23 +4,24 @@ import psutil
 from yagna_dapp_manager import DappManager
 
 
-def process_is_running(pid):
+def process_is_running(pid: int) -> bool:
     try:
         process = psutil.Process(pid)
 
-        #   TODO
-        #   Is there any way **not** to have defunct processes, but just make them
-        #   disappear forever? Or maybe this isn't harmful at all? We'd rather
-        #   avoid having thousands of defunct processes when using a single
-        #   process to manage multiple apps.
+        #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
         return process.status() != psutil.STATUS_ZOMBIE
     except psutil.NoSuchProcess:
         return False
 
 
-def start_dapp(base_command, status_file=False, data_file=False):
-    descriptor_file = '.gitignore'  # any existing file will do
-    config_file = '.gitignore'  # any existing file will do
+def start_dapp(base_command, status_file=False, data_file=False) -> DappManager:
+    """Executes DappManager.start(), but executed command is replaced by base_command
+
+    If status_file is True, status file name will be added as command line arg.
+    Same for data_file, if both are True status_file goes first."""
+
+    descriptor_file = '.gitignore'  # any existing file will do (for now)
+    config_file = '.gitignore'  # any existing file will do (for now)
 
     def _get_command(self):
         command = base_command.copy()
@@ -34,13 +35,13 @@ def start_dapp(base_command, status_file=False, data_file=False):
         return DappManager.start(descriptor_file, config=config_file)
 
 
-def new_dapp_manager(command, **kwargs):
+def new_dapp_manager(command, **kwargs) -> DappManager:
     """Start a dapp, return a new DappManager instance"""
     dapp = start_dapp(command, **kwargs)
     return DappManager(dapp.app_id)
 
 
-def other_dapp_in_between(command, **kwargs):
+def other_dapp_in_between(command, **kwargs) -> DappManager:
     """Start a dapp, start another dapp, return DappManager for the first one"""
     dapp = start_dapp(command, **kwargs)
     start_dapp(["echo", "foo"])
@@ -50,7 +51,6 @@ def other_dapp_in_between(command, **kwargs):
 # Collection of functions with the same interface as start_dapp,
 # with different internal "scenarios". Tests performed on a running dapp should
 # be run in every scenario.
-#
 # Purpose:
 #   *   ensure DappManager is stateless
 #   *   ensure multiple dapps don't interfere with each other
@@ -59,8 +59,8 @@ get_dapp_scenarios = (
     new_dapp_manager,
     other_dapp_in_between,
 
-    #   TODO: CLI tests, when we have CLI
-    #   TODO: Start dapp in another process (?)
+    #   TODO (?): Start dapp in another process, do something from this process
+    #   TODO (?): CLI scenarios, when we have CLI
 )
 
 

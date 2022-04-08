@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import Optional
 import os
 
 
@@ -18,6 +17,7 @@ class SimpleStorage:
         self._data_dir.mkdir(parents=True)
 
     def save_pid(self, pid: int) -> None:
+        # TODO: https://github.com/golemfactory/dapp-manager/issues/12
         with open(self.pid_file, 'w') as f:
             f.write(str(pid))
 
@@ -43,12 +43,11 @@ class SimpleStorage:
         return [path.stem for path in paths]
 
     @property
-    def pid(self) -> Optional[int]:
-        try:
-            with open(self.pid_file, 'r') as f:
-                return int(f.read())
-        except FileNotFoundError:
-            return None
+    def pid(self) -> int:
+        # TODO: https://github.com/golemfactory/dapp-manager/issues/6
+        # (this will also influence other methods here)
+        with open(self.pid_file, 'r') as f:
+            return int(f.read())
 
     @property
     def pid_file(self) -> Path:
