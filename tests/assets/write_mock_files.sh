@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-MOCK_STATUS_FILE='tests/mock_status_file.txt'
-MOCK_DATA_FILE='tests/mock_data_file.txt'
+MOCK_STATUS_FILE='tests/assets/mock_status_file.txt'
+MOCK_DATA_FILE='tests/assets/mock_data_file.txt'
 
 DAPP_STATUS_FILE=$1
 DAPP_DATA_FILE=$2

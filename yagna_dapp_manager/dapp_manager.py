@@ -13,7 +13,7 @@ PathType = Union[str, bytes, os.PathLike]
 
 @contextmanager
 def enforce_timeout(seconds: int):
-    """Commands in this context manager will stop after `seconds`"""
+    """This context manager exits after `seconds`"""
 
     def raise_timeout_error(signum, frame):
         raise TimeoutError
