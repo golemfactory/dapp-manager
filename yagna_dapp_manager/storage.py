@@ -1,6 +1,8 @@
 from pathlib import Path
 import os
 
+from typing import List
+
 
 class SimpleStorage:
     DEFAULT_BASE_DIR = '_dapp_data'
@@ -38,9 +40,12 @@ class SimpleStorage:
             return ''
 
     @classmethod
-    def app_id_list(cls):
-        paths = sorted(Path(cls.DEFAULT_BASE_DIR).iterdir(), key=os.path.getmtime)
-        return [path.stem for path in paths]
+    def app_id_list(cls) -> List[str]:
+        try:
+            paths = sorted(Path(cls.DEFAULT_BASE_DIR).iterdir(), key=os.path.getmtime)
+            return [path.stem for path in paths]
+        except FileNotFoundError:
+            return []
 
     @property
     def pid(self) -> int:
