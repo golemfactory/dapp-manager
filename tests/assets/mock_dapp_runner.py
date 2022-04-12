@@ -7,6 +7,8 @@
 from pathlib import Path
 from time import sleep
 from typing import Tuple
+from itertools import count
+from random import random
 
 import click
 
@@ -20,18 +22,14 @@ def _cli():
 @click.option(
     "--data",
     "-d",
+    required=True,
     type=Path,
     help="Path to the data file.",
 )
 @click.option(
-    "--log",
-    "-l",
-    type=Path,
-    help="Path to the log file.",
-)
-@click.option(
     "--state",
     "-s",
+    required=True,
     type=Path,
     help="Path to the state file.",
 )
@@ -54,14 +52,21 @@ def start(
 ) -> str:
     print("mock_dapp_runner start", descriptors, kwargs)
 
+    data_file = open(kwargs['data'], 'w', buffering=1)
+    state_file = open(kwargs['state'], 'w', buffering=1)
+
     try:
-        while True:
-            print("still running!")
+        for i in count(1):
+            state_file.write(f"Running for {i} seconds\n")
+            if i == 3:
+                data_file.write(f"Important data received: {random()}\n")
             sleep(1)
     except KeyboardInterrupt:
-        print("Shutting down!")
+        state_file.write("Shutting down\n")
         sleep(3)
-        print("BYE")
+        state_file.write("Graceful shutdown finished\n")
+        data_file.close()
+        state_file.close()
 
 
 if __name__ == '__main__':

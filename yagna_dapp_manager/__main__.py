@@ -70,5 +70,19 @@ def kill(*, app_id):
     print(app_id)
 
 
+@_cli.command()
+@_with_app_id
+def raw_state(*, app_id):
+    dapp = DappManager(app_id)
+    print(dapp.raw_status())
+
+
+@_cli.command()
+@_with_app_id
+def raw_data(*, app_id):
+    dapp = DappManager(app_id)
+    print(dapp.raw_data())
+
+
 if __name__ == '__main__':
     _cli()
