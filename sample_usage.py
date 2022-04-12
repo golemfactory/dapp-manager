@@ -14,7 +14,7 @@ print(dapp.raw_status())
 #   Stop the app
 app_id = DappManager.list()[0]
 dapp = DappManager(app_id)
-if not dapp.stop():
+if not dapp.stop(timeout=1):
     dapp.kill()
 
 #   Forget about all non-running apps
