@@ -4,6 +4,9 @@ from typing import List, Union
 import os
 import signal
 from pathlib import Path
+from time import sleep
+
+import psutil
 
 from .storage import SimpleStorage
 from .dapp_starter import DappStarter
@@ -66,12 +69,25 @@ class DappManager:
         Returned value indicates if the app was succesfully stopped."""
 
         # TODO: https://github.com/golemfactory/dapp-manager/issues/11
-
+        # TODO: Consider refactoring. If we remove "os.waitpid", the whole enforce_timeout thing is
+        #       redundant. Related issues:
+        #       https://github.com/golemfactory/dapp-manager/issues/9
+        #       https://github.com/golemfactory/dapp-manager/issues/10
         with enforce_timeout(timeout_seconds):
             os.kill(self.pid, signal.SIGINT)
-            os.waitpid(self.pid, 0)
+            self._wait_until_stopped()
             return True
         return False
+
+    def _wait_until_stopped(self) -> None:
+        try:
+            #   This is how we wait if we started the dapp-runner child process
+            #   from the current process.
+            os.waitpid(self.pid, 0)
+        except ChildProcessError:
+            #   And this is how we wait if this is not a child process (e.g. we're using CLI)
+            while psutil.pid_exists(self.pid):
+                sleep(0.1)
 
     def kill(self) -> None:
         """Stop the app in a non-gracfeul way"""
