@@ -43,7 +43,31 @@ def start(descriptors: Tuple[Path], *, config):
 @_cli.command()
 def list():
     app_ids = DappManager.list()
-    print("\n".join(app_ids))
+    if app_ids:
+        print("\n".join(app_ids))
+
+
+@_cli.command()
+@click.option(
+    "--timeout",
+    "-t",
+    type=int,
+    default=10,
+    help="Specify a shutdown timeout in seconds. Succesful shuttdown is indicated by the app_id print",
+)
+@_with_app_id
+def stop(*, app_id, timeout):
+    dapp = DappManager(app_id)
+    if dapp.stop(timeout):
+        print(app_id)
+
+
+@_cli.command()
+@_with_app_id
+def kill(*, app_id):
+    dapp = DappManager(app_id)
+    dapp.kill()
+    return app_id
 
 
 if __name__ == '__main__':

@@ -60,7 +60,7 @@ def start(
             sleep(1)
     except KeyboardInterrupt:
         print("Shutting down!")
-        sleep(1)
+        sleep(3)
         print("BYE")
 
 
