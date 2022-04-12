@@ -67,7 +67,7 @@ def stop(*, app_id, timeout):
 def kill(*, app_id):
     dapp = DappManager(app_id)
     dapp.kill()
-    return app_id
+    print(app_id)
 
 
 if __name__ == '__main__':
