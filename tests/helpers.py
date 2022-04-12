@@ -1,5 +1,6 @@
 from unittest import mock
 import psutil
+from typing import List
 
 from yagna_dapp_manager import DappManager
 
@@ -14,7 +15,7 @@ def process_is_running(pid: int) -> bool:
         return False
 
 
-def start_dapp(base_command, status_file=False, data_file=False) -> DappManager:
+def start_dapp(base_command: List[str], status_file=False, data_file=False) -> DappManager:
     """Executes DappManager.start(), but executed command is replaced by base_command
 
     If status_file is True, status file name will be added as command line arg.

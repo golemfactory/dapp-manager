@@ -63,8 +63,8 @@ class DappManager:
         """Return raw, unparsed contents of the 'data' stream"""
         return self.storage.data
 
-    def stop(self, timeout_seconds) -> bool:
-        """Stop the dapp gracefully (SIGINT), waiting at most `timeout_seconds`.
+    def stop(self, timeout: int) -> bool:
+        """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
         Returned value indicates if the app was succesfully stopped."""
 
@@ -73,7 +73,7 @@ class DappManager:
         #       redundant. Related issues:
         #       https://github.com/golemfactory/dapp-manager/issues/9
         #       https://github.com/golemfactory/dapp-manager/issues/10
-        with enforce_timeout(timeout_seconds):
+        with enforce_timeout(timeout):
             os.kill(self.pid, signal.SIGINT)
             self._wait_until_stopped()
             return True

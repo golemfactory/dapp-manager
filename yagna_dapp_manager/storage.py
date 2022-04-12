@@ -14,8 +14,8 @@ class SimpleStorage:
     def init(self) -> None:
         """Initialize storage for `self.app_id`
 
-        NOTE: we don't want to do this in __init__ because SimpleStorage doesn't
-        know if `self.app_id` makes any sense."""
+        There is a separate method (instead of e.g. a call in `__init__`) because we want to
+        do this only once per `app_id` and in a fully controlled manner."""
         self._data_dir.mkdir(parents=True)
 
     def save_pid(self, pid: int) -> None:

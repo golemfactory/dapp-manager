@@ -34,7 +34,7 @@ def test_stop(get_dapp):
 
     #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
     #         but it for sure should succeed for the command we're running here
-    assert dapp.stop(1)
+    assert dapp.stop(timeout=1)
     sleep(0.01)
     assert not process_is_running(dapp.pid)
 
@@ -45,7 +45,7 @@ def test_stop_timeout_kill(get_dapp):
     sleep(0.01)
 
     #   stop times out because command ignores sigint
-    assert not dapp.stop(1)
+    assert not dapp.stop(timeout=1)
     assert process_is_running(dapp.pid)
 
     #   but this can't be ignored
