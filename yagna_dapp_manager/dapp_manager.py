@@ -6,6 +6,7 @@ import signal
 from pathlib import Path
 from time import sleep
 
+import appdirs
 import psutil
 
 from .storage import SimpleStorage
@@ -28,12 +29,12 @@ class DappManager:
     #   MINIMAL INTERFACE
     def __init__(self, app_id: str):
         self.app_id = app_id
-        self.storage = SimpleStorage(app_id)
+        self.storage = self._create_storage(app_id)
 
     @classmethod
     def list(cls) -> List[str]:
         """Return a list of ids of all known apps, sorted by the creation date"""
-        return SimpleStorage.app_id_list()
+        return SimpleStorage.app_id_list(cls._get_data_dir())
 
     @classmethod
     def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
@@ -43,7 +44,7 @@ class DappManager:
         config_path = Path(config)
 
         app_id = uuid.uuid4().hex
-        storage = SimpleStorage(app_id)
+        storage = cls._create_storage(app_id)
         storage.init()
 
         starter = DappStarter(descriptor_paths, config_path, storage)
@@ -121,6 +122,14 @@ class DappManager:
         all of the data passed from the dapp-runner (e.g. data, status etc).
 
         Returns a list of app_ids of the pruned apps."""
+
+    @classmethod
+    def _create_storage(cls, app_id: str) -> SimpleStorage:
+        return SimpleStorage(app_id, cls._get_data_dir())
+
+    @staticmethod
+    def _get_data_dir() -> str:
+        return appdirs.user_data_dir("dapp_manager", "golemfactory")
 
 
 @contextmanager
