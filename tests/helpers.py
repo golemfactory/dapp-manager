@@ -15,14 +15,16 @@ def process_is_running(pid: int) -> bool:
         return False
 
 
-def start_dapp(base_command: List[str], status_file=False, data_file=False) -> DappManager:
+def start_dapp(
+    base_command: List[str], status_file=False, data_file=False
+) -> DappManager:
     """Executes DappManager.start(), but executed command is replaced by base_command
 
     If status_file is True, status file name will be added as command line arg.
     Same for data_file, if both are True status_file goes first."""
 
-    descriptor_file = '.gitignore'  # any existing file will do (for now)
-    config_file = '.gitignore'  # any existing file will do (for now)
+    descriptor_file = ".gitignore"  # any existing file will do (for now)
+    config_file = ".gitignore"  # any existing file will do (for now)
 
     def _get_command(self):
         command = base_command.copy()
@@ -32,7 +34,9 @@ def start_dapp(base_command: List[str], status_file=False, data_file=False) -> D
             command = command + [str(self.storage.data_file.resolve())]
         return command
 
-    with mock.patch("yagna_dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command):
+    with mock.patch(
+        "yagna_dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
+    ):
         return DappManager.start(descriptor_file, config=config_file)
 
 
@@ -59,7 +63,6 @@ get_dapp_scenarios = (
     start_dapp,
     new_dapp_manager,
     other_dapp_in_between,
-
     #   TODO (?): Start dapp in another process, do something from this process
     #   TODO (?): CLI scenarios, when we have CLI
 )
