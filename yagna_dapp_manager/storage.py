@@ -5,11 +5,9 @@ from typing import List
 
 
 class SimpleStorage:
-    DEFAULT_BASE_DIR = "_dapp_data"
-
-    def __init__(self, app_id: str):
+    def __init__(self, app_id: str, data_dir: str):
         self.app_id = app_id
-        self.base_dir = Path(self.DEFAULT_BASE_DIR)
+        self.base_dir = Path(data_dir)
 
     def init(self) -> None:
         """Initialize storage for `self.app_id`
@@ -40,9 +38,9 @@ class SimpleStorage:
             return ""
 
     @classmethod
-    def app_id_list(cls) -> List[str]:
+    def app_id_list(cls, data_dir: str) -> List[str]:
         try:
-            paths = sorted(Path(cls.DEFAULT_BASE_DIR).iterdir(), key=os.path.getmtime)
+            paths = sorted(Path(data_dir).iterdir(), key=os.path.getmtime)
             return [path.stem for path in paths]
         except FileNotFoundError:
             return []
