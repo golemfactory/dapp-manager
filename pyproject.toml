@@ -20,6 +20,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 psutil = "^5.9"
+appdirs = "^1.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1"
