@@ -49,11 +49,11 @@ def _cli():
 def start(
     descriptors: Tuple[Path],
     **kwargs,
-) -> str:
+):
     print("mock_dapp_runner start", descriptors, kwargs)
 
-    data_file = open(kwargs['data'], 'w', buffering=1)
-    state_file = open(kwargs['state'], 'w', buffering=1)
+    data_file = open(kwargs["data"], "w", buffering=1)
+    state_file = open(kwargs["state"], "w", buffering=1)
 
     try:
         for i in count(1):
@@ -69,5 +69,5 @@ def start(
         state_file.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _cli()

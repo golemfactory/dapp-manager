@@ -84,5 +84,5 @@ def raw_data(*, app_id):
     print(dapp.raw_data())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _cli()
