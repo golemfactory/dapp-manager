@@ -35,7 +35,7 @@ def _cli():
     required=True,
     type=Path,
 )
-def start(descriptors: Tuple[Path], *, config):
+def start(descriptors: Tuple[Path], *, config: Path):
     dapp = DappManager.start(*descriptors, config=config)
     print(dapp.app_id)
 
@@ -53,10 +53,10 @@ def list():
     "-t",
     type=int,
     default=10,
-    help="Specify a shutdown timeout in seconds. Succesful shuttdown is indicated by the app_id print",
+    help="Specify a shutdown timeout in seconds. Successful shutdown is indicated by the app_id print",
 )
 @_with_app_id
-def stop(*, app_id, timeout):
+def stop(*, app_id: str, timeout: int):
     dapp = DappManager(app_id)
     if dapp.stop(timeout):
         print(app_id)
