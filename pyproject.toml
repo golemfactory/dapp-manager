@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "dapp-manager"
+version = "0.0.1"
+description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
+authors = ["Golem Factory <contact@golem.network>"]
+license = "LGPL-3.0"
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+  "Natural Language :: English",
+  "Programming Language :: Python :: 3.8",
+  "Topic :: Software Development",
+  "Topic :: System :: Distributed Computing",
+]
+repository = "https://github.com/golemfactory/dapp-manager"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+psutil = "^5.9"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1"
+mypy = "^0.942"
+poethepoet = "^0.13"
+pytest = "^7.1"
+
+[tool.poe.tasks]
+codestyle = "black --check --diff ."
+typecheck = "mypy --install-types --non-interactive --ignore-missing-imports ."
+check = ["codestyle", "typecheck"]
+test = "pytest -svx tests"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
