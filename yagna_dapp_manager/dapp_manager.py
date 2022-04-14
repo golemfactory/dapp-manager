@@ -37,7 +37,9 @@ class DappManager:
         return SimpleStorage.app_id_list(cls._get_data_dir())
 
     @classmethod
-    def start(cls, descriptor: PathType, *other_descriptors: PathType, config: PathType) -> "DappManager":
+    def start(
+        cls, descriptor: PathType, *other_descriptors: PathType, config: PathType
+    ) -> "DappManager":
         """Start a new app"""
         #   TODO: https://github.com/golemfactory/dapp-manager/issues/7
         descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
@@ -108,11 +110,11 @@ class DappManager:
 
     def status(self) -> dict:
         """Parsed contents of the 'status' stream"""
-        return {'resource_x': 'running on provider some-name'}
+        return {"resource_x": "running on provider some-name"}
 
     def data(self) -> dict:
         """Parsed contents od the 'data' stream"""
-        return {'resource_x': {'IP': '127.0.0.1'}}
+        return {"resource_x": {"IP": "127.0.0.1"}}
 
     @classmethod
     def prune(cls) -> List[str]:
