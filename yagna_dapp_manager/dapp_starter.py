@@ -31,7 +31,7 @@ class DappStarter:
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
         args += ["--data", str(self.storage.data_file.resolve())]
-        args += ["--state", str(self.storage.status_file.resolve())]
+        args += ["--state", str(self.storage.state_file.resolve())]
         args += [str(d.resolve()) for d in self.descriptors]
         return args
 

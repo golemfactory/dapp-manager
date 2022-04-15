@@ -58,9 +58,9 @@ class DappManager:
     def pid(self) -> int:
         return self.storage.pid
 
-    def raw_status(self) -> str:
-        """Return raw, unparsed contents of the 'status' stream"""
-        return self.storage.status
+    def raw_state(self) -> str:
+        """Return raw, unparsed contents of the 'state' stream"""
+        return self.storage.state
 
     def raw_data(self) -> str:
         """Return raw, unparsed contents of the 'data' stream"""
@@ -108,8 +108,8 @@ class DappManager:
         """Stderr of the dapp-runner"""
         return "This is stderr"
 
-    def status(self) -> dict:
-        """Parsed contents of the 'status' stream"""
+    def state(self) -> dict:
+        """Parsed contents of the 'state' stream"""
         return {"resource_x": "running on provider some-name"}
 
     def data(self) -> dict:
@@ -121,7 +121,7 @@ class DappManager:
         """Remove all the information about past (i.e. not running now) apps.
 
         This removes the database entry (if the app was not stopped gracefully) and
-        all of the data passed from the dapp-runner (e.g. data, status etc).
+        all of the data passed from the dapp-runner (e.g. data, state etc).
 
         Returns a list of app_ids of the pruned apps."""
 

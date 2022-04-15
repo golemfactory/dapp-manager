@@ -57,14 +57,14 @@ def test_stop_timeout_kill(get_dapp):
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
-def test_raw_status_raw_data(get_dapp):
+def test_raw_state_raw_data(get_dapp):
     dapp = get_dapp(
-        [asset_path("write_mock_files.sh")], status_file=True, data_file=True
+        [asset_path("write_mock_files.sh")], state_file=True, data_file=True
     )
     sleep(0.01)
 
-    with open(asset_path("mock_status_file.txt")) as f:
-        assert dapp.raw_status() == f.read()
+    with open(asset_path("mock_state_file.txt")) as f:
+        assert dapp.raw_state() == f.read()
 
     with open(asset_path("mock_data_file.txt")) as f:
         assert dapp.raw_data() == f.read()
