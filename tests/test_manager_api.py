@@ -32,28 +32,35 @@ def test_list():
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop(get_dapp):
     dapp = get_dapp(["sleep", "3"])
-    assert process_is_running(dapp.pid)
+    pid = dapp.pid
+    assert process_is_running(pid)
 
     #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
     #         but it for sure should succeed for the command we're running here
+    assert dapp.alive
     assert dapp.stop(timeout=1)
+    assert not dapp.alive
     sleep(0.01)
-    assert not process_is_running(dapp.pid)
+    assert not process_is_running(pid)
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop_timeout_kill(get_dapp):
     dapp = get_dapp([asset_path("sleep_no_sigint.sh"), "10"])
+    pid = dapp.pid
     sleep(0.01)
 
     #   stop times out because command ignores sigint
+    assert dapp.alive
     assert not dapp.stop(timeout=1)
-    assert process_is_running(dapp.pid)
+    assert dapp.alive
+    assert process_is_running(pid)
 
     #   but this can't be ignored
     dapp.kill()
+    assert not dapp.alive
     sleep(0.01)
-    assert not process_is_running(dapp.pid)
+    assert not process_is_running(pid)
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)

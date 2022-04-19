@@ -55,8 +55,14 @@ class DappManager:
         return cls(app_id)
 
     @property
+    def alive(self) -> bool:
+        return self.storage.pid is not None
+
+    @property
     def pid(self) -> int:
-        return self.storage.pid
+        pid = self.storage.pid
+        assert pid  # TODO: this logic will be generalized in #13
+        return pid
 
     def raw_status(self) -> str:
         """Return raw, unparsed contents of the 'status' stream"""
@@ -71,7 +77,6 @@ class DappManager:
 
         Returned value indicates if the app was succesfully stopped."""
 
-        # TODO: https://github.com/golemfactory/dapp-manager/issues/11
         # TODO: Consider refactoring. If we remove "os.waitpid", the whole enforce_timeout thing is
         #       redundant. Related issues:
         #       https://github.com/golemfactory/dapp-manager/issues/9
@@ -79,6 +84,7 @@ class DappManager:
         with enforce_timeout(timeout):
             os.kill(self.pid, signal.SIGINT)
             self._wait_until_stopped()
+            self.storage.clear_pid()
             return True
         return False
 
@@ -95,9 +101,8 @@ class DappManager:
     def kill(self) -> None:
         """Stop the app in a non-gracfeul way"""
 
-        # TODO: https://github.com/golemfactory/dapp-manager/issues/11
-
         os.kill(self.pid, signal.SIGKILL)
+        self.storage.clear_pid()
 
     #   EXTENDED INTERFACE (this part requires further considerations)
     def stdout(self) -> str:
