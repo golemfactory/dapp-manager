@@ -3,6 +3,8 @@ import os
 
 from typing import List, Optional
 
+from .exceptions import UnknownApp
+
 
 class SimpleStorage:
     def __init__(self, app_id: str, data_dir: str):
@@ -83,7 +85,14 @@ class SimpleStorage:
         return self._fname("state")
 
     def _fname(self, name) -> Path:
+        #   NOTE: "Known app" test here is sufficient - this method will be called whenever
+        #         any piece of information related to self.app_id is retrieved or changed
+        self._ensure_known_app()
         return self._data_dir / name
+
+    def _ensure_known_app(self) -> None:
+        if not os.path.isdir(self._data_dir):
+            raise UnknownApp(self.app_id)
 
     @property
     def _data_dir(self) -> Path:
