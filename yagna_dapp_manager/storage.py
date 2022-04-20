@@ -28,9 +28,9 @@ class SimpleStorage:
             pass
 
     @property
-    def status(self) -> str:
+    def state(self) -> str:
         try:
-            with open(self.status_file, "r") as f:
+            with open(self.state_file, "r") as f:
                 return f.read()
         except FileNotFoundError:
             return ""
@@ -79,8 +79,8 @@ class SimpleStorage:
         return self._fname("data")
 
     @property
-    def status_file(self) -> Path:
-        return self._fname("status")
+    def state_file(self) -> Path:
+        return self._fname("state")
 
     def _fname(self, name) -> Path:
         return self._data_dir / name

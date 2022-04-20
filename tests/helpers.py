@@ -16,20 +16,20 @@ def process_is_running(pid: int) -> bool:
 
 
 def start_dapp(
-    base_command: List[str], status_file=False, data_file=False
+    base_command: List[str], state_file=False, data_file=False
 ) -> DappManager:
     """Executes DappManager.start(), but executed command is replaced by base_command
 
-    If status_file is True, status file name will be added as command line arg.
-    Same for data_file, if both are True status_file goes first."""
+    If state_file is True, state file name will be added as command line arg.
+    Same for data_file, if both are True state_file goes first."""
 
     descriptor_file = ".gitignore"  # any existing file will do (for now)
     config_file = ".gitignore"  # any existing file will do (for now)
 
     def _get_command(self):
         command = base_command.copy()
-        if status_file:
-            command = command + [str(self.storage.status_file.resolve())]
+        if state_file:
+            command = command + [str(self.storage.state_file.resolve())]
         if data_file:
             command = command + [str(self.storage.data_file.resolve())]
         return command

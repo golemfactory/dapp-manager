@@ -74,7 +74,7 @@ def kill(*, app_id):
 @_with_app_id
 def raw_state(*, app_id):
     dapp = DappManager(app_id)
-    print(dapp.raw_status())
+    print(dapp.raw_state())
 
 
 @_cli.command()
