@@ -1,7 +1,7 @@
 class DappManagerException(Exception):
     """Base exception for all yagna-dapp-manager exceptions"""
 
-    CLI_EXIT_CODE = 3
+    SHELL_EXIT_CODE = 3
 
 
 class UnknownApp(DappManagerException):
@@ -12,7 +12,7 @@ class UnknownApp(DappManagerException):
     B) APP_ID references an app that is no longer running and its data was already
        removed by a call to DappManager.prune()"""
 
-    CLI_EXIT_CODE = 4
+    SHELL_EXIT_CODE = 4
 
     def __init__(self, app_id):
         return super().__init__(f"{app_id} is not an id of any known app")

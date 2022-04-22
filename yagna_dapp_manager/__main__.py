@@ -26,7 +26,7 @@ def _capture_api_exceptions(f):
             return f(*args, **kwargs)
         except DappManagerException as e:
             print(str(e), file=sys.stderr)
-            sys.exit(e.CLI_EXIT_CODE)
+            sys.exit(e.SHELL_EXIT_CODE)
 
     return wrapped
 
