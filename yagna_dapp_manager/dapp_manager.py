@@ -56,13 +56,11 @@ class DappManager:
 
     @property
     def alive(self) -> bool:
-        return self.storage.pid is not None
+        return self.storage.alive
 
     @property
     def pid(self) -> int:
-        pid = self.storage.pid
-        assert pid  # TODO: this logic will be generalized in #13
-        return pid
+        return self.storage.pid
 
     def raw_state(self) -> str:
         """Return raw, unparsed contents of the 'state' stream"""
@@ -84,7 +82,7 @@ class DappManager:
         with enforce_timeout(timeout):
             os.kill(self.pid, signal.SIGINT)
             self._wait_until_stopped()
-            self.storage.clear_pid()
+            self.storage.set_not_running()
             return True
         return False
 
@@ -102,7 +100,7 @@ class DappManager:
         """Stop the app in a non-gracfeul way"""
 
         os.kill(self.pid, signal.SIGKILL)
-        self.storage.clear_pid()
+        self.storage.set_not_running()
 
     #   EXTENDED INTERFACE (this part requires further considerations)
     def stdout(self) -> str:
