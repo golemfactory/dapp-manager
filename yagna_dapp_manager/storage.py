@@ -72,8 +72,6 @@ class SimpleStorage:
 
     @property
     def archived_pid_file(self) -> Path:
-        #   TODO: there's currently no way to access this in the API.
-        #   BUT: we should first do #13.
         return self._fname("_old_pid")
 
     @property

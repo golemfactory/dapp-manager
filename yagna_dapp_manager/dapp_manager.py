@@ -27,11 +27,12 @@ class DappManager:
     * UnknownApp exception can be thrown out of any instance method
     * There's no problem having multiple DappManager instances at the same time"""
 
-    #   MINIMAL INTERFACE
     def __init__(self, app_id: str):
         self.app_id = app_id
         self.storage = self._create_storage(app_id)
 
+    ########################
+    #   PUBLIC CLASS METHODS
     @classmethod
     def list(cls) -> List[str]:
         """Return a list of ids of all known apps, sorted by the creation date"""
@@ -55,17 +56,18 @@ class DappManager:
 
         return cls(app_id)
 
-    @property
-    def alive(self) -> bool:
-        if not self.storage.alive:
-            return False
-        self._update_alive()
-        return self.storage.alive
+    @classmethod
+    def prune(cls) -> List[str]:
+        """Remove all the information about past (i.e. not running now) apps.
 
-    @property
-    def pid(self) -> int:
-        return self.storage.pid
+        This removes the database entry (if the app was not stopped gracefully) and
+        all of the data passed from the dapp-runner (e.g. data, state etc).
 
+        Returns a list of app_ids of the pruned apps."""
+        raise NotImplementedError
+
+    ###########################
+    #   PUBLIC INSTANCE METHODS
     def raw_state(self) -> str:
         """Return raw, unparsed contents of the 'state' stream"""
         self._ensure_alive()
@@ -93,6 +95,30 @@ class DappManager:
             return True
         return False
 
+    def kill(self) -> None:
+        """Stop the app in a non-gracfeul way"""
+        self._ensure_alive()
+
+        os.kill(self.pid, signal.SIGKILL)
+        self.storage.set_not_running()
+
+    #######################
+    #   SEMI-PUBLIC METHODS
+    #   (they can be useful when using API, but are also important parts of the internal logic)
+    @property
+    def alive(self) -> bool:
+        """Check if the app is running now"""
+        if not self.storage.alive:
+            return False
+        self._update_alive()
+        return self.storage.alive
+
+    @property
+    def pid(self) -> int:
+        return self.storage.pid
+
+    ############
+    #   HELPERS
     def _wait_until_stopped(self) -> None:
         try:
             #   This is how we wait if we started the dapp-runner child process
@@ -102,13 +128,6 @@ class DappManager:
             #   And this is how we wait if this is not a child process (e.g. we're using CLI)
             while psutil.pid_exists(self.pid):
                 sleep(0.1)
-
-    def kill(self) -> None:
-        """Stop the app in a non-gracfeul way"""
-        self._ensure_alive()
-
-        os.kill(self.pid, signal.SIGKILL)
-        self.storage.set_not_running()
 
     def _update_alive(self) -> None:
         if not self._process_is_running():
@@ -122,31 +141,9 @@ class DappManager:
         except psutil.NoSuchProcess:
             return False
 
-    #   EXTENDED INTERFACE (this part requires further considerations)
-    def stdout(self) -> str:
-        """Stdout of the dapp-runner"""
-        return "This is stdout"
-
-    def stderr(self) -> str:
-        """Stderr of the dapp-runner"""
-        return "This is stderr"
-
-    def state(self) -> dict:
-        """Parsed contents of the 'state' stream"""
-        return {"resource_x": "running on provider some-name"}
-
-    def data(self) -> dict:
-        """Parsed contents od the 'data' stream"""
-        return {"resource_x": {"IP": "127.0.0.1"}}
-
-    @classmethod
-    def prune(cls) -> List[str]:
-        """Remove all the information about past (i.e. not running now) apps.
-
-        This removes the database entry (if the app was not stopped gracefully) and
-        all of the data passed from the dapp-runner (e.g. data, state etc).
-
-        Returns a list of app_ids of the pruned apps."""
+    def _ensure_alive(self) -> None:
+        if not self.alive:
+            raise AppNotRunning(self.app_id)
 
     @classmethod
     def _create_storage(cls, app_id: str) -> SimpleStorage:
@@ -155,10 +152,6 @@ class DappManager:
     @staticmethod
     def _get_data_dir() -> str:
         return appdirs.user_data_dir("dapp_manager", "golemfactory")
-
-    def _ensure_alive(self) -> None:
-        if not self.alive:
-            raise AppNotRunning(self.app_id)
 
 
 @contextmanager
