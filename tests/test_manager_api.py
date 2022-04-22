@@ -4,6 +4,7 @@ import pytest
 from time import sleep
 
 from yagna_dapp_manager import DappManager
+from yagna_dapp_manager.exceptions import UnknownApp
 
 from .helpers import start_dapp, process_is_running, get_dapp_scenarios, asset_path
 
@@ -75,3 +76,26 @@ def test_raw_state_raw_data(get_dapp):
 
     with open(asset_path("mock_data_file.txt")) as f:
         assert dapp.raw_data() == f.read()
+
+
+@pytest.mark.parametrize(
+    "method_name_args",
+    (
+        ("alive",),
+        ("pid",),
+        ("raw_data",),
+        ("raw_state",),
+        ("stop", 1),
+        ("kill",),
+    ),
+)
+def test_unknown_app(method_name_args):
+    method_name, *args = method_name_args
+    invalid_app_id = "oops_no_such_app"
+    dapp = DappManager(invalid_app_id)
+    with pytest.raises(UnknownApp) as exc_info:
+        #   NOTE: we have both properties and methods here, exceptions for properties are
+        #         raised in getattr, for methods when they are executed (*args), but both is fine
+        #         so this doesn't really matter
+        getattr(dapp, method_name)(*args)
+    assert invalid_app_id in str(exc_info.value)

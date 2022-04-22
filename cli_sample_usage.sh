@@ -5,6 +5,10 @@ function dm () {
 echo "1. Current apps"
 dm list
 
+echo "What about app 'no_such_app'?"
+dm raw-state --app-id no_such_app
+echo "Exit code: $?"
+
 APP_ID_1=$(DAPP_RUNNER_EXEC=tests/assets/mock_dapp_runner.py dm start --config ttt.yml zzz.yml)
 echo "2. Started app $APP_ID_1"
 
