@@ -16,3 +16,15 @@ class UnknownApp(DappManagerException):
 
     def __init__(self, app_id):
         return super().__init__(f"{app_id} is not an id of any known app")
+
+
+class AppNotRunning(DappManagerException):
+    """Exception raised when the app identified by APP_ID is known, but no longer running.
+
+    We don't know if it was stopped by a stop/kill command, or exited on its own, or maybe
+    the process was killed some other way."""
+
+    SHELL_EXIT_CODE = 5
+
+    def __init__(self, app_id):
+        return super().__init__(f"App {app_id} is not running.")
