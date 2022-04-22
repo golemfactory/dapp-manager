@@ -9,6 +9,7 @@ from time import sleep
 import appdirs
 import psutil
 
+from .exceptions import AppNotRunning
 from .storage import SimpleStorage
 from .dapp_starter import DappStarter
 
@@ -56,6 +57,9 @@ class DappManager:
 
     @property
     def alive(self) -> bool:
+        if not self.storage.alive:
+            return False
+        self._update_alive()
         return self.storage.alive
 
     @property
@@ -64,16 +68,19 @@ class DappManager:
 
     def raw_state(self) -> str:
         """Return raw, unparsed contents of the 'state' stream"""
+        self._ensure_alive()
         return self.storage.state
 
     def raw_data(self) -> str:
         """Return raw, unparsed contents of the 'data' stream"""
+        self._ensure_alive()
         return self.storage.data
 
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
         Returned value indicates if the app was succesfully stopped."""
+        self._ensure_alive()
 
         # TODO: Consider refactoring. If we remove "os.waitpid", the whole enforce_timeout thing is
         #       redundant. Related issues:
@@ -98,9 +105,22 @@ class DappManager:
 
     def kill(self) -> None:
         """Stop the app in a non-gracfeul way"""
+        self._ensure_alive()
 
         os.kill(self.pid, signal.SIGKILL)
         self.storage.set_not_running()
+
+    def _update_alive(self) -> None:
+        if not self._process_is_running():
+            self.storage.set_not_running()
+
+    def _process_is_running(self) -> bool:
+        try:
+            process = psutil.Process(self.pid)
+            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
+            return process.status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
 
     #   EXTENDED INTERFACE (this part requires further considerations)
     def stdout(self) -> str:
@@ -135,6 +155,10 @@ class DappManager:
     @staticmethod
     def _get_data_dir() -> str:
         return appdirs.user_data_dir("dapp_manager", "golemfactory")
+
+    def _ensure_alive(self) -> None:
+        if not self.alive:
+            raise AppNotRunning(self.app_id)
 
 
 @contextmanager
