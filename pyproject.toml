@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dapp-manager"
+name = "yagna-dapp-manager"
 version = "0.0.1"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
