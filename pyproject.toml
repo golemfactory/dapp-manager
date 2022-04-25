@@ -21,6 +21,7 @@ readme = "README.md"
 python = "^3.8"
 psutil = "^5.9"
 appdirs = "^1.4"
+click = "^8.1"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1"
