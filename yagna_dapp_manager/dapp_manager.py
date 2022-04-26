@@ -9,6 +9,7 @@ from time import sleep
 import appdirs
 import psutil
 
+from .exceptions import AppNotRunning
 from .storage import SimpleStorage
 from .dapp_starter import DappStarter
 
@@ -26,11 +27,12 @@ class DappManager:
     * UnknownApp exception can be thrown out of any instance method
     * There's no problem having multiple DappManager instances at the same time"""
 
-    #   MINIMAL INTERFACE
     def __init__(self, app_id: str):
         self.app_id = app_id
         self.storage = self._create_storage(app_id)
 
+    ########################
+    #   PUBLIC CLASS METHODS
     @classmethod
     def list(cls) -> List[str]:
         """Return a list of ids of all known apps, sorted by the creation date"""
@@ -54,28 +56,33 @@ class DappManager:
 
         return cls(app_id)
 
-    @property
-    def alive(self) -> bool:
-        return self.storage.pid is not None
+    @classmethod
+    def prune(cls) -> List[str]:
+        """Remove all the information about past (i.e. not running now) apps.
 
-    @property
-    def pid(self) -> int:
-        pid = self.storage.pid
-        assert pid  # TODO: this logic will be generalized in #13
-        return pid
+        This removes the database entry (if the app was not stopped gracefully) and
+        all of the data passed from the dapp-runner (e.g. data, state etc).
 
+        Returns a list of app_ids of the pruned apps."""
+        raise NotImplementedError
+
+    ###########################
+    #   PUBLIC INSTANCE METHODS
     def raw_state(self) -> str:
         """Return raw, unparsed contents of the 'state' stream"""
+        self._ensure_alive()
         return self.storage.state
 
     def raw_data(self) -> str:
         """Return raw, unparsed contents of the 'data' stream"""
+        self._ensure_alive()
         return self.storage.data
 
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
         Returned value indicates if the app was succesfully stopped."""
+        self._ensure_alive()
 
         # TODO: Consider refactoring. If we remove "os.waitpid", the whole enforce_timeout thing is
         #       redundant. Related issues:
@@ -84,10 +91,34 @@ class DappManager:
         with enforce_timeout(timeout):
             os.kill(self.pid, signal.SIGINT)
             self._wait_until_stopped()
-            self.storage.clear_pid()
+            self.storage.set_not_running()
             return True
         return False
 
+    def kill(self) -> None:
+        """Stop the app in a non-gracfeul way"""
+        self._ensure_alive()
+
+        os.kill(self.pid, signal.SIGKILL)
+        self.storage.set_not_running()
+
+    #######################
+    #   SEMI-PUBLIC METHODS
+    #   (they can be useful when using the API, but are also important parts of the internal logic)
+    @property
+    def alive(self) -> bool:
+        """Check if the app is running now"""
+        if not self.storage.alive:
+            return False
+        self._update_alive()
+        return self.storage.alive
+
+    @property
+    def pid(self) -> int:
+        return self.storage.pid
+
+    ############
+    #   HELPERS
     def _wait_until_stopped(self) -> None:
         try:
             #   This is how we wait if we started the dapp-runner child process
@@ -98,37 +129,21 @@ class DappManager:
             while psutil.pid_exists(self.pid):
                 sleep(0.1)
 
-    def kill(self) -> None:
-        """Stop the app in a non-gracfeul way"""
+    def _update_alive(self) -> None:
+        if not self._process_is_running():
+            self.storage.set_not_running()
 
-        os.kill(self.pid, signal.SIGKILL)
-        self.storage.clear_pid()
+    def _process_is_running(self) -> bool:
+        try:
+            process = psutil.Process(self.pid)
+            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
+            return process.status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
 
-    #   EXTENDED INTERFACE (this part requires further considerations)
-    def stdout(self) -> str:
-        """Stdout of the dapp-runner"""
-        return "This is stdout"
-
-    def stderr(self) -> str:
-        """Stderr of the dapp-runner"""
-        return "This is stderr"
-
-    def state(self) -> dict:
-        """Parsed contents of the 'state' stream"""
-        return {"resource_x": "running on provider some-name"}
-
-    def data(self) -> dict:
-        """Parsed contents od the 'data' stream"""
-        return {"resource_x": {"IP": "127.0.0.1"}}
-
-    @classmethod
-    def prune(cls) -> List[str]:
-        """Remove all the information about past (i.e. not running now) apps.
-
-        This removes the database entry (if the app was not stopped gracefully) and
-        all of the data passed from the dapp-runner (e.g. data, state etc).
-
-        Returns a list of app_ids of the pruned apps."""
+    def _ensure_alive(self) -> None:
+        if not self.alive:
+            raise AppNotRunning(self.app_id)
 
     @classmethod
     def _create_storage(cls, app_id: str) -> SimpleStorage:

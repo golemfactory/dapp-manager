@@ -4,9 +4,16 @@ import pytest
 from time import sleep
 
 from yagna_dapp_manager import DappManager
-from yagna_dapp_manager.exceptions import UnknownApp
+from yagna_dapp_manager.exceptions import UnknownApp, AppNotRunning
 
-from .helpers import start_dapp, process_is_running, get_dapp_scenarios, asset_path
+from .helpers import (
+    start_dapp,
+    process_is_running,
+    get_dapp_scenarios,
+    asset_path,
+    all_dm_methods_args,
+    all_dm_methods_props_args,
+)
 
 
 def test_start():
@@ -80,14 +87,8 @@ def test_raw_state_raw_data(get_dapp):
 
 @pytest.mark.parametrize(
     "method_name_args",
-    (
-        ("alive",),
-        ("pid",),
-        ("raw_data",),
-        ("raw_state",),
-        ("stop", 1),
-        ("kill",),
-    ),
+    all_dm_methods_props_args,
+    ids=[x[0] for x in all_dm_methods_props_args],
 )
 def test_unknown_app(method_name_args):
     method_name, *args = method_name_args
@@ -99,3 +100,17 @@ def test_unknown_app(method_name_args):
         #         so this doesn't really matter
         getattr(dapp, method_name)(*args)
     assert invalid_app_id in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    "method_name_args",
+    all_dm_methods_args,
+    ids=[x[0] for x in all_dm_methods_args],
+)
+def test_app_not_running(method_name_args):
+    method_name, *args = method_name_args
+    dapp = start_dapp(["echo", "foo"])
+    sleep(0.01)
+    with pytest.raises(AppNotRunning) as exc_info:
+        getattr(dapp, method_name)(*args)
+    assert dapp.app_id in str(exc_info.value)

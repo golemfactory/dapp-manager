@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-from typing import List, Optional
+from typing import List
 
 from .exceptions import UnknownApp
 
@@ -23,11 +23,15 @@ class SimpleStorage:
         with open(self.pid_file, "w") as f:
             f.write(str(pid))
 
-    def clear_pid(self) -> None:
+    def set_not_running(self) -> None:
         try:
             os.rename(self.pid_file, self.archived_pid_file)
         except FileNotFoundError:
             pass
+
+    @property
+    def alive(self) -> bool:
+        return os.path.isfile(self.pid_file)
 
     @property
     def state(self) -> str:
@@ -54,17 +58,13 @@ class SimpleStorage:
             return []
 
     @property
-    def pid(self) -> Optional[int]:
+    def pid(self) -> int:
         try:
             with open(self.pid_file, "r") as f:
                 return int(f.read())
         except FileNotFoundError:
-            # This is a known app that is no longer running
-            # (or for some weird reason never got a pid)
-            #
-            # Invalid  App ID case is a TODO: https://github.com/golemfactory/dapp-manager/issues/6
-            # (this will also influence other methods here)
-            return None
+            with open(self.archived_pid_file, "r") as f:
+                return int(f.read())
 
     @property
     def pid_file(self) -> Path:
@@ -72,8 +72,6 @@ class SimpleStorage:
 
     @property
     def archived_pid_file(self) -> Path:
-        #   TODO: there's currently no way to access this in the API.
-        #   BUT: we should first do #13.
         return self._fname("_old_pid")
 
     @property

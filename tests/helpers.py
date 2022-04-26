@@ -1,6 +1,6 @@
 from unittest import mock
 import psutil
-from typing import List
+from typing import List, Tuple, Union
 
 from yagna_dapp_manager import DappManager
 
@@ -70,3 +70,15 @@ get_dapp_scenarios = (
 
 def asset_path(name):
     return f"tests/assets/{name}"
+
+
+#   All instance methods/propeties, with sample args
+#   (Possible TODO: it would be probably better to create this in a dynamic way,
+#   using inspect - now we risk that some new method will not be tested).
+all_dm_methods_args: Tuple[Union[Tuple[str], Tuple[str, int]], ...] = (
+    ("raw_data",),
+    ("raw_state",),
+    ("stop", 1),
+    ("kill",),
+)
+all_dm_methods_props_args = all_dm_methods_args + (("alive",), ("pid",))
