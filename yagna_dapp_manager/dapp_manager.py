@@ -104,7 +104,7 @@ class DappManager:
 
     #######################
     #   SEMI-PUBLIC METHODS
-    #   (they can be useful when using API, but are also important parts of the internal logic)
+    #   (they can be useful when using the API, but are also important parts of the internal logic)
     @property
     def alive(self) -> bool:
         """Check if the app is running now"""
