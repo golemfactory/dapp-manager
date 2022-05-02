@@ -19,6 +19,14 @@ def _with_app_id(wrapped_func):
     return wrapped_func
 
 
+def _with_ensure_alive(wrapped_func):
+    wrapped_func = click.option(
+        "--ensure-alive/--no-ensure-alive",
+        default=True,
+    )(wrapped_func)
+    return wrapped_func
+
+
 def _capture_api_exceptions(f):
     @wraps(f)
     def wrapped(*args, **kwargs):
@@ -92,17 +100,19 @@ def kill(*, app_id):
 @_cli.command()
 @_with_app_id
 @_capture_api_exceptions
-def raw_state(*, app_id):
+@_with_ensure_alive
+def raw_state(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
-    print(dapp.raw_state())
+    print(dapp.raw_state(ensure_alive))
 
 
 @_cli.command()
 @_with_app_id
 @_capture_api_exceptions
-def raw_data(*, app_id):
+@_with_ensure_alive
+def raw_data(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
-    print(dapp.raw_data())
+    print(dapp.raw_data(ensure_alive))
 
 
 if __name__ == "__main__":
