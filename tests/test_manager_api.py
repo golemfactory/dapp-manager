@@ -114,3 +114,23 @@ def test_app_not_running(method_name_args):
     with pytest.raises(AppNotRunning) as exc_info:
         getattr(dapp, method_name)(*args)
     assert dapp.app_id in str(exc_info.value)
+
+
+@pytest.mark.parametrize("method", ("raw_state", "raw_data"))
+@pytest.mark.parametrize(
+    "kwargs, raises",
+    (
+        ({"ensure_alive": True}, True),
+        ({"ensure_alive": False}, False),
+    ),
+)
+def test_app_not_running_ensure_alive(method, kwargs, raises):
+    dapp = start_dapp(["echo", "foo"])
+    sleep(0.01)
+    func = getattr(dapp, method)
+    if raises:
+        with pytest.raises(AppNotRunning) as exc_info:
+            func(**kwargs)
+        assert dapp.app_id in str(exc_info.value)
+    else:
+        func(**kwargs)

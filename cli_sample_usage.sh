@@ -48,3 +48,13 @@ dm stop --app-id $APP_ID_2 --timeout 1
 
 echo "13. Killing  $APP_ID_2"
 dm kill --app-id $APP_ID_2
+
+echo "14. Check raw-state of $APP_ID_1 without --no-ensure-alive"
+dm raw-state --app-id $APP_ID_1
+echo "Exit code: $?"
+
+echo "15. Check raw-state of $APP_ID_1 with    --no-ensure-alive"
+dm raw-state --app-id $APP_ID_1 --no-ensure-alive
+
+echo "16. Check raw-state of $APP_ID_2 with    --no-ensure-alive"
+dm raw-state --app-id $APP_ID_2 --no-ensure-alive
