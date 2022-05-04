@@ -68,7 +68,7 @@ class DappManager:
 
     ###########################
     #   PUBLIC INSTANCE METHODS
-    def raw_state(self, ensure_alive: bool) -> str:
+    def raw_state(self, ensure_alive: bool = True) -> str:
         """Return raw, unparsed contents of the 'state' stream.
 
         If ensure_alive is True, AppNotRunning exception will be raised if the app is not running."""
@@ -77,7 +77,7 @@ class DappManager:
             self._ensure_alive()
         return self.storage.state
 
-    def raw_data(self, ensure_alive: bool) -> str:
+    def raw_data(self, ensure_alive: bool = True) -> str:
         """Return raw, unparsed contents of the 'data' stream
 
         If ensure_alive is True, AppNotRunning exception will be raised if the app is not running."""
