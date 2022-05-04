@@ -73,6 +73,14 @@ def list():
 
 
 @_cli.command()
+@_capture_api_exceptions
+def prune():
+    app_ids = DappManager.prune()
+    if app_ids:
+        print("\n".join(app_ids))
+
+
+@_cli.command()
 @click.option(
     "--timeout",
     "-t",

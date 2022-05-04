@@ -64,7 +64,14 @@ class DappManager:
         all of the data passed from the dapp-runner (e.g. data, state etc).
 
         Returns a list of app_ids of the pruned apps."""
-        raise NotImplementedError
+
+        pruned = []
+        for app_id in cls.list():
+            storage = cls._create_storage(app_id)
+            if not storage.alive:
+                storage.delete()
+                pruned.append(app_id)
+        return pruned
 
     ###########################
     #   PUBLIC INSTANCE METHODS

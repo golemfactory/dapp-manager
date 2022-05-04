@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import shutil
 
 from typing import List
 
@@ -26,6 +27,12 @@ class SimpleStorage:
     def set_not_running(self) -> None:
         try:
             os.rename(self.pid_file, self.archived_pid_file)
+        except FileNotFoundError:
+            pass
+
+    def delete(self) -> None:
+        try:
+            shutil.rmtree(self._data_dir)
         except FileNotFoundError:
             pass
 
