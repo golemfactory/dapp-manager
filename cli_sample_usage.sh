@@ -56,5 +56,5 @@ echo "Exit code: $?"
 echo "15. Check raw-state of $APP_ID_1 with    --no-ensure-alive"
 dm raw-state --app-id $APP_ID_1 --no-ensure-alive
 
-echo "15. Check raw-state of $APP_ID_2 with    --no-ensure-alive"
+echo "16. Check raw-state of $APP_ID_2 with    --no-ensure-alive"
 dm raw-state --app-id $APP_ID_2 --no-ensure-alive
