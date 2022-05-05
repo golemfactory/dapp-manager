@@ -37,6 +37,29 @@ def test_list():
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
 
 
+def test_prune():
+    dapp_1 = start_dapp(["echo", "foo"])
+    sleep(0.01)
+    dapp_2 = start_dapp(["sleep", "1"])
+    sleep(0.01)
+
+    #   First dapp is already dead, but we don't know this yet
+    assert DappManager.prune() == []
+    assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
+
+    #   Check what is alive and what is not
+    dapp_1.alive
+    dapp_2.alive
+
+    #   First one should get pruned now
+    assert DappManager.prune() == [dapp_1.app_id]
+    assert DappManager.list() == [dapp_2.app_id]
+
+    #   And subsequent prunes should change nothing
+    assert DappManager.prune() == []
+    assert DappManager.list() == [dapp_2.app_id]
+
+
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop(get_dapp):
     dapp = get_dapp(["sleep", "3"])
