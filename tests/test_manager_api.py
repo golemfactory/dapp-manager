@@ -95,17 +95,16 @@ def test_stop_timeout_kill(get_dapp):
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
-def test_raw_state_raw_data(get_dapp):
+def test_read_file(get_dapp):
     dapp = get_dapp(
         [asset_path("write_mock_files.sh")], state_file=True, data_file=True
     )
     sleep(0.01)
 
-    with open(asset_path("mock_state_file.txt")) as f:
-        assert dapp.raw_state() == f.read()
-
-    with open(asset_path("mock_data_file.txt")) as f:
-        assert dapp.raw_data() == f.read()
+    for file_type in ("state", "data"):
+        mock_fname = asset_path(f"mock_{file_type}_file.txt")
+        with open(mock_fname) as f:
+            assert dapp.read_file(file_type) == f.read()
 
 
 @pytest.mark.parametrize(
@@ -139,7 +138,7 @@ def test_app_not_running(method_name_args):
     assert dapp.app_id in str(exc_info.value)
 
 
-@pytest.mark.parametrize("method", ("raw_state", "raw_data"))
+@pytest.mark.parametrize("file_type", ("state", "data"))
 @pytest.mark.parametrize(
     "kwargs, raises",
     (
@@ -147,13 +146,12 @@ def test_app_not_running(method_name_args):
         ({"ensure_alive": False}, False),
     ),
 )
-def test_app_not_running_ensure_alive(method, kwargs, raises):
+def test_app_not_running_ensure_alive(file_type, kwargs, raises):
     dapp = start_dapp(["echo", "foo"])
     sleep(0.01)
-    func = getattr(dapp, method)
     if raises:
         with pytest.raises(AppNotRunning) as exc_info:
-            func(**kwargs)
+            dapp.read_file(file_type, **kwargs)
         assert dapp.app_id in str(exc_info.value)
     else:
-        func(**kwargs)
+        dapp.read_file(file_type, **kwargs)

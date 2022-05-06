@@ -111,7 +111,7 @@ def kill(*, app_id):
 @_with_ensure_alive
 def raw_state(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
-    print(dapp.raw_state(ensure_alive))
+    print(dapp.read_file("state", ensure_alive))
 
 
 @_cli.command()
@@ -120,7 +120,7 @@ def raw_state(*, app_id, ensure_alive):
 @_with_ensure_alive
 def raw_data(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
-    print(dapp.raw_data(ensure_alive))
+    print(dapp.read_file("data", ensure_alive))
 
 
 if __name__ == "__main__":

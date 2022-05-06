@@ -29,9 +29,9 @@ def start_dapp(
     def _get_command(self):
         command = base_command.copy()
         if state_file:
-            command = command + [str(self.storage.state_file.resolve())]
+            command = command + [str(self.storage.file_name("state").resolve())]
         if data_file:
-            command = command + [str(self.storage.data_file.resolve())]
+            command = command + [str(self.storage.file_name("data").resolve())]
         return command
 
     with mock.patch(
@@ -75,9 +75,10 @@ def asset_path(name):
 #   All instance methods/propeties, with sample args
 #   (Possible TODO: it would be probably better to create this in a dynamic way,
 #   using inspect - now we risk that some new method will not be tested).
-all_dm_methods_args: Tuple[Union[Tuple[str], Tuple[str, int]], ...] = (
-    ("raw_data",),
-    ("raw_state",),
+#   ALSO: probably the best solution is to just remove this and have explicit listings
+all_dm_methods_args: Tuple[Union[Tuple[str], Tuple[str, int], Tuple[str, str]], ...] = (
+    ("read_file", "state"),
+    ("read_file", "data"),
     ("stop", 1),
     ("kill",),
 )

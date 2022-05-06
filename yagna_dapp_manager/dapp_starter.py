@@ -32,8 +32,11 @@ class DappStarter:
         # TODO: https://github.com/golemfactory/dapp-manager/issues/5
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
-        args += ["--data", str(self.storage.data_file.resolve())]
-        args += ["--state", str(self.storage.state_file.resolve())]
+
+        for file_type in ("data", "state"):
+            file_name = str(self.storage.file_name(file_type).resolve())  # type: ignore  # TODO - mypy, why?
+            args += [f"--{file_type}", file_name]
+
         args += [str(d.resolve()) for d in self.descriptors]
         return args
 

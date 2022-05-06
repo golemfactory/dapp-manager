@@ -2,9 +2,11 @@ from pathlib import Path
 import os
 import shutil
 
-from typing import List
+from typing import List, Literal, Union
 
 from .exceptions import UnknownApp
+
+RunnerFileType = Literal["data", "state"]
 
 
 class SimpleStorage:
@@ -40,18 +42,9 @@ class SimpleStorage:
     def alive(self) -> bool:
         return os.path.isfile(self.pid_file)
 
-    @property
-    def state(self) -> str:
+    def read_file(self, file_type: RunnerFileType) -> str:
         try:
-            with open(self.state_file, "r") as f:
-                return f.read()
-        except FileNotFoundError:
-            return ""
-
-    @property
-    def data(self) -> str:
-        try:
-            with open(self.data_file, "r") as f:
+            with open(self.file_name(file_type), "r") as f:
                 return f.read()
         except FileNotFoundError:
             return ""
@@ -75,21 +68,15 @@ class SimpleStorage:
 
     @property
     def pid_file(self) -> Path:
-        return self._fname("pid")
+        return self.file_name("pid")
 
     @property
     def archived_pid_file(self) -> Path:
-        return self._fname("_old_pid")
+        return self.file_name("_old_pid")
 
-    @property
-    def data_file(self) -> Path:
-        return self._fname("data")
-
-    @property
-    def state_file(self) -> Path:
-        return self._fname("state")
-
-    def _fname(self, name) -> Path:
+    def file_name(
+        self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]
+    ) -> Path:
         #   NOTE: "Known app" test here is sufficient - this method will be called whenever
         #         any piece of information related to self.app_id is retrieved or changed
         self._ensure_known_app()
