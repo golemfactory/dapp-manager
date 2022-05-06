@@ -58,3 +58,12 @@ dm raw-state --app-id $APP_ID_1 --no-ensure-alive
 
 echo "16. Check raw-state of $APP_ID_2 with    --no-ensure-alive"
 dm raw-state --app-id $APP_ID_2 --no-ensure-alive
+
+echo "17. Check app list again"
+dm list
+
+echo "18. Prune dead apps"
+dm prune
+
+echo "19. Check the list again"
+dm list
