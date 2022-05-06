@@ -5,6 +5,8 @@ from pathlib import Path
 
 from .storage import SimpleStorage
 
+DEFAULT_EXEC_STR = "python3 -m dapp_runner"
+
 
 class DappStarter:
     def __init__(self, descriptors: List[Path], config: Path, storage: SimpleStorage):
@@ -23,7 +25,7 @@ class DappStarter:
         self.storage.save_pid(proc.pid)
 
     def _get_command(self):
-        return [self._executable()] + self._cli_args()
+        return self._executable() + self._cli_args()
 
     def _cli_args(self) -> List[str]:
         """Return the dapp-runner CLI command and args."""
@@ -35,12 +37,9 @@ class DappStarter:
         args += [str(d.resolve()) for d in self.descriptors]
         return args
 
-    def _executable(self) -> str:
+    def _executable(self) -> List[str]:
         """Return the "dapp-runner" executable - either set by the env variable or the default.
 
         Env variable is intended mostly for the testing/debugging purposes."""
-        executable = os.environ["DAPP_RUNNER_EXEC"]
-        if not executable:
-            # TODO: https://github.com/golemfactory/dapp-manager/issues/5
-            raise NotImplementedError
-        return executable
+        executable_str = os.environ.get("DAPP_RUNNER_EXEC", DEFAULT_EXEC_STR)
+        return list(executable_str.split())
