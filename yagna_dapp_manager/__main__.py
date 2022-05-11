@@ -5,8 +5,8 @@ import sys
 
 import click
 
-from .dapp_manager import DappManager
-from .exceptions import DappManagerException
+from yagna_dapp_manager import DappManager
+from yagna_dapp_manager.exceptions import DappManagerException
 
 
 def _with_app_id(wrapped_func):

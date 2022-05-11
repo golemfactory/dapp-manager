@@ -1,2 +1,2 @@
-from .dapp_manager import DappManager
-from .exceptions import UnknownApp
+from yagna_dapp_manager.dapp_manager import DappManager
+from yagna_dapp_manager.exceptions import UnknownApp
