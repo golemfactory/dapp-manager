@@ -6,7 +6,7 @@
 
 from pathlib import Path
 from time import sleep
-from typing import Tuple
+from typing import Tuple, TextIO
 from itertools import count
 from random import random
 import sys
@@ -63,6 +63,7 @@ def start(
     data_file = open(kwargs["data"], "w", buffering=1)
     state_file = open(kwargs["state"], "w", buffering=1)
 
+    log_file: TextIO
     if kwargs.get("log"):
         log_file = open(kwargs["log"], "w", buffering=1)
     else:
