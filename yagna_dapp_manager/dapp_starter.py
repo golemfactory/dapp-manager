@@ -3,7 +3,7 @@ from subprocess import Popen, DEVNULL
 from typing import List
 from pathlib import Path
 
-from .storage import SimpleStorage
+from .storage import SimpleStorage, RunnerFileType
 
 DEFAULT_EXEC_STR = "python3 -m dapp_runner"
 
@@ -19,7 +19,7 @@ class DappStarter:
 
         #   NOTE: Stdout and stderr are redirected to /dev/null.
         #         This will probably never change - we assume the dapp runner either has
-        #         no meaningfull stdout/stderr, or has an additional interface that allows
+        #         no meaningful stdout/stderr, or has an additional interface that allows
         #         redirecting it to a file (just like e.g. --data-file).
         proc = Popen(command, stdout=DEVNULL, stderr=DEVNULL)
         self.storage.save_pid(proc.pid)
@@ -33,8 +33,9 @@ class DappStarter:
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
 
-        for file_type in ("data", "state"):
-            file_name = str(self.storage.file_name(file_type).resolve())  # type: ignore  # TODO - mypy, why?
+        # TODO: is there's a better way to iterate over elements of a Literal type?
+        for file_type in RunnerFileType.__args__:  # type: ignore [attr-defined]
+            file_name = str(self.storage.file_name(file_type).resolve())
             args += [f"--{file_type}", file_name]
 
         args += [str(d.resolve()) for d in self.descriptors]
