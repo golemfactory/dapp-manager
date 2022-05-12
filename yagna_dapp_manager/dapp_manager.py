@@ -10,7 +10,7 @@ import appdirs
 import psutil
 
 from .exceptions import AppNotRunning
-from .storage import SimpleStorage
+from .storage import SimpleStorage, RunnerFileType
 from .dapp_starter import DappStarter
 
 PathType = Union[str, os.PathLike]
@@ -75,23 +75,14 @@ class DappManager:
 
     ###########################
     #   PUBLIC INSTANCE METHODS
-    def raw_state(self, ensure_alive: bool = True) -> str:
-        """Return raw, unparsed contents of the 'state' stream.
+    def read_file(self, file_type: RunnerFileType, ensure_alive: bool = True) -> str:
+        """Return raw, unparsed contents of the `file_type` stream.
 
         If ensure_alive is True, AppNotRunning exception will be raised if the app is not running."""
 
         if ensure_alive:
             self._ensure_alive()
-        return self.storage.state
-
-    def raw_data(self, ensure_alive: bool = True) -> str:
-        """Return raw, unparsed contents of the 'data' stream
-
-        If ensure_alive is True, AppNotRunning exception will be raised if the app is not running."""
-
-        if ensure_alive:
-            self._ensure_alive()
-        return self.storage.data
+        return self.storage.read_file(file_type)
 
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
