@@ -6,7 +6,7 @@
 
 from pathlib import Path
 from time import sleep
-from typing import Tuple, TextIO
+from typing import Tuple, TextIO, Dict
 from itertools import count
 from random import random
 import sys
@@ -42,6 +42,16 @@ def _cli():
     help="Path to the log file.",
 )
 @click.option(
+    "--stdout",
+    type=Path,
+    help="Redirect stdout to the specified file.",
+)
+@click.option(
+    "--stderr",
+    type=Path,
+    help="Redirect stderr to the specified file.",
+)
+@click.option(
     "--config",
     "-c",
     required=True,
@@ -60,31 +70,31 @@ def start(
 ):
     print("mock_dapp_runner start", descriptors, kwargs)
 
-    data_file = open(kwargs["data"], "w", buffering=1)
-    state_file = open(kwargs["state"], "w", buffering=1)
+    streams: Dict[str, TextIO] = {
+        k: sys.stdout for k in ["data", "state", "log", "stdout", "stderr"]
+    }
 
-    log_file: TextIO
-    if kwargs.get("log"):
-        log_file = open(kwargs["log"], "w", buffering=1)
-    else:
-        log_file = sys.stdout
+    for kwarg in streams.keys():
+        if kwargs.get(kwarg):
+            streams[kwarg] = open(kwargs[kwarg], "w", buffering=1)
 
     try:
-        log_file.write("engine started...")
+        streams["log"].write("engine started...")
         for i in count(1):
-            state_file.write(f"Running for {i} seconds\n")
+            streams["state"].write(f"Running for {i} seconds\n")
 
             if i == 3:
-                data_file.write(f"Important data received: {random()}\n")
+                data = str(random())
+                streams["data"].write(data)
+                streams["stdout"].write(f"Important data received: {data}\n")
             sleep(1)
     except KeyboardInterrupt:
-        state_file.write("Shutting down\n")
+        streams["state"].write("Shutting down\n")
         sleep(3)
-        log_file.write("engine stopped.")
-        state_file.write("Graceful shutdown finished\n")
-        data_file.close()
-        state_file.close()
-        log_file.close()
+        streams["log"].write("engine stopped.")
+        streams["state"].write("Graceful shutdown finished\n")
+        for stream in streams.values():
+            stream.close()
 
 
 if __name__ == "__main__":
