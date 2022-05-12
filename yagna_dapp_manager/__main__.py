@@ -132,5 +132,23 @@ def log(*, app_id, ensure_alive):
     print(dapp.read_file("log", ensure_alive))
 
 
+@_cli.command()
+@_with_app_id
+@_capture_api_exceptions
+@_with_ensure_alive
+def stdout(*, app_id, ensure_alive):
+    dapp = DappManager(app_id)
+    print(dapp.read_file("stdout", ensure_alive))
+
+
+@_cli.command()
+@_with_app_id
+@_capture_api_exceptions
+@_with_ensure_alive
+def stderr(*, app_id, ensure_alive):
+    dapp = DappManager(app_id)
+    print(dapp.read_file("stderr", ensure_alive))
+
+
 if __name__ == "__main__":
     _cli()
