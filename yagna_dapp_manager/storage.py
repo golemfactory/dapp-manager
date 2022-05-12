@@ -6,7 +6,7 @@ from typing import List, Literal, Union
 
 from .exceptions import UnknownApp
 
-RunnerFileType = Literal["data", "state"]
+RunnerFileType = Literal["data", "state", "log"]
 
 
 class SimpleStorage:

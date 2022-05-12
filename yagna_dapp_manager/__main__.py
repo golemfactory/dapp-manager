@@ -123,5 +123,14 @@ def raw_data(*, app_id, ensure_alive):
     print(dapp.read_file("data", ensure_alive))
 
 
+@_cli.command()
+@_with_app_id
+@_capture_api_exceptions
+@_with_ensure_alive
+def log(*, app_id, ensure_alive):
+    dapp = DappManager(app_id)
+    print(dapp.read_file("log", ensure_alive))
+
+
 if __name__ == "__main__":
     _cli()
