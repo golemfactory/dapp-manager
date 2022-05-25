@@ -10,11 +10,9 @@ from yagna_dapp_manager.exceptions import DappManagerException
 
 
 def _with_app_id(wrapped_func):
-    wrapped_func = click.option(
-        "--app-id",
+    wrapped_func = click.argument(
+        "app-id",
         type=str,
-        required=True,
-        help="ID of an existing distributed application.",
     )(wrapped_func)
     return wrapped_func
 
