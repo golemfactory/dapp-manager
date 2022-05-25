@@ -103,20 +103,24 @@ def kill(*, app_id):
     print(app_id)
 
 
-@_cli.command()
+@_cli.group()
+def read():
+    pass
+
+@read.command()
 @_with_app_id
 @_capture_api_exceptions
 @_with_ensure_alive
-def raw_state(*, app_id, ensure_alive):
+def state(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
     print(dapp.read_file("state", ensure_alive))
 
 
-@_cli.command()
+@read.command()
 @_with_app_id
 @_capture_api_exceptions
 @_with_ensure_alive
-def raw_data(*, app_id, ensure_alive):
+def data(*, app_id, ensure_alive):
     dapp = DappManager(app_id)
     print(dapp.read_file("data", ensure_alive))
 
