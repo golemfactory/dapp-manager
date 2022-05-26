@@ -9,14 +9,14 @@ from yagna_dapp_manager import DappManager
 from yagna_dapp_manager.autocomplete import install_autocomplete
 from yagna_dapp_manager.exceptions import DappManagerException
 
+
 def _app_id_autocomplete(_ctx, _param, incomplete):
     return [app_id for app_id in DappManager.list() if app_id.startswith(incomplete)]
 
+
 def _with_app_id(wrapped_func):
     wrapped_func = click.argument(
-        "app-id",
-        type=str,
-        shell_complete=_app_id_autocomplete
+        "app-id", type=str, shell_complete=_app_id_autocomplete
     )(wrapped_func)
     return wrapped_func
 
@@ -159,13 +159,25 @@ def stderr(*, app_id, ensure_alive):
 
 @_cli.command()
 @click.argument("shell", type=click.Choice(["bash", "fish", "zsh"]))
-@click.option("--path", "-p", type=Path, default=None)
+@click.option(
+    "--path",
+    "-p",
+    type=Path,
+    default=None,
+    help="Path to the file to which the shell completion function should be added.",
+)
 def autocomplete(shell: str, path: Path):
     """Enable shell completion by registering an appropriate shell function.
-    
-    This command works by appending a predefined piece of shell code to the user's 
+
+    This command works by appending a predefined piece of shell code to the user's
     shell configuration file.
-    The target file will depend on the selected shell type (bash, fish or zsh).
+
+    The default target file will depend on the selected shell type (bash, fish or zsh):
+        - bash: `~/.bashrc`
+        - fish: `~/.config/fish/completions/{script_name}.fish`
+        - zsh: `~/.zshrc`
+    Use the `--path` flag to override the default target file.
+
     The command does nothing if the target file already contains the completion code.
     """
     install_autocomplete(shell, path)
