@@ -31,6 +31,9 @@ poethepoet = "^0.13"
 pytest = "^7.1"
 pytest-cov = "^3.0.0"
 
+[tool.poetry.scripts]
+yagna_dapp_manager = "yagna_dapp_manager.__main__:main"
+
 [tool.poe.tasks]
 codestyle = "black --check --diff ."
 typecheck = "mypy --install-types --non-interactive --ignore-missing-imports --warn-unused-ignores --show-error-codes ."

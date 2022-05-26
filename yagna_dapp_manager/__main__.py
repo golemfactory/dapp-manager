@@ -6,6 +6,7 @@ import sys
 import click
 
 from yagna_dapp_manager import DappManager
+from yagna_dapp_manager.autocomplete import install_autocomplete
 from yagna_dapp_manager.exceptions import DappManagerException
 
 
@@ -107,6 +108,7 @@ def kill(*, app_id):
 def read():
     pass
 
+
 @read.command()
 @_with_app_id
 @_capture_api_exceptions
@@ -152,5 +154,23 @@ def stderr(*, app_id, ensure_alive):
     print(dapp.read_file("stderr", ensure_alive))
 
 
-if __name__ == "__main__":
+@_cli.command()
+@click.argument("shell", type=click.Choice(["bash", "fish", "zsh"]))
+@click.option("--path", "-p", type=Path, default=None)
+def autocomplete(shell: str, path: Path):
+    """Enable shell completion by registering an appropriate shell function.
+    
+    This command works by appending a predefined piece of shell code to the user's 
+    shell configuration file.
+    The target file will depend on the selected shell type (bash, fish or zsh).
+    The command does nothing if the target file already contains the completion code.
+    """
+    install_autocomplete(shell, path)
+
+
+def main():
     _cli()
+
+
+if __name__ == "__main__":
+    main()
