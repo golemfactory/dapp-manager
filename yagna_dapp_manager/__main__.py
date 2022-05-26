@@ -9,11 +9,14 @@ from yagna_dapp_manager import DappManager
 from yagna_dapp_manager.autocomplete import install_autocomplete
 from yagna_dapp_manager.exceptions import DappManagerException
 
+def _app_id_autocomplete(_ctx, _param, incomplete):
+    return [app_id for app_id in DappManager.list() if app_id.startswith(incomplete)]
 
 def _with_app_id(wrapped_func):
     wrapped_func = click.argument(
         "app-id",
         type=str,
+        shell_complete=_app_id_autocomplete
     )(wrapped_func)
     return wrapped_func
 
