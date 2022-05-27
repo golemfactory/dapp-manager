@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 
-from yagna_dapp_manager import DappManager
+from dapp_manager import DappManager
 
 
 @pytest.fixture(autouse=True)

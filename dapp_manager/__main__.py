@@ -5,9 +5,9 @@ import sys
 
 import click
 
-from yagna_dapp_manager import DappManager
-from yagna_dapp_manager.autocomplete import install_autocomplete
-from yagna_dapp_manager.exceptions import DappManagerException
+from dapp_manager import DappManager
+from dapp_manager.autocomplete import install_autocomplete
+from dapp_manager.exceptions import DappManagerException
 
 
 def _app_id_autocomplete(_ctx, _param, incomplete):

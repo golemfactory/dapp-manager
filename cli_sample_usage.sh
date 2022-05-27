@@ -1,5 +1,5 @@
 function dm () {
-    python3 -m yagna_dapp_manager "$@"
+    python3 -m dapp_manager "$@"
 }
 
 echo "1. Current apps"

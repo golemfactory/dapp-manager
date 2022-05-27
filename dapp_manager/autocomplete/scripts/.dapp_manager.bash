@@ -1,9 +1,9 @@
 
-_yagna_dapp_manager_completion() {
+_dapp_manager_completion() {
     local IFS=$'\n'
     local response
 
-    response=$(env COMP_WORDS="${COMP_WORDS[*]}" COMP_CWORD=$COMP_CWORD _YAGNA_DAPP_MANAGER_COMPLETE=bash_complete $1)
+    response=$(env COMP_WORDS="${COMP_WORDS[*]}" COMP_CWORD=$COMP_CWORD _DAPP_MANAGER_COMPLETE=bash_complete $1)
 
     for completion in $response; do
         IFS=',' read type value <<< "$completion"
@@ -22,5 +22,5 @@ _yagna_dapp_manager_completion() {
     return 0
 }
 
-complete -o nosort -F _yagna_dapp_manager_completion yagna_dapp_manager
+complete -o nosort -F _dapp_manager_completion dapp_manager
 

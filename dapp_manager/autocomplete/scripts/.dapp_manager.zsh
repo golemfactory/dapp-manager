@@ -1,13 +1,13 @@
 
-#compdef yagna_dapp_manager
+#compdef dapp_manager
 
-_yagna_dapp_manager_completion() {
+_dapp_manager_completion() {
     local -a completions
     local -a completions_with_descriptions
     local -a response
-    (( ! $+commands[yagna_dapp_manager] )) && return 1
+    (( ! $+commands[dapp_manager] )) && return 1
 
-    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _YAGNA_DAPP_MANAGER_COMPLETE=zsh_complete yagna_dapp_manager)}")
+    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _DAPP_MANAGER_COMPLETE=zsh_complete dapp_manager)}")
 
     for type key descr in ${response}; do
         if [[ "$type" == "plain" ]]; then
@@ -32,5 +32,5 @@ _yagna_dapp_manager_completion() {
     fi
 }
 
-compdef _yagna_dapp_manager_completion yagna_dapp_manager;
+compdef _dapp_manager_completion dapp_manager;
 

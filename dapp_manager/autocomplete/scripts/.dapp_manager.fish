@@ -1,8 +1,8 @@
 
-function _yagna_dapp_manager_completion;
+function _dapp_manager_completion;
     set -l response;
 
-    for value in (env _YAGNA_DAPP_MANAGER_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) yagna_dapp_manager);
+    for value in (env _DAPP_MANAGER_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) dapp_manager);
         set response $response $value;
     end;
 
@@ -19,5 +19,5 @@ function _yagna_dapp_manager_completion;
     end;
 end;
 
-complete --no-files --command yagna_dapp_manager --arguments "(_yagna_dapp_manager_completion)";
+complete --no-files --command dapp_manager --arguments "(_dapp_manager_completion)";
 
