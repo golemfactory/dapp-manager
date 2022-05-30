@@ -1,6 +1,7 @@
 import os
-from subprocess import Popen, DEVNULL
-from typing import List
+from subprocess import Popen, PIPE
+from time import sleep
+from typing import List, Tuple
 from pathlib import Path
 
 from .storage import SimpleStorage, RunnerFileType
@@ -14,15 +15,22 @@ class DappStarter:
         self.config = config
         self.storage = storage
 
-    def start(self) -> None:
+    def start(self, timeout: float) -> Tuple[int, str, str]:
+        """Start a dapp. Wait TIMEOUT seconds. Return pid, stdout, stderr"""
         command = self._get_command()
 
-        #   NOTE: Stdout and stderr are redirected to /dev/null.
-        #         This will probably never change - we assume the dapp runner either has
-        #         no meaningful stdout/stderr, or has an additional interface that allows
-        #         redirecting it to a file (just like e.g. --data-file).
-        proc = Popen(command, stdout=DEVNULL, stderr=DEVNULL)
-        self.storage.save_pid(proc.pid)
+        #   NOTE: Stdout/stderr here should not be confused with --stdout and --stderr
+        #         passed as arguments to the dapp-runner command.
+        #         PIPE captures only the output that was *not* redirected by the dapp-runner,
+        #         i.e. python errors (--> stderr/stdout that happened before the dapp-runner started,
+        #         or related to internal errors in the dapp-runner).
+        proc = Popen(command, stdout=PIPE, stderr=PIPE)
+
+        sleep(timeout)
+
+        output, error_output = [msg.decode() for msg in proc.communicate()]
+
+        return proc.pid, output, error_output
 
     def _get_command(self):
         return self._executable() + self._cli_args()

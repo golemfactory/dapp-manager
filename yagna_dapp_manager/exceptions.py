@@ -28,3 +28,15 @@ class AppNotRunning(DappManagerException):
 
     def __init__(self, app_id):
         return super().__init__(f"App {app_id} is not running.")
+
+
+class StartupFailed(DappManagerException):
+    """Exception raised when the command `start` fails.
+
+    Or, to be more exact: 1 second after `start` was executed the app process doesn't exist."""
+
+    SHELL_EXIT_CODE = 6
+
+    def __init__(self, stderr, stdout):
+        msg = f"Dapp startup failed.\n\nSubprocess stderr:\n\n{stderr}\n\nSubprocess stdout:\n\n{stdout}"
+        return super().__init__(msg)

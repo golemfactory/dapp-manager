@@ -9,7 +9,7 @@ from time import sleep
 import appdirs
 import psutil
 
-from .exceptions import AppNotRunning
+from .exceptions import AppNotRunning, StartupFailed
 from .storage import SimpleStorage, RunnerFileType
 from .dapp_starter import DappStarter
 
@@ -52,8 +52,12 @@ class DappManager:
         storage.init()
 
         starter = DappStarter(descriptor_paths, config_path, storage)
-        starter.start()
+        pid, stdout, stderr = starter.start(timeout=1)
 
+        if not cls._process_is_running(pid):
+            raise StartupFailed(stderr, stdout)
+
+        storage.save_pid(pid)
         return cls(app_id)
 
     @classmethod
@@ -136,20 +140,23 @@ class DappManager:
                 sleep(0.1)
 
     def _update_alive(self) -> None:
-        if not self._process_is_running():
+        if not self._process_is_running(self.pid):
             self.storage.set_not_running()
-
-    def _process_is_running(self) -> bool:
-        try:
-            process = psutil.Process(self.pid)
-            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
-            return process.status() != psutil.STATUS_ZOMBIE
-        except psutil.NoSuchProcess:
-            return False
 
     def _ensure_alive(self) -> None:
         if not self.alive:
             raise AppNotRunning(self.app_id)
+
+    ####################
+    #   STATIC UTILITIES
+    @staticmethod
+    def _process_is_running(pid: int) -> bool:
+        try:
+            process = psutil.Process(pid)
+            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
+            return process.status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
 
     @classmethod
     def _create_storage(cls, app_id: str) -> SimpleStorage:
