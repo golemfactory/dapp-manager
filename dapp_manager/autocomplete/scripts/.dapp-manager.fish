@@ -2,7 +2,7 @@
 function _dapp_manager_completion;
     set -l response;
 
-    for value in (env _DAPP_MANAGER_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) dapp_manager);
+    for value in (env _DAPP_MANAGER_COMPLETE=fish_complete COMP_WORDS=(commandline -cp) COMP_CWORD=(commandline -t) dapp-manager);
         set response $response $value;
     end;
 
@@ -19,5 +19,5 @@ function _dapp_manager_completion;
     end;
 end;
 
-complete --no-files --command dapp_manager --arguments "(_dapp_manager_completion)";
+complete --no-files --command dapp-manager --arguments "(_dapp_manager_completion)";
 

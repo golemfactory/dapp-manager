@@ -1,13 +1,13 @@
 
-#compdef dapp_manager
+#compdef dapp-manager
 
 _dapp_manager_completion() {
     local -a completions
     local -a completions_with_descriptions
     local -a response
-    (( ! $+commands[dapp_manager] )) && return 1
+    (( ! $+commands[dapp-manager] )) && return 1
 
-    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _DAPP_MANAGER_COMPLETE=zsh_complete dapp_manager)}")
+    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _DAPP_MANAGER_COMPLETE=zsh_complete dapp-manager)}")
 
     for type key descr in ${response}; do
         if [[ "$type" == "plain" ]]; then
@@ -32,5 +32,5 @@ _dapp_manager_completion() {
     fi
 }
 
-compdef _dapp_manager_completion dapp_manager;
+compdef _dapp_manager_completion dapp-manager;
 

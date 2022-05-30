@@ -6,7 +6,7 @@ import click
 # Entrypoint aka binary name aka script name
 # Entrypoint must match the name defined in pyproject.toml under
 # [tool.poetry.scripts] section
-ENTRYPOINT = "dapp_manager"
+ENTRYPOINT = "dapp-manager"
 COMPLETION_FUNC_NAME = f"{ENTRYPOINT}_completion"
 SCRIPTS_DIR = Path(__file__).parent / "scripts"
 

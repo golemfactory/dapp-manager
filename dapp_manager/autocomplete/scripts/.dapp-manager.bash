@@ -22,5 +22,5 @@ _dapp_manager_completion() {
     return 0
 }
 
-complete -o nosort -F _dapp_manager_completion dapp_manager
+complete -o nosort -F _dapp_manager_completion dapp-manager
 

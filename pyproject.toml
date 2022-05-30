@@ -32,7 +32,7 @@ pytest = "^7.1"
 pytest-cov = "^3.0.0"
 
 [tool.poetry.scripts]
-dapp_manager = "dapp_manager.__main__:main"
+dapp-manager = "dapp_manager.__main__:main"
 
 [tool.poe.tasks]
 codestyle = "black --check --diff ."
