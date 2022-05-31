@@ -128,6 +128,8 @@ def kill(*, app_id):
 @_cli.group()
 def read():
     """Read data stream from the given app."""
+    # this function serves only to add a CLI command group
+    # and so it doesn't need any body code
     pass
 
 
