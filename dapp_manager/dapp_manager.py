@@ -9,7 +9,7 @@ from time import sleep
 import appdirs
 import psutil
 
-from .exceptions import AppNotRunning, StartupFailed
+from .exceptions import AppNotRunning
 from .storage import SimpleStorage, RunnerFileType
 from .dapp_starter import DappStarter
 
@@ -52,12 +52,8 @@ class DappManager:
         storage.init()
 
         starter = DappStarter(descriptor_paths, config_path, storage)
-        pid, stdout, stderr = starter.start(timeout=1)
+        starter.start(timeout=1)
 
-        if not cls._process_is_running(pid):
-            raise StartupFailed(stderr, stdout)
-
-        storage.save_pid(pid)
         return cls(app_id)
 
     @classmethod

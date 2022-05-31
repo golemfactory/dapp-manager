@@ -37,6 +37,17 @@ class StartupFailed(DappManagerException):
 
     SHELL_EXIT_CODE = 6
 
-    def __init__(self, stderr, stdout):
-        msg = f"Dapp startup failed.\n\nSubprocess stderr:\n\n{stderr}\n\nSubprocess stdout:\n\n{stdout}"
+    def __init__(self, stdout, stderr, runner_stdout, runner_stderr):
+        msg = (
+            "Dapp startup failed.\n"
+            "--- dapp-runner stderr ---\n"
+            f"{runner_stderr}\n\n"
+            "--- dapp-runner stdout ---\n"
+            f"{runner_stdout}\n\n"
+            "--- pre-runner stderr ---\n"
+            f"{stderr}\n\n"
+            "--- pre-runner stdout ---\n"
+            f"{runner_stdout}\n\n"
+        )
+
         return super().__init__(msg)

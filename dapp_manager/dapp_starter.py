@@ -1,9 +1,10 @@
+from datetime import datetime, timedelta
 import os
-from subprocess import Popen, PIPE
-from time import sleep
-from typing import List, Tuple
+from subprocess import Popen, PIPE, TimeoutExpired
+from typing import List
 from pathlib import Path
 
+from .exceptions import StartupFailed
 from .storage import SimpleStorage, RunnerFileType
 
 DEFAULT_EXEC_STR = "python3 -m dapp_runner"
@@ -15,8 +16,8 @@ class DappStarter:
         self.config = config
         self.storage = storage
 
-    def start(self, timeout: float) -> Tuple[int, str, str]:
-        """Start a dapp. Wait TIMEOUT seconds. Return pid, stdout, stderr"""
+    def start(self, timeout: float) -> None:
+        """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not running."""
         command = self._get_command()
 
         #   NOTE: Stdout/stderr here should not be confused with --stdout and --stderr
@@ -26,11 +27,30 @@ class DappStarter:
         #         or related to internal errors in the dapp-runner).
         proc = Popen(command, stdout=PIPE, stderr=PIPE)
 
-        sleep(timeout)
+        self._ensure_succesful_startup(proc, timeout)
 
-        output, error_output = [msg.decode() for msg in proc.communicate()]
+        self.storage.save_pid(proc.pid)
 
-        return proc.pid, output, error_output
+    def _ensure_succesful_startup(self, proc: Popen, timeout: float) -> None:
+        """Raise StartupFailed if PROC stopped running before TIMEOUT passed"""
+        stop = datetime.now() + timedelta(seconds=timeout)
+
+        outputs: List[str] = []
+        error_outputs: List[str] = []
+        while datetime.now() < stop:
+            remaining_seconds = (stop - datetime.now()).total_seconds()
+            try:
+                output, error_output = proc.communicate(timeout=remaining_seconds)
+                outputs.append(output.decode())
+                error_outputs.append(error_output.decode())
+            except TimeoutExpired:
+                pass
+
+            if proc.poll() is not None:
+                stdout, stderr = "\n".join(outputs), "\n".join(error_outputs)
+                runner_stdout = self.storage.read_file("stdout")
+                runner_stderr = self.storage.read_file("stderr")
+                raise StartupFailed(stdout, stderr, runner_stdout, runner_stderr)
 
     def _get_command(self):
         return self._executable() + self._cli_args()
