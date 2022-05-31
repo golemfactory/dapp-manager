@@ -40,7 +40,11 @@ class DappManager:
 
     @classmethod
     def start(
-        cls, descriptor: PathType, *other_descriptors: PathType, config: PathType
+        cls,
+        descriptor: PathType,
+        *other_descriptors: PathType,
+        config: PathType,
+        timeout: float = 1,
     ) -> "DappManager":
         """Start a new app"""
         #   TODO: https://github.com/golemfactory/dapp-manager/issues/7
@@ -52,7 +56,7 @@ class DappManager:
         storage.init()
 
         starter = DappStarter(descriptor_paths, config_path, storage)
-        starter.start(timeout=1)
+        starter.start(timeout=timeout)
 
         return cls(app_id)
 

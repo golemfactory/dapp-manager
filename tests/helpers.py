@@ -16,7 +16,7 @@ def process_is_running(pid: int) -> bool:
 
 
 def start_dapp(
-    base_command: List[str], state_file=False, data_file=False
+    base_command: List[str], state_file=False, data_file=False, check_startup_timeout=0
 ) -> DappManager:
     """Executes DappManager.start(), but executed command is replaced by base_command
 
@@ -37,7 +37,9 @@ def start_dapp(
     with mock.patch(
         "dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
     ):
-        return DappManager.start(descriptor_file, config=config_file)
+        return DappManager.start(
+            descriptor_file, config=config_file, timeout=check_startup_timeout
+        )
 
 
 def new_dapp_manager(command, **kwargs) -> DappManager:
