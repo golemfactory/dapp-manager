@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import os
 from subprocess import Popen, PIPE, TimeoutExpired
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 
 from .exceptions import StartupFailed
@@ -27,16 +27,26 @@ class DappStarter:
         #         or related to internal errors in the dapp-runner).
         proc = Popen(command, stdout=PIPE, stderr=PIPE)
 
-        self._ensure_succesful_startup(proc, timeout)
+        success, stdout, stderr = self._check_succesful_startup(proc, timeout)
+        if not success:
+            runner_stdout = self.storage.read_file("stdout")
+            runner_stderr = self.storage.read_file("stderr")
+
+            self.storage.delete()
+
+            raise StartupFailed(stdout, stderr, runner_stdout, runner_stderr)
 
         self.storage.save_pid(proc.pid)
 
-    def _ensure_succesful_startup(self, proc: Popen, timeout: float) -> None:
-        """Raise StartupFailed if PROC stopped running before TIMEOUT passed"""
+    def _check_succesful_startup(
+        self, proc: Popen, timeout: float
+    ) -> Tuple[bool, str, str]:
         stop = datetime.now() + timedelta(seconds=timeout)
 
         outputs: List[str] = []
         error_outputs: List[str] = []
+        success = True
+
         while datetime.now() < stop:
             remaining_seconds = (stop - datetime.now()).total_seconds()
             try:
@@ -47,13 +57,10 @@ class DappStarter:
                 pass
 
             if proc.poll() is not None:
-                stdout, stderr = "\n".join(outputs), "\n".join(error_outputs)
-                runner_stdout = self.storage.read_file("stdout")
-                runner_stderr = self.storage.read_file("stderr")
+                success = False
+                break
 
-                self.storage.delete()
-
-                raise StartupFailed(stdout, stderr, runner_stdout, runner_stderr)
+        return success, "\n".join(outputs), "\n".join(error_outputs)
 
     def _get_command(self):
         return self._executable() + self._cli_args()
