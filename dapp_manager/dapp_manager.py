@@ -40,7 +40,11 @@ class DappManager:
 
     @classmethod
     def start(
-        cls, descriptor: PathType, *other_descriptors: PathType, config: PathType
+        cls,
+        descriptor: PathType,
+        *other_descriptors: PathType,
+        config: PathType,
+        timeout: float = 1,
     ) -> "DappManager":
         """Start a new app"""
         #   TODO: https://github.com/golemfactory/dapp-manager/issues/7
@@ -52,7 +56,7 @@ class DappManager:
         storage.init()
 
         starter = DappStarter(descriptor_paths, config_path, storage)
-        starter.start()
+        starter.start(timeout=timeout)
 
         return cls(app_id)
 
@@ -136,20 +140,23 @@ class DappManager:
                 sleep(0.1)
 
     def _update_alive(self) -> None:
-        if not self._process_is_running():
+        if not self._process_is_running(self.pid):
             self.storage.set_not_running()
-
-    def _process_is_running(self) -> bool:
-        try:
-            process = psutil.Process(self.pid)
-            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
-            return process.status() != psutil.STATUS_ZOMBIE
-        except psutil.NoSuchProcess:
-            return False
 
     def _ensure_alive(self) -> None:
         if not self.alive:
             raise AppNotRunning(self.app_id)
+
+    ####################
+    #   STATIC UTILITIES
+    @staticmethod
+    def _process_is_running(pid: int) -> bool:
+        try:
+            process = psutil.Process(pid)
+            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
+            return process.status() != psutil.STATUS_ZOMBIE
+        except psutil.NoSuchProcess:
+            return False
 
     @classmethod
     def _create_storage(cls, app_id: str) -> SimpleStorage:
