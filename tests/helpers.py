@@ -2,7 +2,7 @@ from unittest import mock
 import psutil
 from typing import List, Tuple, Union
 
-from yagna_dapp_manager import DappManager
+from dapp_manager import DappManager
 
 
 def process_is_running(pid: int) -> bool:
@@ -35,7 +35,7 @@ def start_dapp(
         return command
 
     with mock.patch(
-        "yagna_dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
+        "dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
     ):
         return DappManager.start(descriptor_file, config=config_file)
 

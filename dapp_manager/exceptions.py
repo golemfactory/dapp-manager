@@ -1,5 +1,5 @@
 class DappManagerException(Exception):
-    """Base exception for all yagna-dapp-manager exceptions"""
+    """Base exception for all dapp-manager exceptions"""
 
     SHELL_EXIT_CODE = 3
 

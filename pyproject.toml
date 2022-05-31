@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "yagna-dapp-manager"
+name = "dapp-manager"
 version = "0.0.1"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
@@ -30,6 +30,9 @@ mypy = "^0.942"
 poethepoet = "^0.13"
 pytest = "^7.1"
 pytest-cov = "^3.0.0"
+
+[tool.poetry.scripts]
+dapp-manager = "dapp_manager.__main__:main"
 
 [tool.poe.tasks]
 codestyle = "black --check --diff ."
