@@ -50,6 +50,9 @@ class DappStarter:
                 stdout, stderr = "\n".join(outputs), "\n".join(error_outputs)
                 runner_stdout = self.storage.read_file("stdout")
                 runner_stderr = self.storage.read_file("stderr")
+
+                self.storage.delete()
+
                 raise StartupFailed(stdout, stderr, runner_stdout, runner_stderr)
 
     def _get_command(self):

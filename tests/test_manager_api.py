@@ -4,7 +4,7 @@ import pytest
 from time import sleep
 
 from dapp_manager import DappManager
-from dapp_manager.exceptions import UnknownApp, AppNotRunning
+from dapp_manager.exceptions import UnknownApp, AppNotRunning, StartupFailed
 
 from .helpers import (
     start_dapp,
@@ -155,3 +155,13 @@ def test_app_not_running_ensure_alive(file_type, kwargs, raises):
         assert dapp.app_id in str(exc_info.value)
     else:
         dapp.read_file(file_type, **kwargs)
+
+
+def test_startup_failed():
+    old_dapp_list = DappManager.list()
+
+    with pytest.raises(StartupFailed):
+        start_dapp(["echo", "foo"], check_startup_timeout=1)
+
+    #   Ensure we don't preserve any data for the non-started dapp
+    assert old_dapp_list == DappManager.list()
