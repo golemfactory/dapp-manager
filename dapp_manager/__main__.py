@@ -5,9 +5,9 @@ import sys
 
 import click
 
-from yagna_dapp_manager import DappManager
-from yagna_dapp_manager.autocomplete import install_autocomplete
-from yagna_dapp_manager.exceptions import DappManagerException
+from dapp_manager import DappManager
+from dapp_manager.autocomplete import install_autocomplete
+from dapp_manager.exceptions import DappManagerException
 
 
 def _app_id_autocomplete(_ctx, _param, incomplete):
@@ -62,6 +62,7 @@ def _cli():
 )
 @_capture_api_exceptions
 def start(descriptors: Tuple[Path], *, config: Path):
+    """Start a new app using the provided descriptor and config files."""
     dapp = DappManager.start(*descriptors, config=config)
     print(dapp.app_id)
 
@@ -69,6 +70,10 @@ def start(descriptors: Tuple[Path], *, config: Path):
 @_cli.command()
 @_capture_api_exceptions
 def list():
+    """List known app IDs (both active and dead).
+
+    The results are sorted by the apps' creation time.
+    """
     app_ids = DappManager.list()
     if app_ids:
         print("\n".join(app_ids))
@@ -77,6 +82,10 @@ def list():
 @_cli.command()
 @_capture_api_exceptions
 def prune():
+    """Remove data for non-running apps.
+
+    This removes all data related to those apps, including logs, state etc.
+    """
     app_ids = DappManager.prune()
     if app_ids:
         print("\n".join(app_ids))
@@ -93,6 +102,11 @@ def prune():
 @_with_app_id
 @_capture_api_exceptions
 def stop(*, app_id: str, timeout: int):
+    """Stop the given app gracefully.
+
+    Requests a stop from the given app through a SIGINT.
+    Optionally, a timeout (in seconds) may be given with --timeout flag.
+    """
     dapp = DappManager(app_id)
     if dapp.stop(timeout):
         print(app_id)
@@ -102,6 +116,10 @@ def stop(*, app_id: str, timeout: int):
 @_with_app_id
 @_capture_api_exceptions
 def kill(*, app_id):
+    """Stop the given app forcibly.
+
+    Stops the app's process using SIGKILL.
+    """
     dapp = DappManager(app_id)
     dapp.kill()
     print(app_id)
@@ -109,6 +127,7 @@ def kill(*, app_id):
 
 @_cli.group()
 def read():
+    """Read data stream from the given app."""
     pass
 
 
@@ -117,6 +136,7 @@ def read():
 @_capture_api_exceptions
 @_with_ensure_alive
 def state(*, app_id, ensure_alive):
+    """Read the state stream of the given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("state", ensure_alive))
 
@@ -126,6 +146,7 @@ def state(*, app_id, ensure_alive):
 @_capture_api_exceptions
 @_with_ensure_alive
 def data(*, app_id, ensure_alive):
+    """Read the data stream of the given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("data", ensure_alive))
 
@@ -135,6 +156,7 @@ def data(*, app_id, ensure_alive):
 @_capture_api_exceptions
 @_with_ensure_alive
 def log(*, app_id, ensure_alive):
+    """Read the log stream of a given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("log", ensure_alive))
 
@@ -144,6 +166,7 @@ def log(*, app_id, ensure_alive):
 @_capture_api_exceptions
 @_with_ensure_alive
 def stdout(*, app_id, ensure_alive):
+    """Read the stdout of a given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("stdout", ensure_alive))
 
@@ -153,6 +176,7 @@ def stdout(*, app_id, ensure_alive):
 @_capture_api_exceptions
 @_with_ensure_alive
 def stderr(*, app_id, ensure_alive):
+    """Read the stderr of a given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("stderr", ensure_alive))
 
@@ -167,9 +191,9 @@ def stderr(*, app_id, ensure_alive):
     help="Path to the file to which the shell completion function should be added.",
 )
 def autocomplete(shell: str, path: Path):
-    """Enable shell completion by registering an appropriate shell function.
+    """Enable CLI shell completion for the given shell.
 
-    This command works by appending a predefined piece of shell code to the user's
+    This command works by appending a pre-defined piece of shell code to the user's
     shell configuration file.
 
     The default target file will depend on the selected shell type (bash, fish or zsh):

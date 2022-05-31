@@ -1,4 +1,4 @@
-from yagna_dapp_manager import DappManager
+from dapp_manager import DappManager
 
 #   New app
 dapp = DappManager.start("golem_compose.yml", config="config_file.yml")

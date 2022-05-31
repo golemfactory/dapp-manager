@@ -3,8 +3,8 @@ import psutil
 import pytest
 from time import sleep
 
-from yagna_dapp_manager import DappManager
-from yagna_dapp_manager.exceptions import UnknownApp, AppNotRunning
+from dapp_manager import DappManager
+from dapp_manager.exceptions import UnknownApp, AppNotRunning
 
 from .helpers import (
     start_dapp,
