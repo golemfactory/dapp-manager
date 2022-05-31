@@ -62,7 +62,7 @@ def _cli():
 )
 @_capture_api_exceptions
 def start(descriptors: Tuple[Path], *, config: Path):
-    """Start a new app from the given config file."""
+    """Start a new app using the provided descriptor and config files."""
     dapp = DappManager.start(*descriptors, config=config)
     print(dapp.app_id)
 
@@ -84,7 +84,7 @@ def list():
 def prune():
     """Remove data for non-running apps.
 
-    This removes all data related to this app including logs, state etc.
+    This removes all data related to those apps, including logs, state etc.
     """
     app_ids = DappManager.prune()
     if app_ids:
@@ -102,7 +102,7 @@ def prune():
 @_with_app_id
 @_capture_api_exceptions
 def stop(*, app_id: str, timeout: int):
-    """Stop a given app gracefully.
+    """Stop the given app gracefully.
 
     Requests a stop from the given app through a SIGINT.
     Optionally, a timeout (in seconds) may be given with --timeout flag.
@@ -116,7 +116,7 @@ def stop(*, app_id: str, timeout: int):
 @_with_app_id
 @_capture_api_exceptions
 def kill(*, app_id):
-    """Stop a given app forcibly.
+    """Stop the given app forcibly.
 
     Stops the app's process using SIGKILL.
     """
@@ -127,7 +127,7 @@ def kill(*, app_id):
 
 @_cli.group()
 def read():
-    """Read data stream from a given app."""
+    """Read data stream from the given app."""
     pass
 
 
@@ -136,7 +136,7 @@ def read():
 @_capture_api_exceptions
 @_with_ensure_alive
 def state(*, app_id, ensure_alive):
-    """Read the state stream of a given app."""
+    """Read the state stream of the given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("state", ensure_alive))
 
@@ -146,7 +146,7 @@ def state(*, app_id, ensure_alive):
 @_capture_api_exceptions
 @_with_ensure_alive
 def data(*, app_id, ensure_alive):
-    """Read the data stream of a given app."""
+    """Read the data stream of the given app."""
     dapp = DappManager(app_id)
     print(dapp.read_file("data", ensure_alive))
 
@@ -191,7 +191,7 @@ def stderr(*, app_id, ensure_alive):
     help="Path to the file to which the shell completion function should be added.",
 )
 def autocomplete(shell: str, path: Path):
-    """Enable CLI shell completion for a given shell.
+    """Enable CLI shell completion for the given shell.
 
     This command works by appending a pre-defined piece of shell code to the user's
     shell configuration file.
