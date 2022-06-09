@@ -127,7 +127,7 @@ def kill(*, app_id):
 
 @_cli.group()
 def read():
-    """Read data stream from the given app."""
+    """Read output from the given app."""
     # this function serves only to add a CLI command group
     # and so it doesn't need any body code
     pass
@@ -153,7 +153,7 @@ def data(*, app_id, ensure_alive):
     print(dapp.read_file("data", ensure_alive))
 
 
-@_cli.command()
+@read.command()
 @_with_app_id
 @_capture_api_exceptions
 @_with_ensure_alive
@@ -163,7 +163,7 @@ def log(*, app_id, ensure_alive):
     print(dapp.read_file("log", ensure_alive))
 
 
-@_cli.command()
+@read.command()
 @_with_app_id
 @_capture_api_exceptions
 @_with_ensure_alive
@@ -173,7 +173,7 @@ def stdout(*, app_id, ensure_alive):
     print(dapp.read_file("stdout", ensure_alive))
 
 
-@_cli.command()
+@read.command()
 @_with_app_id
 @_capture_api_exceptions
 @_with_ensure_alive
