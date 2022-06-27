@@ -16,7 +16,7 @@ For now, please follow the ["Requestor development: a quick primer"](https://han
 tutorial and ensure that your `yagna` is up and running. Only the first part of this
 tutorial is required - you don't need to run the blender example.
 
-Most importantly, make sure you have set the `YAGNA_APPKEY` in your evironment.
+Most importantly, make sure you have set the `YAGNA_APPKEY` in your environment.
 
 ### Python environment
 
@@ -30,7 +30,7 @@ python3 --version
 
 If your Python version is older, consider using [pyenv](https://github.com/pyenv/pyenv-installer).
 
-Once your python interpreter reports a version 3.8 or later, you can set-up your virtual
+Once your python interpreter reports a version 3.8 or later, you can set up your virtual
 environment:
 
 ```bash
@@ -73,8 +73,8 @@ Then run:
 dapp-manager start --config sample_config.yml dapp-store/apps/webapp.yaml
 ```
 
-The app is started in a background `dapp-runner` process, and you're returned an application id in
-the form of a hexadecimal string. You can use this id to query the state and other output streams
+The app is started in a background `dapp-runner` process, and you're returned an application ID in
+the form of a hexadecimal string. You can use this ID to query the state and other output streams
 using `dapp-manager`'s `read` command, e.g.:
 
 ```bash
@@ -149,7 +149,7 @@ being the signal that's sent to do that. Essentially, `stop` should be enough an
 `dapp-runner` a chance to shut the app down gracefully, correctly terminating the services,
 closing the agreements and paying for them.
 
-In case the `stop` is stuck for whatever reason, you might want to resort to `kill` which terminates
+In case `stop` is stuck for whatever reason, you might want to resort to `kill` which terminates
 the `dapp-runner` immediately without allowing for any graceful shutdown.
 
 ### List
