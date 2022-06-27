@@ -16,7 +16,23 @@ For now, please follow the ["Requestor development: a quick primer"](https://han
 tutorial and ensure that your `yagna` is up and running. Only the first part of this
 tutorial is required - you don't need to run the blender example.
 
-Most importantly, make sure you have set the `YAGNA_APPKEY` in your environment.
+Most importantly, make sure you have set the `YAGNA_APPKEY` in your environment, e.g. with:
+
+```bash
+export YAGNA_APPKEY=insert-your-32-char-app-key-here
+```
+
+or, on Windows:
+
+```bash
+set YAGNA_APPKEY=insert-your-32-char-app-key-here
+```
+
+and if you don't know what your app-key is, you can always query `yagna` with:
+
+```bash
+yagna app-key list
+```
 
 ### Python environment
 
