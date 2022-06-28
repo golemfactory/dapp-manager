@@ -1,11 +1,11 @@
 yagna:
-  api_url: "http://localhost:6765"
-  gsb_url: "tcp://127.0.0.1:6766"
+#  api_url: "http://localhost:6765"
+#  gsb_url: "tcp://127.0.0.1:6766"
   app_key: "$YAGNA_APPKEY"
   subnet_tag: "devnet-beta"
 
 
 payment:
   budget: 1.0
-  driver: "zksync"
+  driver: "erc20"
   network: "rinkeby"
