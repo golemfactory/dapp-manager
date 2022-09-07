@@ -140,24 +140,36 @@ class DappManager:
                 sleep(0.1)
 
     def _update_alive(self) -> None:
-        if not self._process_is_running(self.pid):
+        if not self._is_running():
             self.storage.set_not_running()
 
     def _ensure_alive(self) -> None:
         if not self.alive:
             raise AppNotRunning(self.app_id)
 
-    ####################
-    #   STATIC UTILITIES
-    @staticmethod
-    def _process_is_running(pid: int) -> bool:
+    def _is_running(self) -> bool:
         try:
-            process = psutil.Process(pid)
             #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
-            return process.status() != psutil.STATUS_ZOMBIE
-        except psutil.NoSuchProcess:
+
+            this_process = psutil.Process()
+            app_process = psutil.Process(self.pid)
+
+            with app_process.oneshot():
+                # after we grab the process info, we ensure that:
+                # 1. this is our process
+                # 2. it's still running
+                # 3. the pid has not been reused
+                return (
+                    this_process.username() == app_process.username()
+                    and app_process.status() != psutil.STATUS_ZOMBIE
+                    and app_process.create_time()
+                    < self.storage.pid_file.stat().st_ctime
+                )
+        except (psutil.NoSuchProcess, psutil.AccessDenied, FileNotFoundError):
             return False
 
+    ####################
+    #   STATIC UTILITIES
     @classmethod
     def _create_storage(cls, app_id: str) -> SimpleStorage:
         return SimpleStorage(app_id, cls._get_data_dir())
