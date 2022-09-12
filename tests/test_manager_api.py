@@ -1,7 +1,11 @@
 """A bunch of E2E tests of the DappManager interface"""
+from datetime import datetime, timezone, timedelta
 import psutil
 import pytest
+import random
+import string
 from time import sleep
+from unittest import mock
 
 from dapp_manager import DappManager
 from dapp_manager.exceptions import UnknownApp, AppNotRunning, StartupFailed
@@ -165,3 +169,29 @@ def test_startup_failed():
 
     #   Ensure we don't preserve any data for the non-started dapp
     assert old_dapp_list == DappManager.list()
+
+
+def test_not_my_app():
+    dapp = start_dapp(["sleep", "1"])
+    sleep(0.01)
+
+    assert dapp.alive
+
+    with mock.patch(
+        "dapp_manager.dapp_manager.psutil.Process.username",
+        lambda _: "".join([random.choice(string.ascii_letters) for _ in range(8)]),
+    ):
+        assert not dapp.alive
+
+
+def test_process_apparently_restarted():
+    dapp = start_dapp(["sleep", "1"])
+    sleep(0.01)
+
+    assert dapp.alive
+
+    with mock.patch(
+        "dapp_manager.dapp_manager.psutil.Process.create_time",
+        lambda _: (datetime.now(tz=timezone.utc) + timedelta(minutes=5)).timestamp(),
+    ):
+        assert not dapp.alive
