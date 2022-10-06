@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import re
 import shutil
 
 from typing import List, Literal, Union
@@ -11,7 +12,7 @@ RunnerFileType = Literal["data", "state", "log", "stdout", "stderr"]
 
 class SimpleStorage:
     def __init__(self, app_id: str, data_dir: str):
-        self.app_id = app_id
+        self.app_id = re.sub("[\n\r/\\\\.]", "", app_id)
         self.base_dir = Path(data_dir)
 
     def init(self) -> None:
@@ -88,4 +89,9 @@ class SimpleStorage:
 
     @property
     def _data_dir(self) -> Path:
+        try:
+            (self.base_dir / self.app_id).resolve().relative_to(self.base_dir)
+        except ValueError:
+            raise UnknownApp(self.app_id)
+
         return self.base_dir / self.app_id
