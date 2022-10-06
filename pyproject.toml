@@ -30,16 +30,43 @@ mypy = "^0.942"
 poethepoet = "^0.13"
 pytest = "^7.1"
 pytest-cov = "^3.0.0"
+liccheck = "^0.7.2"
 
 [tool.poetry.scripts]
 dapp-manager = "dapp_manager.__main__:main"
 
+[tool.liccheck]
+authorized_licenses = [
+  "bsd",
+  "new bsd",
+  "bsd license",
+  "apache 2",
+  "apache",
+  "Apache Software",
+  "MPL-2.0",
+  "Mozilla Public License 2.0 (MPL 2.0)",
+  "MIT",
+  "LGPL",
+  "LGPL-3.0-or-later",
+  "GNU Lesser General Public License v3 or later (LGPLv3+)",
+  "GNU Lesser General Public License v3 (LGPLv3)",
+  "Python Software Foundation",
+  "ISC",
+  "ISC License (ISCL)",
+]
+unauthorized_licenses = [
+  "gpl v3"
+]
+
 [tool.poe.tasks]
 codestyle = "black --check --diff ."
-typecheck = "mypy --install-types --non-interactive --ignore-missing-imports --warn-unused-ignores --show-error-codes ."
-check = ["codestyle", "typecheck"]
-test = "pytest --cov --cov-report html --cov-report term  -sv tests"
-test_all = ["test", "check"]
+typecheck  = "mypy --install-types --non-interactive --ignore-missing-imports --check-untyped-defs --warn-unused-ignores --show-error-codes ."
+_liccheck_export = "poetry export -f requirements.txt -o .requirements.txt"
+_liccheck_verify = "liccheck -r .requirements.txt"
+liccheck = ["_liccheck_export", "_liccheck_verify"]
+check = ["codestyle", "typecheck", "liccheck"]
+unittest = "pytest --cov --cov-report html --cov-report term  -sv tests"
+test = ["unittest", "check"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
