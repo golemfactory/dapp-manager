@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dapp-manager"
-version = "0.0.0a1"
+version = "0.0.0a2"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
@@ -22,7 +22,7 @@ python = "^3.8"
 psutil = "^5.9"
 appdirs = "^1.4"
 click = "^8.1"
-dapp-runner = { version = "==0.0.0a1", source = "testpypi" }
+dapp-runner = { version = "==0.0.0a2", source = "testpypi" }
 
 [tool.poetry.dev-dependencies]
 black = "^22.1"
