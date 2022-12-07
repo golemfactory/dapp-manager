@@ -7,7 +7,7 @@ from pathlib import Path
 from .exceptions import StartupFailed
 from .storage import SimpleStorage, RunnerFileType
 
-DEFAULT_EXEC_STR = "python3 -m dapp_runner"
+DEFAULT_EXEC_STR = "dapp-runner"
 
 
 class DappStarter:
