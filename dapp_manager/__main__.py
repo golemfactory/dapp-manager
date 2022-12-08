@@ -125,6 +125,26 @@ def kill(*, app_id):
     print(app_id)
 
 
+@_cli.command()
+@_with_app_id
+@click.argument("service", required=True, type=str)
+@click.argument(
+    "command",
+    nargs=-1,
+    required=True,
+    type=str,
+)
+@click.option(
+    "--timeout",
+    type=int,
+    default=60,
+)
+@_capture_api_exceptions
+def exec(*, app_id, service, command, timeout):
+    dapp = DappManager(app_id)
+    dapp.exec_command(service, command, timeout)
+
+
 @_cli.group()
 def read():
     """Read output from the given app."""

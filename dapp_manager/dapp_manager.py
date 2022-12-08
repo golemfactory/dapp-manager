@@ -1,7 +1,10 @@
 from contextlib import contextmanager
+from datetime import datetime, timedelta
+import json
 import uuid
 from typing import List, Union
 import os
+import re
 import signal
 from pathlib import Path
 from time import sleep
@@ -14,6 +17,8 @@ from .storage import SimpleStorage, RunnerFileType
 from .dapp_starter import DappStarter
 
 PathType = Union[str, os.PathLike]
+
+COMMAND_OUTPUT_INTERVAL = 1.0
 
 
 class DappManager:
@@ -47,7 +52,6 @@ class DappManager:
         timeout: float = 1,
     ) -> "DappManager":
         """Start a new app"""
-        #   TODO: https://github.com/golemfactory/dapp-manager/issues/7
         descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
         config_path = Path(config)
 
@@ -87,6 +91,40 @@ class DappManager:
         if ensure_alive:
             self._ensure_alive()
         return self.storage.read_file(file_type)
+
+    def exec_command(self, service: str, command: List[str], timeout: int):
+        self._ensure_alive()
+        m = re.match("^(?P<service_name>.*?)(\\[(?P<idx>\\d+)\\])?$", service)
+        if not m:
+            raise ValueError("`service` parameter format unknown, use ")
+        service_name = m.group("service_name")
+        service_idx = int(m.group("idx") or 0)
+        command_msg = json.dumps({service_name: {service_idx: command}})
+        start = datetime.now()
+        with self.storage.open("data", "r") as data:
+            data.seek(0, 2)
+            self.storage.write_file("commands", command_msg)
+            while datetime.now() < start + timedelta(seconds=timeout):
+                data_out = data.readline()
+                if not data_out:
+                    sleep(COMMAND_OUTPUT_INTERVAL)
+                    continue
+
+                msg = json.loads(data_out)
+
+                if isinstance(msg, dict):
+                    commands = msg.get(service_name, {}).get(str(service_idx))
+                    for cdict in commands:
+                        print(cdict.get("command"))
+                        print("success: ", cdict.get("success"), "\n")
+                        print(cdict.get("stdout"))
+                        stderr = cdict.get("stderr")
+                        if stderr:
+                            print("\nstderr:")
+                            print(stderr)
+                    break
+
+                raise TimeoutError()
 
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
