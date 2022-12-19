@@ -1,13 +1,14 @@
+from contextlib import contextmanager
 from pathlib import Path
 import os
 import re
 import shutil
 
-from typing import List, Literal, Union
+from typing import List, Literal, Union, AsyncGenerator
 
 from .exceptions import UnknownApp
 
-RunnerFileType = Literal["data", "state", "log", "stdout", "stderr"]
+RunnerFileType = Literal["data", "state", "log", "stdout", "stderr", "commands"]
 
 
 class SimpleStorage:
@@ -43,12 +44,28 @@ class SimpleStorage:
     def alive(self) -> bool:
         return os.path.isfile(self.pid_file)
 
+    @contextmanager
+    def open(self, file_type: RunnerFileType, mode):
+        f = None
+        try:
+            f = open(self.file_name(file_type), mode)
+            yield f
+        except Exception:
+            raise
+        finally:
+            if f:
+                f.close()
+
     def read_file(self, file_type: RunnerFileType) -> str:
         try:
-            with open(self.file_name(file_type), "r") as f:
+            with self.open(file_type, "r") as f:
                 return f.read()
         except FileNotFoundError:
             return ""
+
+    def write_file(self, file_type: RunnerFileType, data: str):
+        with self.open(file_type, "a") as f:
+            return f.write(data)
 
     @classmethod
     def app_id_list(cls, data_dir: str) -> List[str]:
