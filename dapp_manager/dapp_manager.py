@@ -92,18 +92,39 @@ class DappManager:
             self._ensure_alive()
         return self.storage.read_file(file_type)
 
-    def exec_command(self, service: str, command: List[str], timeout: int):
-        self._ensure_alive()
+    @staticmethod
+    def __parse_service_str(service: str):
         m = re.match("^(?P<service_name>.*?)(\\[(?P<idx>\\d+)\\])?$", service)
         if not m:
             raise ValueError("`service` parameter format unknown, use ")
         service_name = m.group("service_name")
         service_idx = int(m.group("idx") or 0)
-        command_msg = json.dumps({service_name: {service_idx: command}})
+        return service_name, service_idx
+
+    @staticmethod
+    def __print_executed_command(commands_dict: dict):
+        print(commands_dict.get("command"))
+        print("success: ", commands_dict.get("success"), "\n")
+        print(commands_dict.get("stdout"))
+        stderr = commands_dict.get("stderr")
+        if stderr:
+            print("\nstderr:")
+            print(stderr)
+
+    def exec_command(self, service: str, command: List[str], timeout: int):
+        self._ensure_alive()
+
+        service_name, service_idx = self.__parse_service_str(service)
+
         start = datetime.now()
         with self.storage.open("data", "r") as data:
             data.seek(0, 2)
+
+            # send the message to the `commands` stream
+            command_msg = json.dumps({service_name: {service_idx: command}})
             self.storage.write_file("commands", command_msg)
+
+            # and wait for the update of the `data` stream
             while datetime.now() < start + timedelta(seconds=timeout):
                 data_out = data.readline()
                 if not data_out:
@@ -115,13 +136,7 @@ class DappManager:
                 if isinstance(msg, dict):
                     commands = msg.get(service_name, {}).get(str(service_idx))
                     for cdict in commands:
-                        print(cdict.get("command"))
-                        print("success: ", cdict.get("success"), "\n")
-                        print(cdict.get("stdout"))
-                        stderr = cdict.get("stderr")
-                        if stderr:
-                            print("\nstderr:")
-                            print(stderr)
+                        self.__print_executed_command(cdict)
                     break
 
                 raise TimeoutError()
