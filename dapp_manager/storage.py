@@ -1,10 +1,9 @@
 from contextlib import contextmanager
-from pathlib import Path
 import os
+from pathlib import Path
 import re
 import shutil
-
-from typing import List, Literal, Union, AsyncGenerator
+from typing import List, Literal, Union
 
 from .exceptions import UnknownApp
 
@@ -66,6 +65,14 @@ class SimpleStorage:
     def write_file(self, file_type: RunnerFileType, data: str):
         with self.open(file_type, "a") as f:
             return f.write(data)
+
+    def iter_file(self, file_type: RunnerFileType):  # ToDo type
+        try:
+            with open(self.file_name(file_type), "r") as f:
+                for l in f:
+                    yield l
+        except FileNotFoundError:
+            return
 
     @classmethod
     def app_id_list(cls, data_dir: str) -> List[str]:
