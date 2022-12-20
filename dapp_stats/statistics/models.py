@@ -1,43 +1,40 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
-from typing import List, Optional
+from typing import Dict
 
-
-class State(str, Enum):
-    none = ""
-    pending = "pending"
-    starting = "starting"
-    running = "running"
-    stopping = "stopping"
-    terminated = "terminated"
-    unresponsive = "unresponsive"
+from dapp_stats.statistics.enums import StateEnum
 
 
 @dataclass
-class Stat:
+class NodeStat:
     stamp: datetime = datetime(1, 1, 1)
-    state: str = State.none
+    state: str = StateEnum.none
     _changes: int = 0
-    _launch_count: int = 0
-    _successful_launch_count: int = 0
-    _unsuccessful_launch_count: int = 0
+    _launched_successfully: bool = False
+    _error_on_launch: bool = False
     _working_time: timedelta = field(default_factory=timedelta)
     _time_to_launch: timedelta = field(default_factory=timedelta)
 
     def __add__(self, other):
-        self._working_time += other.stamp - self.stamp
+        if self.stamp == datetime(1, 1, 1):
+            self.stamp = other.stamp
+        self._working_time = other.stamp - self.stamp
         if self.state != other.state:
             self.state = other.state
             self._changes += 1
-            if self.state == State.pending:
-                self._launch_count += 1
-            elif self.state == State.running:
-                self._successful_launch_count += 1
+            if self.state == StateEnum.running:
+                self._launched_successfully = True
                 self._time_to_launch = self._working_time
-            elif self.state in (State.terminated, State.unresponsive):
-                self._unsuccessful_launch_count += 1
+            elif self.state in (StateEnum.terminated, StateEnum.unresponsive):
+                self._error_on_launch = True
         return self
 
-    def summary(self):  # TODO type: str or dict
-        return f"state changes: {self._changes}, launch count: {self._launch_count}, successful launch count: {self._successful_launch_count}, estimated working time: {self._time_to_launch}, estimated time to launch: {self._time_to_launch}, image size: Unknown"
+    def to_dict(self) -> Dict:
+        return {
+            "state changes": self._changes,
+            "launched successfully": self._launched_successfully,
+            "error on launch": self._error_on_launch,
+            "estimated working time": self._working_time,
+            "estimated time to launch": self._time_to_launch,
+            "image size": "Unknown",
+        }
