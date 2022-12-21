@@ -1,10 +1,10 @@
 from collections import defaultdict
-from typing import DefaultDict, Dict
+from typing import DefaultDict, Dict, Optional
 
 from dapp_manager import DappManager
 
 from .statistics.models import NodeStat
-from .statistics.schemas import State
+from .statistics.schemas import StateLog
 
 
 class DappStats:
@@ -16,9 +16,16 @@ class DappStats:
 
     def get_stats(self) -> Dict:
         nodes_stats: DefaultDict[str, Dict[int, NodeStat]] = defaultdict(dict)
-        app_stats = ...  # TODO
+        app_stats: Optional[NodeStat] = None
+
         for raw_state in self._iter_app_states():
-            app_state = State.parse_raw(raw_state)
+            app_state = StateLog.parse_raw(raw_state)
+
+            if app_stats is not None:
+                app_stats += NodeStat(state=app_state.app, stamp=app_state.timestamp)
+            else:
+                app_stats = NodeStat(state=app_state.app, stamp=app_state.timestamp)
+
             for node, node_states in app_state.nodes.items():
                 for node_idx, state in node_states.items():
                     node_stat = NodeStat(state=state, stamp=app_state.timestamp)
@@ -28,6 +35,9 @@ class DappStats:
                         nodes_stats[node][node_idx] = node_stat
 
         return {
-            node: {idx: idx_stat.to_dict() for idx, idx_stat in node_stats.items()}
-            for node, node_stats in nodes_stats.items()
+            "app": app_stats.to_dict() if app_stats is not None else {},
+            "nodes": {
+                node: {idx: idx_stat.to_dict() for idx, idx_stat in node_stats.items()}
+                for node, node_stats in nodes_stats.items()
+            },
         }
