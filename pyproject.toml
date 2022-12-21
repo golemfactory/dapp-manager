@@ -36,6 +36,7 @@ liccheck = "^0.7.2"
 
 [tool.poetry.scripts]
 dapp-manager = "dapp_manager.__main__:main"
+dapp-stats = "dapp_stats.__main__:main"
 
 [tool.isort]
 profile = "black"

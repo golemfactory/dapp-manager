@@ -1,6 +1,7 @@
 import click
 from exceptions import DappStatsException
 from functools import wraps
+import json
 from pathlib import Path
 import sys
 
@@ -35,7 +36,7 @@ def _cli():
 def stats(*, app_id):
     """Returns the stats of a given app."""
     dapp = DappStats(app_id)
-    print(dapp.get_stats())
+    print(json.dumps(dapp.get_stats(), indent=2, default=str))
 
 
 def main():
