@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 import re
 import shutil
-from typing import List, Literal, Union
+from typing import Generator, List, Literal, Union
 
 from .exceptions import UnknownApp
 
@@ -66,7 +66,7 @@ class SimpleStorage:
         with self.open(file_type, "a") as f:
             return f.write(data)
 
-    def iter_file(self, file_type: RunnerFileType):  # ToDo type
+    def iter_file(self, file_type: RunnerFileType) -> Generator[str, None, None]:
         try:
             with open(self.file_name(file_type), "r") as f:
                 for l in f:
