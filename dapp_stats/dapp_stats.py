@@ -1,8 +1,10 @@
 from collections import defaultdict
+import pydantic
 from typing import DefaultDict, Dict, Optional
 
 from dapp_manager import DappManager
 
+from .exceptions import DappStatsException
 from .statistics.models import NodeStat
 from .statistics.schemas import StateLog
 
@@ -19,7 +21,12 @@ class DappStats:
         app_stats: Optional[NodeStat] = None
 
         for raw_state in self._iter_app_states():
-            app_state = StateLog.parse_raw(raw_state)
+            try:
+                app_state = StateLog.parse_raw(raw_state)
+            except pydantic.ValidationError:
+                raise DappStatsException(
+                    f"dApp {self._app_id } state log is corrupted. Unable to generate statistics."
+                )
 
             if app_stats is not None:
                 app_stats += NodeStat(state=app_state.app, stamp=app_state.timestamp)

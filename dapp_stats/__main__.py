@@ -1,11 +1,11 @@
 import click
-from exceptions import DappStatsException
 from functools import wraps
 import json
-from pathlib import Path
 import sys
 
 from dapp_stats import DappStats
+
+from .exceptions import DappStatsException
 
 
 def _with_app_id(wrapped_func):
