@@ -68,7 +68,7 @@ class SimpleStorage:
 
     def iter_file(self, file_type: RunnerFileType) -> Generator[str, None, None]:
         try:
-            with open(self.file_name(file_type), "r") as f:
+            with self.open(file_type, "r") as f:
                 for l in f:
                     yield l
         except FileNotFoundError:
