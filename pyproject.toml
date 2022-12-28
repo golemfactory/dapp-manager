@@ -6,6 +6,7 @@ authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
 
 packages = [
+  {include = "dapp_manager"},
   {include = "dapp_stats"},
 ]
 
