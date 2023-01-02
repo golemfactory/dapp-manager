@@ -26,9 +26,7 @@ class NodeStat:
 
     def to_dict(self) -> Dict:
         return {
-            "state changes": self._changes,
-            "launched successfully": self._launched_successfully,
-            "estimated time to launch": self._time_to_launch,
-            "estimated working time": self._working_time,
-            "image size": "Unknown",
+            "state_changes": self._changes,
+            "launched_successfully": self._launched_successfully,
+            "estimated_time_to_launch": self._time_to_launch,
         }

@@ -18,12 +18,12 @@ def test_get_stats_ok():
         DappStats, DappStats._iter_app_states.__name__, return_value=states_payload
     ) as _:
         stats = dapp_stats.get_stats()
-    assert stats["nodes"]["db"][0]["launched successfully"] == True
-    assert stats["nodes"]["db"][0]["estimated time to launch"] == timedelta(minutes=2)
-    assert stats["nodes"]["http"][0]["launched successfully"] == True
-    assert stats["nodes"]["http"][0]["estimated time to launch"] == timedelta(minutes=2)
-    assert stats["app"]["launched successfully"] == True
-    assert stats["app"]["estimated time to launch"] == timedelta(minutes=4)
+    assert stats["nodes"]["db"][0]["launched_successfully"] == True
+    assert stats["nodes"]["db"][0]["estimated_time_to_launch"] == timedelta(minutes=2)
+    assert stats["nodes"]["http"][0]["launched_successfully"] == True
+    assert stats["nodes"]["http"][0]["estimated_time_to_launch"] == timedelta(minutes=2)
+    assert stats["app"]["launched_successfully"] == True
+    assert stats["app"]["estimated_time_to_launch"] == timedelta(minutes=4)
 
 
 def test_get_stats_no_states():
