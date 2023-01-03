@@ -95,5 +95,8 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# liccheck
+.requirements.txt
+
 # pycharm
 .idea

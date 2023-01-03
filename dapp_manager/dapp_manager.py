@@ -1,20 +1,19 @@
+import appdirs
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 import json
-import uuid
-from typing import List, Union
 import os
+from pathlib import Path
+import psutil
 import re
 import signal
-from pathlib import Path
 from time import sleep
+from typing import List, Union
+import uuid
 
-import appdirs
-import psutil
-
-from .exceptions import AppNotRunning
-from .storage import SimpleStorage, RunnerFileType
 from .dapp_starter import DappStarter
+from .exceptions import AppNotRunning
+from .storage import RunnerFileType, SimpleStorage
 
 PathType = Union[str, os.PathLike]
 

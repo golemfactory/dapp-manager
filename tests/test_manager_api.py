@@ -1,5 +1,5 @@
 """A bunch of E2E tests of the DappManager interface"""
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 import psutil
 import pytest
 import random
@@ -8,15 +8,15 @@ from time import sleep
 from unittest import mock
 
 from dapp_manager import DappManager
-from dapp_manager.exceptions import UnknownApp, AppNotRunning, StartupFailed
+from dapp_manager.exceptions import AppNotRunning, StartupFailed, UnknownApp
 
 from .helpers import (
-    start_dapp,
-    process_is_running,
-    get_dapp_scenarios,
-    asset_path,
     all_dm_methods_args,
     all_dm_methods_props_args,
+    asset_path,
+    get_dapp_scenarios,
+    process_is_running,
+    start_dapp,
 )
 
 

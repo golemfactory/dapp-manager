@@ -1,6 +1,6 @@
-from unittest import mock
 import psutil
 from typing import List, Tuple, Union
+from unittest import mock
 
 from dapp_manager import DappManager
 

@@ -1,9 +1,8 @@
+import click
 from functools import wraps
 from pathlib import Path
-from typing import Tuple
 import sys
-
-import click
+from typing import Tuple
 
 from dapp_manager import DappManager
 from dapp_manager.autocomplete import install_autocomplete

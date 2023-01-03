@@ -4,14 +4,13 @@
 # but only prints some things to the screen/files and waits forever.
 # Useful for testing.
 
-from pathlib import Path
-from time import sleep
-from typing import Tuple, TextIO, Dict
+import click
 from itertools import count
+from pathlib import Path
 from random import random
 import sys
-
-import click
+from time import sleep
+from typing import Dict, TextIO, Tuple
 
 
 @click.group()

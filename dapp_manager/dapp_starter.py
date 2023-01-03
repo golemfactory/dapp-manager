@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 import os
-from subprocess import Popen, PIPE, TimeoutExpired
-from typing import List, Tuple
 from pathlib import Path
+from subprocess import PIPE, Popen, TimeoutExpired
+from typing import List, Tuple
 
 from .exceptions import StartupFailed
-from .storage import SimpleStorage, RunnerFileType
+from .storage import RunnerFileType, SimpleStorage
 
 DEFAULT_EXEC_STR = "dapp-runner"
 

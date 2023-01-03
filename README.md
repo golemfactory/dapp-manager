@@ -63,7 +63,7 @@ python -m venv --clear %HOMEDRIVE%%HOMEPATH%\.envs\dapp-manager
 
 ### DApp manager
 
-#### Clone the repository:
+#### Clone the repository
 
 ```bash
 git clone --recurse-submodules https://github.com/golemfactory/dapp-manager.git
@@ -71,13 +71,13 @@ git clone --recurse-submodules https://github.com/golemfactory/dapp-manager.git
 
 #### Install the dependencies
 
-```
+```bash
 cd dapp-manager
 pip install -U pip poetry
 poetry install
 ```
 
-#### Run an example application:
+#### Run an example application
 
 Make sure your `yagna` daemon is running,
 you have initialized the payment driver with `yagna payment init --sender`,
@@ -99,7 +99,7 @@ dapp-manager read state <the-hex-string>
 
 will display the contents of the `state` stream of the running app:
 
-```
+```shell
 {"db": {"0": "pending"}}
 {"db": {"0": "starting"}}
 {"db": {"0": "running"}}
@@ -119,7 +119,7 @@ dapp-manager read stderr <the-hex-string> --no-ensure-alive
 
 ## Full usage
 
-```
+```shell
 Usage: dapp-manager [OPTIONS] COMMAND [ARGS]...
 
 Options:
@@ -140,7 +140,7 @@ Commands:
 The `start` command launches a new instance of the `dapp-runner` in a background process and
 returns the hexadecimal string that is the identifier of the running `dapp-runner` instance.
 
-```
+```shell
 Usage: dapp-manager start [OPTIONS] DESCRIPTORS...
 
   Start a new app using the provided descriptor and config files.
@@ -178,8 +178,8 @@ running or not.
 `prune` causes `dapp-manager` to remove the data for those apps that it had previously identified as
 defunct. Consequently, those apps will no longer appear on the list.
 
-Unless an app has been explicitly stopped with a `stop` or `kill` command, the `dapp-manager` 
-will not purge it until it has had a chance to notice the termination, e.g. by issuing a `read` 
+Unless an app has been explicitly stopped with a `stop` or `kill` command, the `dapp-manager`
+will not purge it until it has had a chance to notice the termination, e.g. by issuing a `read`
 command to the defunct app.
 
 ### Read
@@ -187,7 +187,7 @@ command to the defunct app.
 The `read` command outputs the full contents of the specified stream. There are five streams as
 specified by the usage below:
 
-```
+```shell
 Usage: dapp-manager read [OPTIONS] COMMAND [ARGS]...
 
   Read output from the given app.
@@ -214,19 +214,23 @@ specific `read` command.
 This program supports shell completion for all of its commands, as well as existing dApp IDs (where applicable).
 
 To enable completion, use the `autocomplete` command with your shell of choice:
+
 * **bash**:
-    ```
-    $ dapp-manager autocomplete bash
+
+    ```bash
+    dapp-manager autocomplete bash
     ```
 
 * **zsh**:
-    ```
-    $ dapp-manager autocomplete zsh
+
+    ```bash
+    dapp-manager autocomplete zsh
     ```
 
 * **fish**:
-    ```
-    $ dapp-manager autocomplete fish
+
+    ```bash
+    dapp-manager autocomplete fish
     ```
 
 The completion functions are defined in `dapp_manager/autocomplete/scripts`.
