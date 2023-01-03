@@ -19,11 +19,11 @@ def test_get_stats_ok(mocker):
     )
     stats = dapp_stats.get_stats()
     assert stats["nodes"]["db"][0]["launched_successfully"] == True
-    assert stats["nodes"]["db"][0]["estimated_time_to_launch"] == timedelta(minutes=2)
+    assert stats["nodes"]["db"][0]["time_to_launch"] == timedelta(minutes=2)
     assert stats["nodes"]["http"][0]["launched_successfully"] == True
-    assert stats["nodes"]["http"][0]["estimated_time_to_launch"] == timedelta(minutes=2)
+    assert stats["nodes"]["http"][0]["time_to_launch"] == timedelta(minutes=2)
     assert stats["app"]["launched_successfully"] == True
-    assert stats["app"]["estimated_time_to_launch"] == timedelta(minutes=4)
+    assert stats["app"]["time_to_launch"] == timedelta(minutes=4)
 
 
 def test_get_stats_no_states(mocker):

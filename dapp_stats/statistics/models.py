@@ -1,18 +1,18 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Dict
+from typing import Dict, Optional
 
 from dapp_stats.statistics.enums import NodeState
 
 
 @dataclass
-class NodeStat:
+class NodeStatistics:
     timestamp: datetime
     state: NodeState
     _changes: int = 1
     _launched_successfully: bool = False
     _working_time: timedelta = field(default_factory=timedelta)
-    _time_to_launch: timedelta = field(default_factory=timedelta)
+    _time_to_launch: Optional[timedelta] = None
 
     def __add__(self, other):
         self._working_time = other.timestamp - self.timestamp
@@ -28,5 +28,5 @@ class NodeStat:
         return {
             "state_changes": self._changes,
             "launched_successfully": self._launched_successfully,
-            "estimated_time_to_launch": self._time_to_launch,
+            "time_to_launch": self._time_to_launch,
         }
