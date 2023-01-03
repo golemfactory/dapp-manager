@@ -16,4 +16,4 @@ def test_state_ok():
             "app": "starting"
         }
         """
-    schemas.StateLog.parse_raw(payload)
+    schemas.StateLogEntry.parse_raw(payload)

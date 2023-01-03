@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class StateEnum(str, Enum):
+class NodeState(str, Enum):
     pending = "pending"
     starting = "starting"
     running = "running"

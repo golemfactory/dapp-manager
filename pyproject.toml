@@ -38,6 +38,7 @@ isort = "^5.11.3"
 poethepoet = "^0.13"
 pytest = "^7.1"
 pytest-cov = "^3.0.0"
+pytest-mock = "^3.10.0"
 liccheck = "^0.7.2"
 
 [tool.poetry.scripts]

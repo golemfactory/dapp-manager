@@ -6,7 +6,7 @@ from dapp_manager import DappManager
 
 from .exceptions import DappStatsException
 from .statistics.models import NodeStat
-from .statistics.schemas import StateLog
+from .statistics.schemas import StateLogEntry
 
 
 class DappStats:
@@ -22,20 +22,22 @@ class DappStats:
 
         for raw_state in self._iter_app_states():
             try:
-                app_state = StateLog.parse_raw(raw_state)
+                app_state = StateLogEntry.parse_raw(raw_state)
             except pydantic.ValidationError:
                 raise DappStatsException(
                     f"dApp {self._app_id } state log is corrupted. Unable to generate statistics."
                 )
 
             if app_stats is not None:
-                app_stats += NodeStat(state=app_state.app, stamp=app_state.timestamp)
+                app_stats += NodeStat(
+                    state=app_state.app, timestamp=app_state.timestamp
+                )
             else:
-                app_stats = NodeStat(state=app_state.app, stamp=app_state.timestamp)
+                app_stats = NodeStat(state=app_state.app, timestamp=app_state.timestamp)
 
             for node, node_states in app_state.nodes.items():
                 for node_idx, state in node_states.items():
-                    node_stat = NodeStat(state=state, stamp=app_state.timestamp)
+                    node_stat = NodeStat(state=state, timestamp=app_state.timestamp)
                     if node_idx in nodes_stats[node]:
                         nodes_stats[node][node_idx] += node_stat
                     else:

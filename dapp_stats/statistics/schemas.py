@@ -2,10 +2,10 @@ from datetime import datetime
 from pydantic import BaseModel
 from typing import Dict
 
-from dapp_stats.statistics.enums import StateEnum
+from dapp_stats.statistics.enums import NodeState
 
 
-class StateLog(BaseModel):
-    nodes: Dict[str, Dict[int, StateEnum]]
+class StateLogEntry(BaseModel):
+    nodes: Dict[str, Dict[int, NodeState]]
     timestamp: datetime
-    app: StateEnum
+    app: NodeState
