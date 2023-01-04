@@ -24,6 +24,7 @@ def test_get_stats_ok(mocker):
     assert stats["nodes"]["http"][0]["time_to_launch"] == timedelta(minutes=2)
     assert stats["app"]["launched_successfully"] == True
     assert stats["app"]["time_to_launch"] == timedelta(minutes=4)
+    assert stats["app"]["terminated"] == False
 
 
 def test_get_stats_no_states(mocker):
