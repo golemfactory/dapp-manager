@@ -6,8 +6,10 @@ from pathlib import Path
 import sys
 from typing import Sequence
 
+from click import Abort, ClickException
+
 from dapp_stats import DappStats
-from dapp_stats.dapp_size_resolver import DappSizeResolver
+from dapp_stats.dapp_size_resolver import DappSizeResolver, DappSizeResolverError
 
 from .exceptions import DappStatsException
 
@@ -55,7 +57,10 @@ def stats(*, app_id):
 def size(descriptors: Sequence[Path]):
     """Calculates dApp defined payloads sizes (in bytes) on the provided set of descriptor files."""
 
-    measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(descriptors)
+    try:
+        measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(descriptors)
+    except DappSizeResolverError as e:
+        raise ClickException(str(e))
 
     for error in errors:
         click.echo(error, err=True)
