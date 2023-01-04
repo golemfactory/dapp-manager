@@ -161,7 +161,7 @@ class DappManager:
         """Stop the app in a non-gracfeul way"""
         self._ensure_alive()
 
-        os.kill(self.pid, signal.SIGKILL)
+        os.kill(self.pid, signal.SIGKILL)  # type: ignore[attr-defined]
         self.storage.set_not_running()
 
     #######################
@@ -239,12 +239,12 @@ def enforce_timeout(seconds: int):
     def raise_timeout_error(signum, frame):
         raise TimeoutError
 
-    signal.signal(signal.SIGALRM, raise_timeout_error)
-    signal.alarm(seconds)
+    signal.signal(signal.SIGALRM, raise_timeout_error)  # type: ignore[attr-defined]
+    signal.alarm(seconds)  # type: ignore[attr-defined]
 
     try:
         yield
     except TimeoutError:
         pass
     finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)  # type: ignore[attr-defined]

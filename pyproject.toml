@@ -37,6 +37,7 @@ pytest = "^7.1"
 pytest-cov = "^3.0.0"
 pytest-mock = "^3.10.0"
 liccheck = "^0.7.2"
+autoflake = "^2.0.0"
 
 [tool.poetry.scripts]
 dapp-manager = "dapp_manager.__main__:main"
@@ -62,6 +63,7 @@ authorized_licenses = [
   "apache 2",
   "apache",
   "Apache Software",
+  "Apache Software License",
   "MPL-2.0",
   "Mozilla Public License 2.0 (MPL 2.0)",
   "MIT",
@@ -79,6 +81,10 @@ unauthorized_licenses = ["gpl v3"]
 _codestyle_isort = "isort --check-only --diff ."
 _codestyle_black = "black --check --diff ."
 codestyle = ["_codestyle_isort", "_codestyle_black"]
+_format_autoflake = "autoflake --in-place ."
+_format_isort = " isort ."
+_format_black = "black ."
+format = ["_format_autoflake", "_format_isort", "_format_black"]
 typecheck = "mypy --install-types --non-interactive --ignore-missing-imports --check-untyped-defs --warn-unused-ignores --show-error-codes ."
 _liccheck_export = "poetry export -f requirements.txt -o .requirements.txt"
 _liccheck_verify = "liccheck -r .requirements.txt"
