@@ -1,0 +1,7 @@
+payload:
+  - a
+nodes:
+  a:
+    payload: "a"
+extra_key:
+  foo: "bar"

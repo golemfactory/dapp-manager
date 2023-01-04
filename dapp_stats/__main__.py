@@ -1,26 +1,25 @@
-import base64
-import logging
-from functools import wraps
-import sys
-import asyncio
-import json
-from pathlib import Path
-from typing import Tuple, Dict, Sequence
-
 import aiohttp
-import click
 from aiohttp.hdrs import CONTENT_LENGTH
-from dapp_runner.descriptor.parser import load_yamls
-from yapapi.payload.vm import resolve_repo_srv, _DEFAULT_REPO_SRV
-
+import asyncio
+import base64
+import click
 from dapp_runner.descriptor import DappDescriptor
+from dapp_runner.descriptor.parser import load_yamls
+from functools import wraps
+import json
+import logging
+from pathlib import Path
+import sys
+from typing import Dict, Sequence, Tuple
+from yapapi.payload.vm import _DEFAULT_REPO_SRV, resolve_repo_srv
+
 from dapp_stats import DappStats
 from dapp_stats.dapp_size_resolver import DappSizeResolver
 
 from .exceptions import DappStatsException
 
-
 logger = logging.getLogger(__name__)
+
 
 def _with_app_id(wrapped_func):
     wrapped_func = click.argument("app-id", type=str)(wrapped_func)
@@ -63,12 +62,12 @@ def stats(*, app_id):
 def size(descriptors: Sequence[Path]):
     """Calculates dApp defined payloads sizes (in bytes) on the provided set of descriptor files."""
 
-    measured_sizes, errors = DappSizeResolver.resolve_payload_size(descriptors)
+    measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(descriptors)
 
     for error in errors:
         click.echo(error, err=True)
 
-    click.echo(json.dumps(measured_sizes))
+    click.echo(json.dumps(measured_sizes, indent=2, default=str))
 
 
 def main():

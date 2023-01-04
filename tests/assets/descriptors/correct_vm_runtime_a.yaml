@@ -1,0 +1,8 @@
+payloads:
+  a:
+    runtime: "vm"
+    params:
+      image_hash: "a_image_hash"
+nodes:
+  a:
+    payload: "a"

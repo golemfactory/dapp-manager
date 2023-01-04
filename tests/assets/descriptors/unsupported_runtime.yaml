@@ -1,0 +1,8 @@
+payloads:
+  a:
+    runtime: "unsupported or something..."
+    params:
+      some: "value"
+nodes:
+  a:
+    payload: "a"
