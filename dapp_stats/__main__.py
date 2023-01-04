@@ -1,17 +1,10 @@
-import aiohttp
-from aiohttp.hdrs import CONTENT_LENGTH
-import asyncio
-import base64
 import click
-from dapp_runner.descriptor import DappDescriptor
-from dapp_runner.descriptor.parser import load_yamls
 from functools import wraps
 import json
 import logging
 from pathlib import Path
 import sys
-from typing import Dict, Sequence, Tuple
-from yapapi.payload.vm import _DEFAULT_REPO_SRV, resolve_repo_srv
+from typing import Sequence
 
 from dapp_stats import DappStats
 from dapp_stats.dapp_size_resolver import DappSizeResolver

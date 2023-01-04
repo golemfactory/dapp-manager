@@ -1,6 +1,5 @@
 from datetime import timedelta
 from typing import List
-from unittest.mock import patch
 
 from dapp_stats import DappStats
 

@@ -1,8 +1,7 @@
-from email.message import Message
 from pathlib import Path
 import pytest
 from typing import List
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 
 from dapp_stats.dapp_size_resolver import DappSizeResolver, DappSizeResolverError
 
