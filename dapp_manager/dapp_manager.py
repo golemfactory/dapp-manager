@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import psutil
 import re
-import signal
+import signal  # TODO: Add support for windows machines https://github.com/golemfactory/dapp-manager/issues/72
 from time import sleep
 from typing import List, Union
 import uuid

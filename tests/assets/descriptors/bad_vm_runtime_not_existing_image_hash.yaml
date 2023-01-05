@@ -1,0 +1,8 @@
+payloads:
+  a:
+    runtime: "vm"
+    params:
+      image_hash: "not_existing"
+nodes:
+  a:
+    payload: "a"

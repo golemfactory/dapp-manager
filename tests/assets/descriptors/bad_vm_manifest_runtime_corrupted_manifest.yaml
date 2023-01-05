@@ -1,0 +1,8 @@
+payloads:
+  a:
+    runtime: "vm/manifest"
+    params:
+      manifest: "bad base64"
+nodes:
+  a:
+    payload: "a"

@@ -1,0 +1,14 @@
+payloads:
+  a:
+    runtime: "vm/manifest"
+    params:
+      manifest: "eyJwYXlsb2FkIjogW3sidXJscyI6IFsic29tZV91cmwiXX1dfQ=="
+  b:
+    runtime: "vm/manifest"
+    params:
+      manifest: "eyJwYXlsb2FkIjogW3sidXJscyI6IFsic29tZV91cmwiXX1dfQ=="
+nodes:
+  a:
+    payload: "a"
+  b:
+    payload: "b"

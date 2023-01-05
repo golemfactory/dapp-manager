@@ -1,0 +1,8 @@
+payloads:
+  a:
+    runtime: "vm"
+    params:
+      foo: bar
+nodes:
+  a:
+    payload: "a"

@@ -149,7 +149,6 @@ def read():
     """Read output from the given app."""
     # this function serves only to add a CLI command group
     # and so it doesn't need any body code
-    pass
 
 
 @read.command()
