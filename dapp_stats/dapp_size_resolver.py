@@ -84,14 +84,14 @@ class DappSizeResolver:
         cls, payload: PayloadDescriptor
     ) -> int:
         try:
-            manifest_hash = payload.params["manifest"]
+            manifest_base64 = payload.params["manifest"]
         except KeyError:
             raise DappSizeResolverError(
                 'Field "manifest" is not present in payload params!'
             )
 
         try:
-            manifest = json.loads(base64.b64decode(manifest_hash.encode("utf-8")))
+            manifest = json.loads(base64.b64decode(manifest_base64.encode("utf-8")))
         except Exception:
             raise DappSizeResolverError(
                 'Field "manifest" is not properly Base64 encoded JSON object!'
