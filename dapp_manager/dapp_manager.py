@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import psutil
 import re
-import signal
+import signal  # TODO: Add support for windows machines https://github.com/golemfactory/dapp-manager/issues/72
 from time import sleep
 from typing import List, Union
 import uuid
@@ -161,7 +161,7 @@ class DappManager:
         """Stop the app in a non-gracfeul way"""
         self._ensure_alive()
 
-        os.kill(self.pid, signal.SIGKILL)  # type: ignore[attr-defined]
+        os.kill(self.pid, signal.SIGKILL)
         self.storage.set_not_running()
 
     #######################
@@ -239,12 +239,12 @@ def enforce_timeout(seconds: int):
     def raise_timeout_error(signum, frame):
         raise TimeoutError
 
-    signal.signal(signal.SIGALRM, raise_timeout_error)  # type: ignore[attr-defined]
-    signal.alarm(seconds)  # type: ignore[attr-defined]
+    signal.signal(signal.SIGALRM, raise_timeout_error)
+    signal.alarm(seconds)
 
     try:
         yield
     except TimeoutError:
         pass
     finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)  # type: ignore[attr-defined]
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)
