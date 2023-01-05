@@ -1,12 +1,11 @@
 import click
+from click import ClickException
 from functools import wraps
 import json
 import logging
 from pathlib import Path
 import sys
 from typing import Sequence
-
-from click import Abort, ClickException
 
 from dapp_stats import DappStats
 from dapp_stats.dapp_size_resolver import DappSizeResolver, DappSizeResolverError
@@ -58,7 +57,9 @@ def size(descriptors: Sequence[Path]):
     """Calculates dApp defined payloads sizes (in bytes) on the provided set of descriptor files."""
 
     try:
-        measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(descriptors)
+        measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(
+            descriptors
+        )
     except DappSizeResolverError as e:
         raise ClickException(str(e))
 
