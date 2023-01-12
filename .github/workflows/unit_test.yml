@@ -28,4 +28,4 @@ jobs:
           poetry-version: 1.2.0
 
       - run: poetry install
-      - run: poetry run poe unittest
+      - run: poetry run poe test_unit

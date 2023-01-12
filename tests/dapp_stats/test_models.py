@@ -11,8 +11,8 @@ def test_accumulated_node_stats_starting():
     ]:
         accumulated_node_stats += models.NodeStatistics(timestamp=stamp, state=state)
     assert accumulated_node_stats._changes == 2
-    assert accumulated_node_stats._launched_successfully == False
-    assert accumulated_node_stats._terminated == False
+    assert accumulated_node_stats._launched_successfully is False
+    assert accumulated_node_stats._terminated is False
     assert accumulated_node_stats._time_to_launch is None
     assert accumulated_node_stats._working_time is None
 
@@ -26,8 +26,8 @@ def test_accumulated_node_stats_running():
     ]:
         accumulated_node_stats += models.NodeStatistics(timestamp=stamp, state=state)
     assert accumulated_node_stats._changes == 3
-    assert accumulated_node_stats._launched_successfully == True
-    assert accumulated_node_stats._terminated == False
+    assert accumulated_node_stats._launched_successfully is True
+    assert accumulated_node_stats._terminated is False
     assert accumulated_node_stats._time_to_launch == timedelta(minutes=2)
     assert accumulated_node_stats._working_time is None
 
@@ -42,7 +42,7 @@ def test_accumulated_node_stats_terminated():
     ]:
         accumulated_node_stats += models.NodeStatistics(timestamp=stamp, state=state)
     assert accumulated_node_stats._changes == 4
-    assert accumulated_node_stats._launched_successfully == True
-    assert accumulated_node_stats._terminated == True
+    assert accumulated_node_stats._launched_successfully is True
+    assert accumulated_node_stats._terminated is True
     assert accumulated_node_stats._time_to_launch == timedelta(minutes=2)
     assert accumulated_node_stats._working_time == timedelta(minutes=3)

@@ -1,7 +1,8 @@
 from pathlib import Path
-import pytest
 from typing import List
 from urllib.error import HTTPError
+
+import pytest
 
 from dapp_stats.dapp_size_resolver import DappSizeResolver, DappSizeResolverError
 
@@ -77,7 +78,8 @@ def test_resolve_vm_runtime_payload_size_missing_image_hash(dapp_size_resolver):
     )
 
     assert errors == [
-        'Ignoring payload "a" as following error occurred: Field "image_hash" is not present in payload params!'
+        'Ignoring payload "a" as following error occurred: Field "image_hash" is not'
+        " present in payload params!"
     ]
     assert sizes == {"total_size": 0, "payloads": {}}
 
@@ -169,7 +171,8 @@ def test_resolve_vm_manifest_runtime_payload_size_missing_manifest(dapp_size_res
     )
 
     assert errors == [
-        'Ignoring payload "a" as following error occurred: Field "manifest" is not present in payload params!'
+        'Ignoring payload "a" as following error occurred: Field "manifest" is not'
+        " present in payload params!"
     ]
     assert sizes == {"total_size": 0, "payloads": {}}
 
@@ -180,13 +183,15 @@ def test_resolve_vm_manifest_runtime_payload_size_corrupted_manifest(
     sizes, errors = dapp_size_resolver.resolve_defined_payload_sizes(
         [
             Path(
-                "tests/assets/descriptors/bad_vm_manifest_runtime_corrupted_manifest.yaml"
+                "tests/assets/descriptors/"
+                "bad_vm_manifest_runtime_corrupted_manifest.yaml"
             )
         ]
     )
 
     assert errors == [
-        'Ignoring payload "a" as following error occurred: Field "manifest" is not properly Base64 encoded JSON object!'
+        'Ignoring payload "a" as following error occurred: Field "manifest" is not'
+        " properly Base64 encoded JSON object!"
     ]
     assert sizes == {"total_size": 0, "payloads": {}}
 
@@ -197,14 +202,17 @@ def test_resolve_vm_manifest_runtime_payload_size_no_image_url_in_manifest(
     sizes, errors = dapp_size_resolver.resolve_defined_payload_sizes(
         [
             Path(
-                "tests/assets/descriptors/bad_vm_manifest_runtime_without_image_url.yaml"
+                "tests/assets/descriptors/"
+                "bad_vm_manifest_runtime_without_image_url.yaml"
             )
         ]
     )
 
     assert errors == [
-        'Ignoring payload "a" as following error occurred: Payload url is not present in manifest!',
-        'Ignoring payload "b" as following error occurred: Payload url is not present in manifest!',
+        'Ignoring payload "a" as following error occurred: Payload url is not present'
+        " in manifest!",
+        'Ignoring payload "b" as following error occurred: Payload url is not present'
+        " in manifest!",
     ]
     assert sizes == {"total_size": 0, "payloads": {}}
 
@@ -258,6 +266,7 @@ def test_resolve_payload_size_unknown_payload_runtime(dapp_size_resolver):
     )
 
     assert errors == [
-        'Ignoring payload "a" as following error occurred: Size measurement for runtime "unsupported or something..." is not supported!'
+        'Ignoring payload "a" as following error occurred: Size measurement for runtime'
+        ' "unsupported or something..." is not supported!'
     ]
     assert sizes == {"total_size": 0, "payloads": {}}

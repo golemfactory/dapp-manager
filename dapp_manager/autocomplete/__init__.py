@@ -1,6 +1,7 @@
+from pathlib import Path
+
 import appdirs
 import click
-from pathlib import Path
 
 # Entrypoint aka binary name aka script name
 # Entrypoint must match the name defined in pyproject.toml under

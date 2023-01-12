@@ -1,12 +1,14 @@
 import base64
-from dapp_runner.descriptor import DappDescriptor
-from dapp_runner.descriptor.dapp import PayloadDescriptor
-from dapp_runner.descriptor.parser import load_yamls
 import json
 from pathlib import Path
 from typing import Callable, Dict, List, Sequence, Tuple, TypedDict
 from urllib import request
 from urllib.error import HTTPError
+
+from dapp_runner.descriptor import DappDescriptor
+from dapp_runner.descriptor.dapp import PayloadDescriptor
+from dapp_runner.descriptor.parser import load_yamls
+
 from yapapi.payload.vm import _DEFAULT_REPO_SRV, resolve_repo_srv
 
 
@@ -42,7 +44,8 @@ class DappSizeResolver:
                 payload_size = size_resolver(payload)
             except DappSizeResolverError as e:
                 errors.append(
-                    f'Ignoring payload "{payload_name}" as following error occurred: {e}'
+                    f'Ignoring payload "{payload_name}" as following error occurred:'
+                    f" {e}"
                 )
             else:
                 payloads_sizes[payload_name] = payload_size
@@ -72,7 +75,7 @@ class DappSizeResolver:
             image_hash = payload.params["image_hash"]
         except (TypeError, KeyError):
             raise DappSizeResolverError(
-                f'Field "image_hash" is not present in payload params!'
+                'Field "image_hash" is not present in payload params!'
             )
 
         image_url = cls._fetch_image_url_from_image_hash(image_hash)
@@ -121,7 +124,8 @@ class DappSizeResolver:
             return cls._fetch_http_response_body(repo_package_url).decode("utf-8")
         except HTTPError as e:
             raise DappSizeResolverError(
-                f'Can\'t fetch image url from image hash "{image_hash}" via url "{repo_package_url}": {e}'
+                f'Can\'t fetch image url from image hash "{image_hash}" via url'
+                f' "{repo_package_url}": {e}'
             )
 
     @classmethod

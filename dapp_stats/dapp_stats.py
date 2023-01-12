@@ -1,6 +1,7 @@
 from collections import defaultdict
-import pydantic
 from typing import DefaultDict, Dict, Optional
+
+import pydantic
 
 from dapp_manager import DappManager
 
@@ -25,7 +26,8 @@ class DappStats:
                 app_state = StateLogEntry.parse_raw(raw_state)
             except pydantic.ValidationError:
                 raise DappStatsException(
-                    f"dApp {self._app_id } state log is corrupted. Unable to generate statistics."
+                    f"dApp {self._app_id } state log is corrupted. Unable to generate"
+                    " statistics."
                 )
 
             if app_statistics is not None:

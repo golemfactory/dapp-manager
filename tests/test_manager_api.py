@@ -1,11 +1,11 @@
-"""A bunch of E2E tests of the DappManager interface"""
-from datetime import datetime, timedelta, timezone
-import psutil
-import pytest
 import random
 import string
+from datetime import datetime, timedelta, timezone
 from time import sleep
 from unittest import mock
+
+import psutil
+import pytest
 
 from dapp_manager import DappManager
 from dapp_manager.exceptions import AppNotRunning, StartupFailed, UnknownApp
@@ -70,8 +70,8 @@ def test_stop(get_dapp):
     pid = dapp.pid
     assert process_is_running(pid)
 
-    #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
-    #         but it for sure should succeed for the command we're running here
+    # NOTE: `stop` is not guaranted to succeed for every process (because it only
+    # SIGINTs), but it for sure should succeed for the command we're running here
     assert dapp.alive
     assert dapp.stop(timeout=1)
     assert not dapp.alive
@@ -121,9 +121,9 @@ def test_unknown_app(method_name_args):
     invalid_app_id = "oops_no_such_app"
     dapp = DappManager(invalid_app_id)
     with pytest.raises(UnknownApp) as exc_info:
-        #   NOTE: we have both properties and methods here, exceptions for properties are
-        #         raised in getattr, for methods when they are executed (*args), but both is fine
-        #         so this doesn't really matter
+        # NOTE: we have both properties and methods here, exceptions for properties are
+        #  raised in getattr, for methods when they are executed (*args), but both is
+        #  fine so this doesn't really matter
         getattr(dapp, method_name)(*args)
     assert invalid_app_id in str(exc_info.value)
 

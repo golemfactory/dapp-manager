@@ -1,8 +1,9 @@
-import click
+import sys
 from functools import wraps
 from pathlib import Path
-import sys
 from typing import Tuple
+
+import click
 
 from dapp_manager import DappManager
 from dapp_manager.autocomplete import install_autocomplete
@@ -96,7 +97,8 @@ def prune():
     "-t",
     type=int,
     default=10,
-    help="Specify a shutdown timeout in seconds. Successful shutdown is indicated by the app_id print",
+    help="Specify a shutdown timeout in seconds. Successful shutdown is indicated by"
+    " the app_id print",
 )
 @_with_app_id
 @_capture_api_exceptions

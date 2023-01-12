@@ -1,5 +1,5 @@
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import PIPE, Popen, TimeoutExpired
 from typing import List, Tuple
@@ -17,14 +17,16 @@ class DappStarter:
         self.storage = storage
 
     def start(self, timeout: float) -> None:
-        """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not running."""
+        """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not\
+         running."""
+
         command = self._get_command()
 
-        #   NOTE: Stdout/stderr here should not be confused with --stdout and --stderr
-        #         passed as arguments to the dapp-runner command.
-        #         PIPE captures only the output that was *not* redirected by the dapp-runner,
-        #         i.e. python errors (--> stderr/stdout that happened before the dapp-runner started,
-        #         or related to internal errors in the dapp-runner).
+        # NOTE: Stdout/stderr here should not be confused with --stdout and --stderr
+        #  passed as arguments to the dapp-runner command.
+        #  PIPE captures only the output that was *not* redirected by the dapp-runner,
+        #  i.e. python errors (--> stderr/stdout that happened before the dapp-runner
+        #  started, or related to internal errors in the dapp-runner).
         proc = Popen(command, stdout=PIPE, stderr=PIPE)
 
         success, stdout, stderr = self._check_succesful_startup(proc, timeout)
@@ -67,6 +69,7 @@ class DappStarter:
 
     def _cli_args(self) -> List[str]:
         """Return the dapp-runner CLI command and args."""
+
         # TODO: https://github.com/golemfactory/dapp-manager/issues/5
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
@@ -80,8 +83,11 @@ class DappStarter:
         return args
 
     def _executable(self) -> List[str]:
-        """Return the "dapp-runner" executable - either set by the env variable or the default.
+        """Return the "dapp-runner" executable - either set by the env variable or the\
+         default.
 
-        Env variable is intended mostly for the testing/debugging purposes."""
+        Env variable is intended mostly for the testing/debugging purposes.
+        """
+
         executable_str = os.environ.get("DAPP_RUNNER_EXEC", DEFAULT_EXEC_STR)
         return list(executable_str.split())

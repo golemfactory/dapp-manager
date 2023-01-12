@@ -1,11 +1,12 @@
-import click
-from click import ClickException
-from functools import wraps
 import json
 import logging
-from pathlib import Path
 import sys
+from functools import wraps
+from pathlib import Path
 from typing import Sequence
+
+import click
+from click import ClickException
 
 from dapp_stats import DappStats
 from dapp_stats.dapp_size_resolver import DappSizeResolver, DappSizeResolverError
@@ -41,7 +42,7 @@ def _cli():
 @_with_app_id
 @_capture_api_exceptions
 def stats(*, app_id):
-    """Returns the stats of a given app."""
+    """Return the stats of a given app."""
     dapp = DappStats(app_id)
     print(json.dumps(dapp.get_stats(), indent=2, default=str))
 
@@ -54,7 +55,8 @@ def stats(*, app_id):
     type=Path,
 )
 def size(descriptors: Sequence[Path]):
-    """Calculates dApp defined payloads sizes (in bytes) on the provided set of descriptor files."""
+    """Calculate dApp defined payloads sizes (in bytes) on the provided set of \
+    descriptor files."""
 
     try:
         measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(
