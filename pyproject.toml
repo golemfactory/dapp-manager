@@ -4,9 +4,6 @@ version = "0.0.0a4"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
-
-packages = [{ include = "dapp_manager" }, { include = "dapp_stats" }]
-
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Environment :: Console",
@@ -19,16 +16,32 @@ classifiers = [
 ]
 repository = "https://github.com/golemfactory/dapp-manager"
 readme = "README.md"
+packages = [{ include = "dapp_manager" }, { include = "dapp_stats" }]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = true
 
 [tool.poetry.dependencies]
 python = "^3.8"
+
 psutil = "^5.9"
 appdirs = "^1.4"
 click = "^8.1"
 dapp-runner = { git = "https://github.com/golemfactory/dapp-runner.git", branch = "main" }
 pydantic = "^1.9"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+setuptools = "*"  # implicitly required by liccehck
+pip = "*"  # implicitly required by liccehck
+
+autoflake = "^1"
 black = "^22.1"
 mypy = "^0.942"
 isort = "^5.11.3"
@@ -37,29 +50,30 @@ pytest = "^7.1"
 pytest-cov = "^3.0.0"
 pytest-mock = "^3.10.0"
 liccheck = "^0.7.2"
-autoflake = "^2.0.0"
+flake8 = "^5"
+flake8-docstrings = "^1.6"
+Flake8-pyproject = "^1.2.2"
 
 [tool.poetry.scripts]
 dapp-manager = "dapp_manager.__main__:main"
 dapp-stats = "dapp_stats.__main__:main"
 
-[tool.autoflake]
-recursive = true
-in-place = true
-remove-all-unused-imports = true
-ignore-init-module-imports = true
-
-[tool.isort]
-profile = "black"
-force_sort_within_sections = true
-sections = ["FUTURE", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
-default_section = "THIRDPARTY"                                   # STDLIB section will be cobined with THIRDPARTY section
-
-[[tool.poetry.source]]
-name = "testpypi"
-url = "https://test.pypi.org/simple/"
-default = false
-secondary = true
+[tool.poe.tasks]
+checks = {sequence = ["checks_codestyle", "checks_typing", "checks_license"], help = "Run all available code checks"}
+checks_codestyle = {sequence = ["_checks_codestyle_flake8", "_checks_codestyle_isort", "_checks_codestyle_black"], help = "Run only code style checks"}
+_checks_codestyle_flake8 = "flake8 dapp_manager dapp_stats tests"
+_checks_codestyle_isort = "isort --check-only --diff ."
+_checks_codestyle_black = "black --check --diff ."
+checks_typing  = {cmd = "mypy --install-types --non-interactive --ignore-missing-imports --check-untyped-defs --warn-unused-ignores --show-error-codes .", help = "Run only code typing checks" }
+checks_license = {sequence = ["_checks_license_export", "_checks_license_verify"], help = "Run only license compatibility checks"}
+_checks_license_export = "poetry export -f requirements.txt -o .requirements.txt"
+_checks_license_verify = "liccheck -r .requirements.txt"
+format = {sequence = ["_format_autoflake", "_format_isort", "_format_black"], help = "Run code auto formatting"}
+_format_autoflake = "autoflake ."
+_format_isort = "isort ."
+_format_black = "black ."
+tests = {sequence = ["tests_unit"], help = "Run all available tests"}
+tests_unit = {cmd = "pytest --cov --cov-report html --cov-report term -sv tests", help = "Run only unit tests"}
 
 [tool.liccheck]
 authorized_licenses = [
@@ -83,22 +97,28 @@ authorized_licenses = [
 ]
 unauthorized_licenses = ["gpl v3"]
 
-[tool.poe.tasks]
-_codestyle_isort = "isort --check-only --diff ."
-_codestyle_black = "black --check --diff ."
-codestyle = ["_codestyle_isort", "_codestyle_black"]
-_format_autoflake = "autoflake --in-place -r ."
-_format_isort = " isort ."
-_format_black = "black ."
-format = ["_format_autoflake", "_format_isort", "_format_black"]
-typecheck = "mypy --install-types --non-interactive --ignore-missing-imports --check-untyped-defs --warn-unused-ignores --show-error-codes ."
-_liccheck_export = "poetry export -f requirements.txt -o .requirements.txt"
-_liccheck_verify = "liccheck -r .requirements.txt"
-liccheck = ["_liccheck_export", "_liccheck_verify"]
-check = ["codestyle", "typecheck", "liccheck"]
-unittest = "pytest --cov --cov-report html --cov-report term  -sv tests"
-test = ["unittest", "check"]
+[tool.autoflake]
+recursive = true
+in-place = true
+remove-all-unused-imports = true
+ignore-init-module-imports = true
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.flake8]
+max-line-length = 88
+extend-ignore = [
+    "E203", # See https://github.com/PyCQA/pycodestyle/issues/373
+    "E231", # black ignores this rule when formatting
+    "D105", # No docs for magic method
+    "D104", # No docs for public package
+    "D107", # No docs for __init__
+    "D202", # We prefere whitelines after docstrings
+]
+
+[tool.isort]
+profile = "black"
+py_version = 38
+known_golem = "goth, yapapi, ya_activity, ya_market, ya_net, ya_payment"
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "GOLEM", "FIRSTPARTY", "LOCALFOLDER"]
+
+[tool.black]
+target-version = ['py38']
