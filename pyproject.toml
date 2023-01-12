@@ -109,10 +109,10 @@ extend-ignore = [
     "E203", # See https://github.com/PyCQA/pycodestyle/issues/373
     "E231", # black ignores this rule when formatting
     "D105", # No docs for magic method
-    "D100", # TODO: To be fixed by #73
-    "D101", # TODO: To be fixed by #73
-    "D102", # TODO: To be fixed by #73
-    "D103", # TODO: To be fixed by #73
+    "D100", # TODO: To be fixed by #74
+    "D101", # TODO: To be fixed by #74
+    "D102", # TODO: To be fixed by #74
+    "D103", # TODO: To be fixed by #74
     "D104", # No docs for public package
     "D107", # No docs for __init__
     "D202", # We prefere whitelines after docstrings
