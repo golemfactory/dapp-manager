@@ -36,12 +36,8 @@ def start_dapp(
             command = command + [str(self.storage.file_name("data").resolve())]
         return command
 
-    with mock.patch(
-        "dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
-    ):
-        return DappManager.start(
-            descriptor_file, config=config_file, timeout=check_startup_timeout
-        )
+    with mock.patch("dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command):
+        return DappManager.start(descriptor_file, config=config_file, timeout=check_startup_timeout)
 
 
 def new_dapp_manager(command, **kwargs) -> DappManager:

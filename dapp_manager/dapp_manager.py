@@ -230,8 +230,7 @@ class DappManager:
                 return (
                     this_process.username() == app_process.username()
                     and app_process.status() != psutil.STATUS_ZOMBIE
-                    and app_process.create_time()
-                    < self.storage.pid_file.stat().st_ctime
+                    and app_process.create_time() < self.storage.pid_file.stat().st_ctime
                 )
         except (psutil.NoSuchProcess, psutil.AccessDenied, FileNotFoundError):
             return False

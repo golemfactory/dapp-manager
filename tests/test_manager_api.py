@@ -33,9 +33,7 @@ def test_start():
 
 def test_list():
     dapp_1 = start_dapp(["echo", "foo"])
-    sleep(
-        0.01
-    )  # ensure second dapp is created after the first (we test the app_id order)
+    sleep(0.01)  # ensure second dapp is created after the first (we test the app_id order)
     dapp_2 = start_dapp(["echo", "bar"])
 
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
@@ -100,9 +98,7 @@ def test_stop_timeout_kill(get_dapp):
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_read_file(get_dapp):
-    dapp = get_dapp(
-        [asset_path("write_mock_files.sh")], state_file=True, data_file=True
-    )
+    dapp = get_dapp([asset_path("write_mock_files.sh")], state_file=True, data_file=True)
     sleep(0.01)
 
     for file_type in ("state", "data"):

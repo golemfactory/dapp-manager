@@ -18,8 +18,8 @@ class SimpleStorage:
     def init(self) -> None:
         """Initialize storage for `self.app_id`.
 
-        There is a separate method (instead of e.g. a call in `__init__`) because we
-        want to do this only once per `app_id` and in a fully controlled manner.
+        There is a separate method (instead of e.g. a call in `__init__`) because we want to do
+        this only once per `app_id` and in a fully controlled manner.
         """
 
         self._data_dir.mkdir(parents=True)
@@ -101,12 +101,9 @@ class SimpleStorage:
     def archived_pid_file(self) -> Path:
         return self.file_name("_old_pid")
 
-    def file_name(
-        self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]
-    ) -> Path:
-        # NOTE: "Known app" test here is sufficient - this method will be called
-        # whenever any piece of information related to self.app_id is retrieved or
-        # changed
+    def file_name(self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]) -> Path:
+        # NOTE: "Known app" test here is sufficient - this method will be called whenever any piece
+        # of information related to self.app_id is retrieved or changed
         self._ensure_known_app()
         return self._data_dir / name
 

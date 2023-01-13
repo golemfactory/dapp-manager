@@ -44,8 +44,7 @@ class DappSizeResolver:
                 payload_size = size_resolver(payload)
             except DappSizeResolverError as e:
                 errors.append(
-                    f'Ignoring payload "{payload_name}" as following error occurred:'
-                    f" {e}"
+                    f'Ignoring payload "{payload_name}" as following error occurred:' f" {e}"
                 )
             else:
                 payloads_sizes[payload_name] = payload_size
@@ -56,9 +55,7 @@ class DappSizeResolver:
         }, errors
 
     @classmethod
-    def _get_dapp_from_descriptor_paths(
-        cls, descriptor_paths: Sequence[Path]
-    ) -> DappDescriptor:
+    def _get_dapp_from_descriptor_paths(cls, descriptor_paths: Sequence[Path]) -> DappDescriptor:
         try:
             dapp_dict = load_yamls(*descriptor_paths)
         except FileNotFoundError as e:
@@ -74,24 +71,18 @@ class DappSizeResolver:
         try:
             image_hash = payload.params["image_hash"]
         except (TypeError, KeyError):
-            raise DappSizeResolverError(
-                'Field "image_hash" is not present in payload params!'
-            )
+            raise DappSizeResolverError('Field "image_hash" is not present in payload params!')
 
         image_url = cls._fetch_image_url_from_image_hash(image_hash)
 
         return cls._fetch_payload_size_from_image_url(image_url)
 
     @classmethod
-    def _resolve_payload_size_for_vm_manifest_runtime(
-        cls, payload: PayloadDescriptor
-    ) -> int:
+    def _resolve_payload_size_for_vm_manifest_runtime(cls, payload: PayloadDescriptor) -> int:
         try:
             manifest_base64 = payload.params["manifest"]
         except KeyError:
-            raise DappSizeResolverError(
-                'Field "manifest" is not present in payload params!'
-            )
+            raise DappSizeResolverError('Field "manifest" is not present in payload params!')
 
         try:
             manifest = json.loads(base64.b64decode(manifest_base64.encode("utf-8")))
@@ -108,9 +99,7 @@ class DappSizeResolver:
         return cls._fetch_payload_size_from_image_url(image_url)
 
     @classmethod
-    def _resolve_payload_size_for_unknown_runtime(
-        cls, payload: PayloadDescriptor
-    ) -> int:
+    def _resolve_payload_size_for_unknown_runtime(cls, payload: PayloadDescriptor) -> int:
         raise DappSizeResolverError(
             f'Size measurement for runtime "{payload.runtime}" is not supported!'
         )

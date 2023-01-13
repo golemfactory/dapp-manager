@@ -15,9 +15,9 @@ def _app_id_autocomplete(_ctx, _param, incomplete):
 
 
 def _with_app_id(wrapped_func):
-    wrapped_func = click.argument(
-        "app-id", type=str, shell_complete=_app_id_autocomplete
-    )(wrapped_func)
+    wrapped_func = click.argument("app-id", type=str, shell_complete=_app_id_autocomplete)(
+        wrapped_func
+    )
     return wrapped_func
 
 
@@ -215,8 +215,8 @@ def stderr(*, app_id, ensure_alive):
 def autocomplete(shell: str, path: Path):
     """Enable CLI shell completion for the given shell.
 
-    This command works by appending a pre-defined piece of shell code to the user's
-    shell configuration file.
+    This command works by appending a pre-defined piece of shell code to the user's shell
+    configuration file.
 
     The default target file will depend on the selected shell type (bash, fish or zsh):
         - bash: `~/.bashrc`

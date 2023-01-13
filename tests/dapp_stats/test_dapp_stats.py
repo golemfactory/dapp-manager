@@ -13,9 +13,7 @@ def test_get_stats_ok(mocker):
         '{"nodes": {"db": {"0": "running"}, "http": {"0": "running"}}, "timestamp": "2022-12-19T10:26:53Z", "app": "running"}',  # noqa
     ]
     dapp_stats = DappStats("app_id")
-    mocker.patch.object(
-        DappStats, DappStats._iter_app_states.__name__, return_value=states_payload
-    )
+    mocker.patch.object(DappStats, DappStats._iter_app_states.__name__, return_value=states_payload)
     stats = dapp_stats.get_stats()
     assert stats["nodes"]["db"][0]["launched_successfully"] is True
     assert stats["nodes"]["db"][0]["time_to_launch"] == timedelta(minutes=2)
@@ -29,9 +27,7 @@ def test_get_stats_ok(mocker):
 def test_get_stats_no_states(mocker):
     states_payload: List[str] = []
     dapp_stats = DappStats("app_id")
-    mocker.patch.object(
-        DappStats, DappStats._iter_app_states.__name__, return_value=states_payload
-    )
+    mocker.patch.object(DappStats, DappStats._iter_app_states.__name__, return_value=states_payload)
     stats = dapp_stats.get_stats()
     assert stats["nodes"] == {}
     assert stats["app"] == {}

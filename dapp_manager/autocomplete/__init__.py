@@ -12,9 +12,7 @@ SCRIPTS_DIR = Path(__file__).parent / "scripts"
 
 DEFAULT_SHELL_FILES = {
     "bash": Path.home() / ".bashrc",
-    "fish": Path(appdirs.user_config_dir("fish"))
-    / "completions"
-    / f"{ENTRYPOINT}.fish",
+    "fish": Path(appdirs.user_config_dir("fish")) / "completions" / f"{ENTRYPOINT}.fish",
     "zsh": Path.home() / ".zshrc",
 }
 

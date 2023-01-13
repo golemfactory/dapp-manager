@@ -55,13 +55,10 @@ def stats(*, app_id):
     type=Path,
 )
 def size(descriptors: Sequence[Path]):
-    """Calculate dApp defined payloads sizes (in bytes) on the provided set of \
-    descriptor files."""
+    """Calculate dApp defined payloads sizes (in bytes) on the provided set of descriptor files."""
 
     try:
-        measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(
-            descriptors
-        )
+        measured_sizes, errors = DappSizeResolver.resolve_defined_payload_sizes(descriptors)
     except DappSizeResolverError as e:
         raise ClickException(str(e))
 
