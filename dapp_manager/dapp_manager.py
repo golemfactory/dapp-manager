@@ -248,7 +248,7 @@ class DappManager:
 
 @contextmanager
 def enforce_timeout(seconds: int):
-    """Context manager for exit after `seconds`."""
+    """Context manager enforcing an exit after `seconds`."""
     # TODO: https://github.com/golemfactory/dapp-manager/issues/10
 
     def raise_timeout_error(signum, frame):
