@@ -1,8 +1,9 @@
-import click
+import sys
 from functools import wraps
 from pathlib import Path
-import sys
 from typing import Tuple
+
+import click
 
 from dapp_manager import DappManager
 from dapp_manager.autocomplete import install_autocomplete
@@ -14,9 +15,9 @@ def _app_id_autocomplete(_ctx, _param, incomplete):
 
 
 def _with_app_id(wrapped_func):
-    wrapped_func = click.argument(
-        "app-id", type=str, shell_complete=_app_id_autocomplete
-    )(wrapped_func)
+    wrapped_func = click.argument("app-id", type=str, shell_complete=_app_id_autocomplete)(
+        wrapped_func
+    )
     return wrapped_func
 
 
@@ -96,7 +97,8 @@ def prune():
     "-t",
     type=int,
     default=10,
-    help="Specify a shutdown timeout in seconds. Successful shutdown is indicated by the app_id print",
+    help="Specify a shutdown timeout in seconds. Successful shutdown is indicated by"
+    " the app_id print",
 )
 @_with_app_id
 @_capture_api_exceptions
@@ -213,8 +215,8 @@ def stderr(*, app_id, ensure_alive):
 def autocomplete(shell: str, path: Path):
     """Enable CLI shell completion for the given shell.
 
-    This command works by appending a pre-defined piece of shell code to the user's
-    shell configuration file.
+    This command works by appending a pre-defined piece of shell code to the user's shell
+    configuration file.
 
     The default target file will depend on the selected shell type (bash, fish or zsh):
         - bash: `~/.bashrc`

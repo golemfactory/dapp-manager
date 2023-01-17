@@ -1,6 +1,7 @@
 from collections import defaultdict
-import pydantic
 from typing import DefaultDict, Dict, Optional
+
+import pydantic
 
 from dapp_manager import DappManager
 
@@ -29,19 +30,13 @@ class DappStats:
                 )
 
             if app_statistics is not None:
-                app_statistics += NodeStatistics(
-                    state=app_state.app, timestamp=app_state.timestamp
-                )
+                app_statistics += NodeStatistics(state=app_state.app, timestamp=app_state.timestamp)
             else:
-                app_statistics = NodeStatistics(
-                    state=app_state.app, timestamp=app_state.timestamp
-                )
+                app_statistics = NodeStatistics(state=app_state.app, timestamp=app_state.timestamp)
 
             for node, node_states in app_state.nodes.items():
                 for node_idx, state in node_states.items():
-                    node_stat = NodeStatistics(
-                        state=state, timestamp=app_state.timestamp
-                    )
+                    node_stat = NodeStatistics(state=state, timestamp=app_state.timestamp)
                     if node_idx in nodes_stats[node]:
                         nodes_stats[node][node_idx] += node_stat
                     else:

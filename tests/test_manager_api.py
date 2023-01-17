@@ -1,11 +1,11 @@
-"""A bunch of E2E tests of the DappManager interface"""
-from datetime import datetime, timedelta, timezone
-import psutil
-import pytest
 import random
 import string
+from datetime import datetime, timedelta, timezone
 from time import sleep
 from unittest import mock
+
+import psutil
+import pytest
 
 from dapp_manager import DappManager
 from dapp_manager.exceptions import AppNotRunning, StartupFailed, UnknownApp
@@ -33,9 +33,7 @@ def test_start():
 
 def test_list():
     dapp_1 = start_dapp(["echo", "foo"])
-    sleep(
-        0.01
-    )  # ensure second dapp is created after the first (we test the app_id order)
+    sleep(0.01)  # ensure second dapp is created after the first (we test the app_id order)
     dapp_2 = start_dapp(["echo", "bar"])
 
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
@@ -70,8 +68,8 @@ def test_stop(get_dapp):
     pid = dapp.pid
     assert process_is_running(pid)
 
-    #   NOTE: `stop` is not guaranted to succeed for every process (because it only SIGINTs),
-    #         but it for sure should succeed for the command we're running here
+    # NOTE: `stop` is not guaranted to succeed for every process (because it only
+    # SIGINTs), but it for sure should succeed for the command we're running here
     assert dapp.alive
     assert dapp.stop(timeout=1)
     assert not dapp.alive
@@ -100,9 +98,7 @@ def test_stop_timeout_kill(get_dapp):
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_read_file(get_dapp):
-    dapp = get_dapp(
-        [asset_path("write_mock_files.sh")], state_file=True, data_file=True
-    )
+    dapp = get_dapp([asset_path("write_mock_files.sh")], state_file=True, data_file=True)
     sleep(0.01)
 
     for file_type in ("state", "data"):
@@ -121,9 +117,9 @@ def test_unknown_app(method_name_args):
     invalid_app_id = "oops_no_such_app"
     dapp = DappManager(invalid_app_id)
     with pytest.raises(UnknownApp) as exc_info:
-        #   NOTE: we have both properties and methods here, exceptions for properties are
-        #         raised in getattr, for methods when they are executed (*args), but both is fine
-        #         so this doesn't really matter
+        # NOTE: we have both properties and methods here, exceptions for properties are
+        #  raised in getattr, for methods when they are executed (*args), but both are
+        #  fine so this doesn't really matter
         getattr(dapp, method_name)(*args)
     assert invalid_app_id in str(exc_info.value)
 

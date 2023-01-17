@@ -1,8 +1,8 @@
-from contextlib import contextmanager
 import os
-from pathlib import Path
 import re
 import shutil
+from contextlib import contextmanager
+from pathlib import Path
 from typing import Generator, List, Literal, Union
 
 from .exceptions import UnknownApp
@@ -16,10 +16,12 @@ class SimpleStorage:
         self.base_dir = Path(data_dir)
 
     def init(self) -> None:
-        """Initialize storage for `self.app_id`
+        """Initialize storage for `self.app_id`.
 
-        There is a separate method (instead of e.g. a call in `__init__`) because we want to
-        do this only once per `app_id` and in a fully controlled manner."""
+        There is a separate method (instead of e.g. a call in `__init__`) because we want to do
+        this only once per `app_id` and in a fully controlled manner.
+        """
+
         self._data_dir.mkdir(parents=True)
 
     def save_pid(self, pid: int) -> None:
@@ -69,8 +71,8 @@ class SimpleStorage:
     def iter_file(self, file_type: RunnerFileType) -> Generator[str, None, None]:
         try:
             with self.open(file_type, "r") as f:
-                for l in f:
-                    yield l
+                for line in f:
+                    yield line
         except FileNotFoundError:
             return
 
@@ -99,11 +101,9 @@ class SimpleStorage:
     def archived_pid_file(self) -> Path:
         return self.file_name("_old_pid")
 
-    def file_name(
-        self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]
-    ) -> Path:
-        #   NOTE: "Known app" test here is sufficient - this method will be called whenever
-        #         any piece of information related to self.app_id is retrieved or changed
+    def file_name(self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]) -> Path:
+        # NOTE: "Known app" test here is sufficient - this method will be called whenever any piece
+        # of information related to self.app_id is retrieved or changed
         self._ensure_known_app()
         return self._data_dir / name
 

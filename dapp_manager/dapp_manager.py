@@ -1,15 +1,19 @@
-import appdirs
-from contextlib import contextmanager
-from datetime import datetime, timedelta
 import json
 import os
-from pathlib import Path
-import psutil
 import re
-import signal  # TODO: Add support for windows machines https://github.com/golemfactory/dapp-manager/issues/72
+
+# TODO: Add support for windows machines
+#  https://github.com/golemfactory/dapp-manager/issues/72
+import signal
+import uuid
+from contextlib import contextmanager
+from datetime import datetime, timedelta
+from pathlib import Path
 from time import sleep
 from typing import List, Union
-import uuid
+
+import appdirs
+import psutil
 
 from .dapp_starter import DappStarter
 from .exceptions import AppNotRunning
@@ -21,15 +25,16 @@ COMMAND_OUTPUT_INTERVAL = 1.0
 
 
 class DappManager:
-    """Manage multiple dapps
+    """Manage multiple dapps.
 
     General notes:
     * DappManager instances are stateless -> there is never a difference
-      between using a newly created DappManager object and using one created before, as long
-      as they share the same app_id
+      between using a newly created DappManager object and using one created before,
+      as long as they share the same app_id
     * All DappMangers running in the same working directory share the same data
     * UnknownApp exception can be thrown out of any instance method
-    * There's no problem having multiple DappManager instances at the same time"""
+    * There's no problem having multiple DappManager instances at the same time
+    """
 
     def __init__(self, app_id: str):
         self.app_id = app_id
@@ -39,7 +44,8 @@ class DappManager:
     #   PUBLIC CLASS METHODS
     @classmethod
     def list(cls) -> List[str]:
-        """Return a list of ids of all known apps, sorted by the creation date"""
+        """Return a list of ids of all known apps, sorted by the creation date."""
+
         return SimpleStorage.app_id_list(cls._get_data_dir())
 
     @classmethod
@@ -50,7 +56,8 @@ class DappManager:
         config: PathType,
         timeout: float = 1,
     ) -> "DappManager":
-        """Start a new app"""
+        """Start a new app."""
+
         descriptor_paths = [Path(d) for d in [descriptor, *other_descriptors]]
         config_path = Path(config)
 
@@ -70,7 +77,8 @@ class DappManager:
         This removes the database entry (if the app was not stopped gracefully) and
         all of the data passed from the dapp-runner (e.g. data, state etc).
 
-        Returns a list of app_ids of the pruned apps."""
+        Returns a list of app_ids of the pruned apps.
+        """
 
         pruned = []
         for app_id in cls.list():
@@ -85,7 +93,9 @@ class DappManager:
     def read_file(self, file_type: RunnerFileType, ensure_alive: bool = True) -> str:
         """Return raw, unparsed contents of the `file_type` stream.
 
-        If ensure_alive is True, AppNotRunning exception will be raised if the app is not running."""
+        If ensure_alive is True, AppNotRunning exception will be raised if the app is
+        not running.
+        """
 
         if ensure_alive:
             self._ensure_alive()
@@ -143,13 +153,15 @@ class DappManager:
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
-        Returned value indicates if the app was succesfully stopped."""
+        Returned value indicates if the app was successfully stopped.
+        """
+
         self._ensure_alive()
 
-        # TODO: Consider refactoring. If we remove "os.waitpid", the whole enforce_timeout thing is
-        #       redundant. Related issues:
-        #       https://github.com/golemfactory/dapp-manager/issues/9
-        #       https://github.com/golemfactory/dapp-manager/issues/10
+        # TODO: Consider refactoring. If we remove "os.waitpid", the whole
+        #  enforce_timeout thing is redundant. Related issues:
+        #  https://github.com/golemfactory/dapp-manager/issues/9
+        #  https://github.com/golemfactory/dapp-manager/issues/10
         with enforce_timeout(timeout):
             os.kill(self.pid, signal.SIGINT)
             self._wait_until_stopped()
@@ -158,7 +170,8 @@ class DappManager:
         return False
 
     def kill(self) -> None:
-        """Stop the app in a non-gracfeul way"""
+        """Stop the app in a non-gracfeul way."""
+
         self._ensure_alive()
 
         os.kill(self.pid, signal.SIGKILL)
@@ -166,10 +179,12 @@ class DappManager:
 
     #######################
     #   SEMI-PUBLIC METHODS
-    #   (they can be useful when using the API, but are also important parts of the internal logic)
+    #   (they can be useful when using the API, but are also important parts of the
+    #   internal logic)
     @property
     def alive(self) -> bool:
-        """Check if the app is running now"""
+        """Check if the app is running now."""
+
         if not self.storage.alive:
             return False
         self._update_alive()
@@ -183,11 +198,12 @@ class DappManager:
     #   HELPERS
     def _wait_until_stopped(self) -> None:
         try:
-            #   This is how we wait if we started the dapp-runner child process
-            #   from the current process.
+            # This is how we wait if we started the dapp-runner child process
+            #  from the current process.
             os.waitpid(self.pid, 0)
         except ChildProcessError:
-            #   And this is how we wait if this is not a child process (e.g. we're using CLI)
+            # And this is how we wait if this is not a child process (e.g. we're using
+            # CLI)
             while psutil.pid_exists(self.pid):
                 sleep(0.1)
 
@@ -214,8 +230,7 @@ class DappManager:
                 return (
                     this_process.username() == app_process.username()
                     and app_process.status() != psutil.STATUS_ZOMBIE
-                    and app_process.create_time()
-                    < self.storage.pid_file.stat().st_ctime
+                    and app_process.create_time() < self.storage.pid_file.stat().st_ctime
                 )
         except (psutil.NoSuchProcess, psutil.AccessDenied, FileNotFoundError):
             return False
@@ -233,7 +248,7 @@ class DappManager:
 
 @contextmanager
 def enforce_timeout(seconds: int):
-    """This context manager exits after `seconds`."""
+    """Context manager enforcing an exit after `seconds`."""
     # TODO: https://github.com/golemfactory/dapp-manager/issues/10
 
     def raise_timeout_error(signum, frame):

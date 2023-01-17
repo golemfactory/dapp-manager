@@ -1,6 +1,7 @@
-import psutil
 from typing import List, Tuple, Union
 from unittest import mock
+
+import psutil
 
 from dapp_manager import DappManager
 
@@ -18,10 +19,11 @@ def process_is_running(pid: int) -> bool:
 def start_dapp(
     base_command: List[str], state_file=False, data_file=False, check_startup_timeout=0
 ) -> DappManager:
-    """Executes DappManager.start(), but executed command is replaced by base_command
+    """Execute DappManager.start(), but executed command is replaced by base_command.
 
     If state_file is True, state file name will be added as command line arg.
-    Same for data_file, if both are True state_file goes first."""
+    Same for data_file, if both are True state_file goes first.
+    """
 
     descriptor_file = ".gitignore"  # any existing file will do (for now)
     config_file = ".gitignore"  # any existing file will do (for now)
@@ -34,22 +36,18 @@ def start_dapp(
             command = command + [str(self.storage.file_name("data").resolve())]
         return command
 
-    with mock.patch(
-        "dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command
-    ):
-        return DappManager.start(
-            descriptor_file, config=config_file, timeout=check_startup_timeout
-        )
+    with mock.patch("dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command):
+        return DappManager.start(descriptor_file, config=config_file, timeout=check_startup_timeout)
 
 
 def new_dapp_manager(command, **kwargs) -> DappManager:
-    """Start a dapp, return a new DappManager instance"""
+    """Start a dapp, return a new DappManager instance."""
     dapp = start_dapp(command, **kwargs)
     return DappManager(dapp.app_id)
 
 
 def other_dapp_in_between(command, **kwargs) -> DappManager:
-    """Start a dapp, start another dapp, return DappManager for the first one"""
+    """Start a dapp, start another dapp, return DappManager for the first one."""
     dapp = start_dapp(command, **kwargs)
     start_dapp(["echo", "foo"])
     return DappManager(dapp.app_id)

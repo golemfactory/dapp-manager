@@ -1,6 +1,7 @@
 from datetime import datetime
-from pydantic import BaseModel
 from typing import Dict
+
+from pydantic import BaseModel
 
 from dapp_stats.statistics.enums import NodeState
 
