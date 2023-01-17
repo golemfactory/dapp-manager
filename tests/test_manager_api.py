@@ -118,7 +118,7 @@ def test_unknown_app(method_name_args):
     dapp = DappManager(invalid_app_id)
     with pytest.raises(UnknownApp) as exc_info:
         # NOTE: we have both properties and methods here, exceptions for properties are
-        #  raised in getattr, for methods when they are executed (*args), but both is
+        #  raised in getattr, for methods when they are executed (*args), but both are
         #  fine so this doesn't really matter
         getattr(dapp, method_name)(*args)
     assert invalid_app_id in str(exc_info.value)
