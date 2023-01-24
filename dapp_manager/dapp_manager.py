@@ -1,12 +1,7 @@
 import json
 import os
 import re
-
-# TODO: Add support for windows machines
-#  https://github.com/golemfactory/dapp-manager/issues/72
-import signal
 import uuid
-from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
@@ -158,23 +153,37 @@ class DappManager:
 
         self._ensure_alive()
 
-        # TODO: Consider refactoring. If we remove "os.waitpid", the whole
-        #  enforce_timeout thing is redundant. Related issues:
-        #  https://github.com/golemfactory/dapp-manager/issues/9
-        #  https://github.com/golemfactory/dapp-manager/issues/10
-        with enforce_timeout(timeout):
-            os.kill(self.pid, signal.SIGINT)
-            self._wait_until_stopped()
-            self.storage.set_not_running()
-            return True
-        return False
+        process = psutil.Process(self.pid)
+
+        if psutil.WINDOWS:
+            import ctypes
+
+            kernel = ctypes.windll.kernel32
+            kernel.FreeConsole()
+            kernel.AttachConsole(self.pid)
+            kernel.SetConsoleCtrlHandler(None, 1)
+            kernel.GenerateConsoleCtrlEvent(0, 0)
+        else:
+            process.terminate()
+
+        try:
+            process.wait(timeout)
+        except psutil.TimeoutExpired:
+            return False
+
+        self.storage.set_not_running()
+
+        return True
 
     def kill(self) -> None:
-        """Stop the app in a non-gracfeul way."""
+        """Stop the app in a non-graceful way."""
 
         self._ensure_alive()
 
-        os.kill(self.pid, signal.SIGKILL)
+        process = psutil.Process(self.pid)
+
+        process.kill()
+
         self.storage.set_not_running()
 
     #######################
@@ -196,17 +205,6 @@ class DappManager:
 
     ############
     #   HELPERS
-    def _wait_until_stopped(self) -> None:
-        try:
-            # This is how we wait if we started the dapp-runner child process
-            #  from the current process.
-            os.waitpid(self.pid, 0)
-        except ChildProcessError:
-            # And this is how we wait if this is not a child process (e.g. we're using
-            # CLI)
-            while psutil.pid_exists(self.pid):
-                sleep(0.1)
-
     def _update_alive(self) -> None:
         if not self._is_running():
             self.storage.set_not_running()
@@ -217,7 +215,7 @@ class DappManager:
 
     def _is_running(self) -> bool:
         try:
-            #   TODO: https://github.com/golemfactory/dapp-manager/issues/9
+            # TODO: https://github.com/golemfactory/dapp-manager/issues/9
 
             this_process = psutil.Process()
             app_process = psutil.Process(self.pid)
@@ -244,22 +242,3 @@ class DappManager:
     @staticmethod
     def _get_data_dir() -> str:
         return appdirs.user_data_dir("dapp_manager", "golemfactory")
-
-
-@contextmanager
-def enforce_timeout(seconds: int):
-    """Context manager enforcing an exit after `seconds`."""
-    # TODO: https://github.com/golemfactory/dapp-manager/issues/10
-
-    def raise_timeout_error(signum, frame):
-        raise TimeoutError
-
-    signal.signal(signal.SIGALRM, raise_timeout_error)
-    signal.alarm(seconds)
-
-    try:
-        yield
-    except TimeoutError:
-        pass
-    finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
