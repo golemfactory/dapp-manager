@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import sys
 import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -155,7 +156,7 @@ class DappManager:
 
         process = psutil.Process(self.pid)
 
-        if psutil.WINDOWS:
+        if sys.platform == "win32":
             import ctypes
 
             kernel = ctypes.windll.kernel32
