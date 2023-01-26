@@ -1,7 +1,8 @@
 import os
+import subprocess
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from subprocess import PIPE, Popen, TimeoutExpired
 from typing import List, Tuple
 
 from .exceptions import StartupFailed
@@ -21,11 +22,19 @@ class DappStarter:
 
         command = self._get_command()
 
+        # Handling graceful shutdown for windows.
+        # See https://github.com/golemfactory/dapp-manager/pull/76
+        kwargs = {}
+        if sys.platform == "win32":
+            kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+
         # NOTE: Stdout/stderr here should not be confused with --stdout and --stderr passed as
         #  arguments to the dapp-runner command. PIPE captures only the output that was *not*
         #  redirected by the dapp-runner, i.e. python errors (--> stderr/stdout that happened
         #  before the dapp-runner started, or related to internal errors in the dapp-runner).
-        proc = Popen(command, stdout=PIPE, stderr=PIPE)
+        proc = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs
+        )  # type: ignore[call-overload]
 
         success, stdout, stderr = self._check_succesful_startup(proc, timeout)
         if not success:
@@ -38,7 +47,9 @@ class DappStarter:
 
         self.storage.save_pid(proc.pid)
 
-    def _check_succesful_startup(self, proc: Popen, timeout: float) -> Tuple[bool, str, str]:
+    def _check_succesful_startup(
+        self, proc: subprocess.Popen, timeout: float
+    ) -> Tuple[bool, str, str]:
         stop = datetime.now() + timedelta(seconds=timeout)
 
         outputs: List[str] = []
@@ -51,7 +62,7 @@ class DappStarter:
                 output, error_output = proc.communicate(timeout=remaining_seconds)
                 outputs.append(output.decode())
                 error_outputs.append(error_output.decode())
-            except TimeoutExpired:
+            except subprocess.TimeoutExpired:
                 pass
 
             if proc.poll() is not None:

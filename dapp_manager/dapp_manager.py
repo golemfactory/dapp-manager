@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import signal
 import sys
 import uuid
 from datetime import datetime, timedelta
@@ -157,13 +158,7 @@ class DappManager:
         process = psutil.Process(self.pid)
 
         if sys.platform == "win32":
-            import ctypes
-
-            kernel = ctypes.windll.kernel32
-            kernel.FreeConsole()
-            kernel.AttachConsole(self.pid)
-            kernel.SetConsoleCtrlHandler(None, 1)
-            kernel.GenerateConsoleCtrlEvent(0, 0)
+            process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
             process.terminate()
 
