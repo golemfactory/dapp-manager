@@ -9,7 +9,12 @@ def handler(signum, frame):
     pass
 
 
-signal.signal(signal.SIGBREAK if sys.platform == "win32" else signal.SIGINT, handler)
+if sys.platform == "win32":
+    signum = signal.SIGBREAK
+else:
+    signum = signal.SIGINT
+
+signal.signal(signum, handler)
 
 for _ in range(int(sys.argv[1])):
     time.sleep(1)

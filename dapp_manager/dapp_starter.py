@@ -3,7 +3,7 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from .exceptions import StartupFailed
 from .storage import RunnerFileType, SimpleStorage
@@ -24,7 +24,7 @@ class DappStarter:
 
         # Handling graceful shutdown for windows.
         # See https://github.com/golemfactory/dapp-manager/pull/76
-        kwargs = {}
+        kwargs: Dict[str, Any] = {}
         if sys.platform == "win32":
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
 
@@ -32,9 +32,7 @@ class DappStarter:
         #  arguments to the dapp-runner command. PIPE captures only the output that was *not*
         #  redirected by the dapp-runner, i.e. python errors (--> stderr/stdout that happened
         #  before the dapp-runner started, or related to internal errors in the dapp-runner).
-        proc = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs
-        )  # type: ignore[call-overload]
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
 
         success, stdout, stderr = self._check_succesful_startup(proc, timeout)
         if not success:
