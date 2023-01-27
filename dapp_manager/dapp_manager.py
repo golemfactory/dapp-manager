@@ -160,7 +160,7 @@ class DappManager:
         if sys.platform == "win32":
             process.send_signal(signal.CTRL_BREAK_EVENT)
         else:
-            process.terminate()
+            process.send_signal(signal.SIGINT)
 
         try:
             process.wait(timeout)
