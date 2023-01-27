@@ -1,3 +1,4 @@
+import sys
 from typing import List, Tuple, Union
 from unittest import mock
 
@@ -50,7 +51,7 @@ def new_dapp_manager(command, **kwargs) -> DappManager:
 def other_dapp_in_between(command, **kwargs) -> DappManager:
     """Start a dapp, start another dapp, return DappManager for the first one."""
     dapp = start_dapp(command, **kwargs)
-    start_dapp(["python", asset_path("echo.py"), "foo"])
+    start_dapp([sys.executable, asset_path("echo.py"), "foo"])
     return DappManager(dapp.app_id)
 
 
