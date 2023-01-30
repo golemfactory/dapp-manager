@@ -1,5 +1,6 @@
 import random
 import string
+import sys
 from datetime import datetime, timedelta, timezone
 from time import sleep
 from unittest import mock
@@ -21,7 +22,7 @@ from .helpers import (
 
 
 def test_start():
-    command = ["sleep", "1"]
+    command = [sys.executable, asset_path("sleep.py"), "1"]
     dapp = start_dapp(command)
 
     pid = dapp.pid
@@ -32,26 +33,26 @@ def test_start():
 
 
 def test_list():
-    dapp_1 = start_dapp(["echo", "foo"])
+    dapp_1 = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
     sleep(0.01)  # ensure second dapp is created after the first (we test the app_id order)
-    dapp_2 = start_dapp(["echo", "bar"])
+    dapp_2 = start_dapp([sys.executable, asset_path("echo.py"), "bar"])
 
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
 
 
 def test_prune():
-    dapp_1 = start_dapp(["echo", "foo"])
-    sleep(0.01)
-    dapp_2 = start_dapp(["sleep", "1"])
-    sleep(0.01)
+    dapp_1 = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
+    sleep(0.5)
+    dapp_2 = start_dapp([sys.executable, asset_path("sleep.py"), "3"])
+    sleep(0.5)
 
     #   First dapp is already dead, but we don't know this yet
     assert DappManager.prune() == []
     assert DappManager.list() == [dapp_1.app_id, dapp_2.app_id]
 
     #   Check what is alive and what is not
-    dapp_1.alive
-    dapp_2.alive
+    assert not dapp_1.alive
+    assert dapp_2.alive
 
     #   First one should get pruned now
     assert DappManager.prune() == [dapp_1.app_id]
@@ -64,8 +65,9 @@ def test_prune():
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop(get_dapp):
-    dapp = get_dapp(["sleep", "3"])
+    dapp = get_dapp([sys.executable, asset_path("sleep.py"), "3"])
     pid = dapp.pid
+    sleep(0.5)
     assert process_is_running(pid)
 
     # NOTE: `stop` is not guaranted to succeed for every process (because it only
@@ -79,9 +81,9 @@ def test_stop(get_dapp):
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop_timeout_kill(get_dapp):
-    dapp = get_dapp([asset_path("sleep_no_sigint.sh"), "10"])
+    dapp = get_dapp([sys.executable, asset_path("sleep_no_sigint.py"), "10"])
     pid = dapp.pid
-    sleep(0.01)
+    sleep(0.5)
 
     #   stop times out because command ignores sigint
     assert dapp.alive
@@ -92,14 +94,16 @@ def test_stop_timeout_kill(get_dapp):
     #   but this can't be ignored
     dapp.kill()
     assert not dapp.alive
-    sleep(0.01)
+    sleep(0.5)
     assert not process_is_running(pid)
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_read_file(get_dapp):
-    dapp = get_dapp([asset_path("write_mock_files.sh")], state_file=True, data_file=True)
-    sleep(0.01)
+    dapp = get_dapp(
+        [sys.executable, asset_path("write_mock_files.py")], state_file=True, data_file=True
+    )
+    sleep(0.5)
 
     for file_type in ("state", "data"):
         mock_fname = asset_path(f"mock_{file_type}_file.txt")
@@ -131,8 +135,8 @@ def test_unknown_app(method_name_args):
 )
 def test_app_not_running(method_name_args):
     method_name, *args = method_name_args
-    dapp = start_dapp(["echo", "foo"])
-    sleep(0.01)
+    dapp = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
+    sleep(0.5)
     with pytest.raises(AppNotRunning) as exc_info:
         getattr(dapp, method_name)(*args)
     assert dapp.app_id in str(exc_info.value)
@@ -147,8 +151,9 @@ def test_app_not_running(method_name_args):
     ),
 )
 def test_app_not_running_ensure_alive(file_type, kwargs, raises):
-    dapp = start_dapp(["echo", "foo"])
-    sleep(0.01)
+    dapp = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
+    sleep(0.5)
+
     if raises:
         with pytest.raises(AppNotRunning) as exc_info:
             dapp.read_file(file_type, **kwargs)
@@ -161,14 +166,14 @@ def test_startup_failed():
     old_dapp_list = DappManager.list()
 
     with pytest.raises(StartupFailed):
-        start_dapp(["echo", "foo"], check_startup_timeout=1)
+        start_dapp([sys.executable, asset_path("echo.py"), "foo"], check_startup_timeout=1)
 
     #   Ensure we don't preserve any data for the non-started dapp
     assert old_dapp_list == DappManager.list()
 
 
 def test_not_my_app():
-    dapp = start_dapp(["sleep", "1"])
+    dapp = start_dapp([sys.executable, asset_path("sleep.py"), "1"])
     sleep(0.01)
 
     assert dapp.alive
@@ -181,8 +186,8 @@ def test_not_my_app():
 
 
 def test_process_apparently_restarted():
-    dapp = start_dapp(["sleep", "1"])
-    sleep(0.01)
+    dapp = start_dapp([sys.executable, asset_path("sleep.py"), "1"])
+    sleep(0.5)
 
     assert dapp.alive
 

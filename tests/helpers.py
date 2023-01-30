@@ -1,3 +1,4 @@
+import sys
 from typing import List, Tuple, Union
 from unittest import mock
 
@@ -34,6 +35,7 @@ def start_dapp(
             command = command + [str(self.storage.file_name("state").resolve())]
         if data_file:
             command = command + [str(self.storage.file_name("data").resolve())]
+
         return command
 
     with mock.patch("dapp_manager.dapp_starter.DappStarter._get_command", new=_get_command):
@@ -49,7 +51,7 @@ def new_dapp_manager(command, **kwargs) -> DappManager:
 def other_dapp_in_between(command, **kwargs) -> DappManager:
     """Start a dapp, start another dapp, return DappManager for the first one."""
     dapp = start_dapp(command, **kwargs)
-    start_dapp(["echo", "foo"])
+    start_dapp([sys.executable, asset_path("echo.py"), "foo"])
     return DappManager(dapp.app_id)
 
 

@@ -13,7 +13,7 @@ RunnerFileType = Literal["data", "state", "log", "stdout", "stderr", "commands"]
 class SimpleStorage:
     def __init__(self, app_id: str, data_dir: str):
         self.app_id = re.sub("[\n\r/\\\\.]", "", app_id)
-        self.base_dir = Path(data_dir)
+        self.base_dir = Path(data_dir).resolve()
 
     def init(self) -> None:
         """Initialize storage for `self.app_id`.
@@ -47,15 +47,8 @@ class SimpleStorage:
 
     @contextmanager
     def open(self, file_type: RunnerFileType, mode):
-        f = None
-        try:
-            f = open(self.file_name(file_type), mode)
+        with self.file_name(file_type).open(mode) as f:
             yield f
-        except Exception:
-            raise
-        finally:
-            if f:
-                f.close()
 
     def read_file(self, file_type: RunnerFileType) -> str:
         try:
