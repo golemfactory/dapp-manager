@@ -1,13 +1,17 @@
+import io
 import os
 import re
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Generator, List, Literal, Union
+from typing import Iterator, List, Literal, Optional, Tuple, Union
 
 from .exceptions import UnknownApp
 
+READ_FILE_ITER_CHUNK_SIZE = 1024
+
 RunnerFileType = Literal["data", "state", "log", "stdout", "stderr", "commands"]
+RunnerReadFileType = Literal["data", "state", "log", "stdout", "stderr"]
 
 
 class SimpleStorage:
@@ -50,24 +54,60 @@ class SimpleStorage:
         with self.file_name(file_type).open(mode) as f:
             yield f
 
-    def read_file(self, file_type: RunnerFileType) -> str:
-        try:
-            with self.open(file_type, "r") as f:
-                return f.read()
-        except FileNotFoundError:
-            return ""
+    def iter_file_chunks(
+        self,
+        file_type: RunnerReadFileType,
+        *,
+        start_pos: Optional[int] = 0,
+        chunk_size: Optional[int] = None,
+    ) -> Iterator[Tuple[int, str]]:
+        """Read chunks of content from given position to end of given stream.
 
-    def write_file(self, file_type: RunnerFileType, data: str):
-        with self.open(file_type, "a") as f:
-            return f.write(data)
+        If read reached end of stream, file handler will be closed.
 
-    def iter_file(self, file_type: RunnerFileType) -> Generator[str, None, None]:
+        Returns tuple of:
+         - size of read data
+         - data itself
+        """
+
+        with self.open(file_type, "r") as f:
+            file_size = f.seek(0, io.SEEK_END)
+            f.seek(start_pos)
+            previous_pos = start_pos
+
+            while True:
+                data = f.read(chunk_size)
+
+                if not data:
+                    # We have no more data in file, end the iteration
+                    return
+
+                current_pos = f.tell()
+                read_size = current_pos - previous_pos
+                previous_pos = current_pos
+
+                if current_pos == file_size:
+                    # We have some data, but we reached to end of file
+                    #  so let's leave the loop end file context
+                    break
+
+                # yield data but hold log file open
+                yield read_size, data
+
+        # yield data but after closing log file
+        yield read_size, data
+
+    def iter_file_lines(self, file_type: RunnerReadFileType) -> Iterator[str]:
         try:
             with self.open(file_type, "r") as f:
                 for line in f:
                     yield line
         except FileNotFoundError:
             return
+
+    def write_file(self, file_type: RunnerFileType, data: str):
+        with self.open(file_type, "a") as f:
+            return f.write(data)
 
     @classmethod
     def app_id_list(cls, data_dir: str) -> List[str]:

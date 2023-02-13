@@ -1,13 +1,14 @@
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Tuple
+from typing import Callable, Tuple
 
 import click
 
 from dapp_manager import DappManager
 from dapp_manager.autocomplete import install_autocomplete
 from dapp_manager.exceptions import DappManagerException
+from dapp_manager.storage import RunnerReadFileType
 
 
 def _app_id_autocomplete(_ctx, _param, incomplete):
@@ -18,14 +19,6 @@ def _with_app_id(wrapped_func):
     wrapped_func = click.argument("app-id", type=str, shell_complete=_app_id_autocomplete)(
         wrapped_func
     )
-    return wrapped_func
-
-
-def _with_ensure_alive(wrapped_func):
-    wrapped_func = click.option(
-        "--ensure-alive/--no-ensure-alive",
-        default=True,
-    )(wrapped_func)
     return wrapped_func
 
 
@@ -42,11 +35,11 @@ def _capture_api_exceptions(f):
 
 
 @click.group()
-def _cli():
+def cli():
     pass
 
 
-@_cli.command()
+@cli.command()
 @click.option(
     "--config",
     "-c",
@@ -67,7 +60,7 @@ def start(descriptors: Tuple[Path], *, config: Path):
     print(dapp.app_id)
 
 
-@_cli.command()
+@cli.command()
 @_capture_api_exceptions
 def list():
     """List known app IDs (both active and dead).
@@ -79,7 +72,7 @@ def list():
         print("\n".join(app_ids))
 
 
-@_cli.command()
+@cli.command()
 @_capture_api_exceptions
 def prune():
     """Remove data for non-running apps.
@@ -91,7 +84,7 @@ def prune():
         print("\n".join(app_ids))
 
 
-@_cli.command()
+@cli.command()
 @click.option(
     "--timeout",
     "-t",
@@ -113,7 +106,7 @@ def stop(*, app_id: str, timeout: int):
         print(app_id)
 
 
-@_cli.command()
+@cli.command()
 @_with_app_id
 @_capture_api_exceptions
 def kill(*, app_id):
@@ -126,7 +119,7 @@ def kill(*, app_id):
     print(app_id)
 
 
-@_cli.command()
+@cli.command()
 @_with_app_id
 @click.argument("service", required=True, type=str)
 @click.argument(
@@ -146,64 +139,32 @@ def exec(*, app_id, service, command, timeout):
     dapp.exec_command(service, command, timeout)
 
 
-@_cli.group()
-def read():
+@cli.command()
+@_with_app_id
+@click.argument("file-type", type=click.Choice(["state", "data", "log", "stdout", "stderr"]))
+@click.option(
+    "--ensure-alive/--no-ensure-alive",
+    default=True,
+)
+@click.option(
+    "-f",
+    "--follow",
+    is_flag=True,
+    default=False,
+)
+@_capture_api_exceptions
+def read(app_id: str, file_type: RunnerReadFileType, ensure_alive: bool, follow: bool):
     """Read output from the given app."""
-    # this function serves only to add a CLI command group
-    # and so it doesn't need any body code
 
-
-@read.command()
-@_with_app_id
-@_capture_api_exceptions
-@_with_ensure_alive
-def state(*, app_id, ensure_alive):
-    """Read the state stream of the given app."""
     dapp = DappManager(app_id)
-    print(dapp.read_file("state", ensure_alive))
+
+    read_function: Callable = dapp.read_file_follow if follow else dapp.read_file
+
+    for chunk in read_function(file_type, ensure_alive=ensure_alive):
+        print(chunk, end="")
 
 
-@read.command()
-@_with_app_id
-@_capture_api_exceptions
-@_with_ensure_alive
-def data(*, app_id, ensure_alive):
-    """Read the data stream of the given app."""
-    dapp = DappManager(app_id)
-    print(dapp.read_file("data", ensure_alive))
-
-
-@read.command()
-@_with_app_id
-@_capture_api_exceptions
-@_with_ensure_alive
-def log(*, app_id, ensure_alive):
-    """Read the log stream of a given app."""
-    dapp = DappManager(app_id)
-    print(dapp.read_file("log", ensure_alive))
-
-
-@read.command()
-@_with_app_id
-@_capture_api_exceptions
-@_with_ensure_alive
-def stdout(*, app_id, ensure_alive):
-    """Read the stdout of a given app."""
-    dapp = DappManager(app_id)
-    print(dapp.read_file("stdout", ensure_alive))
-
-
-@read.command()
-@_with_app_id
-@_capture_api_exceptions
-@_with_ensure_alive
-def stderr(*, app_id, ensure_alive):
-    """Read the stderr of a given app."""
-    dapp = DappManager(app_id)
-    print(dapp.read_file("stderr", ensure_alive))
-
-
-@_cli.command()
+@cli.command()
 @click.argument("shell", type=click.Choice(["bash", "fish", "zsh"]))
 @click.option(
     "--path",
@@ -227,11 +188,3 @@ def autocomplete(shell: str, path: Path):
     The command does nothing if the target file already contains the completion code.
     """
     install_autocomplete(shell, path)
-
-
-def main():
-    _cli()
-
-
-if __name__ == "__main__":
-    main()

@@ -7,18 +7,20 @@ import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
-from typing import List, Union
+from typing import Iterator, List, Union
 
 import appdirs
 import psutil
 
 from .dapp_starter import DappStarter
 from .exceptions import AppNotRunning
-from .storage import RunnerFileType, SimpleStorage
+from .storage import RunnerReadFileType, SimpleStorage
 
 PathType = Union[str, os.PathLike]
 
-COMMAND_OUTPUT_INTERVAL = 1.0
+COMMAND_OUTPUT_INTERVAL = timedelta(seconds=1)
+READ_FILE_FOLLOW_INTERVAL = timedelta(milliseconds=100)
+READ_FILE_CHUNK_SIZE = 1024
 
 
 class DappManager:
@@ -87,16 +89,65 @@ class DappManager:
 
     ###########################
     #   PUBLIC INSTANCE METHODS
-    def read_file(self, file_type: RunnerFileType, ensure_alive: bool = True) -> str:
-        """Return raw, unparsed contents of the `file_type` stream.
+    def read_file(
+        self, file_type: RunnerReadFileType, *, ensure_alive: bool = True
+    ) -> Iterator[str]:
+        """Yield raw, unparsed contents of the `file_type` stream.
 
         If ensure_alive is True, AppNotRunning exception will be raised if the app is
         not running.
+
+        FileNotFoundError exception will be raised if stream is inaccessible (for e.g. deleted).
         """
 
         if ensure_alive:
             self._ensure_alive()
-        return self.storage.read_file(file_type)
+
+        for _, data in self.storage.iter_file_chunks(file_type, chunk_size=READ_FILE_CHUNK_SIZE):
+            yield data
+
+    def read_file_follow(
+        self, file_type: RunnerReadFileType, *, ensure_alive: bool = True
+    ) -> Iterator[str]:
+        """Continuously try to yield raw, unparsed contents of the `file_type` stream.
+
+        If ensure_alive is True, AppNotRunning exception will be raised if the app is
+        initially not running. If app die and its stream would be inaccessible (for e.g. deleted)
+        while following its stream, yielding will end gracefully.
+
+        FileNotFoundError exception will be raised if stream is initially inaccessible
+        (for e.g. deleted).
+        """
+
+        file_pos = 0
+        is_initial_check = True
+
+        while True:
+            if ensure_alive:
+                try:
+                    self._ensure_alive()
+                except AppNotRunning:
+                    if is_initial_check:
+                        raise
+                    return
+
+            try:
+                for read_size, data in self.storage.iter_file_chunks(
+                    file_type, start_pos=file_pos, chunk_size=READ_FILE_CHUNK_SIZE
+                ):
+                    file_pos += read_size
+                    yield data
+
+            except FileNotFoundError:
+                if is_initial_check:
+                    raise
+                return
+
+            # If we managed to get here, special behaviour for initial checks are no longer needed
+            is_initial_check = False
+
+            # We've read to end of stream, lets wait a bit and try again
+            sleep(READ_FILE_FOLLOW_INTERVAL.total_seconds())
 
     @staticmethod
     def __parse_service_str(service: str):
@@ -134,7 +185,7 @@ class DappManager:
             while datetime.now() < start + timedelta(seconds=timeout):
                 data_out = data.readline()
                 if not data_out:
-                    sleep(COMMAND_OUTPUT_INTERVAL)
+                    sleep(COMMAND_OUTPUT_INTERVAL.total_seconds())
                     continue
 
                 msg = json.loads(data_out)

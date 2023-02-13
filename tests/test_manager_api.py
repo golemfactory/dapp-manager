@@ -3,6 +3,7 @@ import string
 import sys
 from datetime import datetime, timedelta, timezone
 from time import sleep
+from typing import Iterator
 from unittest import mock
 
 import psutil
@@ -81,9 +82,9 @@ def test_stop(get_dapp):
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
 def test_stop_timeout_kill(get_dapp):
-    dapp = get_dapp([sys.executable, asset_path("sleep_no_sigint.py"), "10"])
+    dapp = get_dapp([sys.executable, asset_path("worker_no_sigint.py"), "10"])
     pid = dapp.pid
-    sleep(0.5)
+    sleep(0.5)  # give some time for process to set up no sigint
 
     #   stop times out because command ignores sigint
     assert dapp.alive
@@ -99,16 +100,169 @@ def test_stop_timeout_kill(get_dapp):
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
-def test_read_file(get_dapp):
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file(get_dapp, file_type):
     dapp = get_dapp(
-        [sys.executable, asset_path("write_mock_files.py")], state_file=True, data_file=True
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
     )
     sleep(0.5)
 
-    for file_type in ("state", "data"):
-        mock_fname = asset_path(f"mock_{file_type}_file.txt")
+    mock_fname = asset_path(f"mock_{file_type}_file.txt")
+    with open(mock_fname) as f:
+        assert "".join(dapp.read_file(file_type)) == f.read()
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file_follow(get_dapp, file_type):
+    dapp = get_dapp(
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
+    )
+    assert dapp.alive
+
+    sleep(0.5)  # Wait for logs to be created
+
+    additional_line = f"some\nmore\n{file_type}\nlines!"
+    mock_fname = asset_path(f"mock_{file_type}_file.txt")
+
+    iterator = dapp.read_file_follow(file_type)
+
+    try:
         with open(mock_fname) as f:
-            assert dapp.read_file(file_type) == f.read()
+            assert next(iterator) == f.read()
+
+        with dapp.storage.file_name(file_type).open("a") as file:
+            file.write(additional_line)
+
+        assert next(iterator) == additional_line
+
+    finally:
+        iterator.close()
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file_follow_not_running_initially(get_dapp, file_type):
+    dapp = get_dapp(
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
+    )
+    assert dapp.alive
+
+    dapp.kill()
+
+    assert not dapp.alive
+
+    with pytest.raises(AppNotRunning):
+        "".join(dapp.read_file_follow(file_type))
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file_follow_logs_not_accessible_initially(get_dapp, file_type):
+    dapp = get_dapp([sys.executable, asset_path("worker.py")], state_file=True, data_file=True)
+
+    assert dapp.alive
+
+    with pytest.raises(FileNotFoundError):
+        next(dapp.read_file_follow(file_type))
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file_follow_logs_not_accessible_after_some_time(get_dapp, file_type):
+    dapp = get_dapp(
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
+    )
+    assert dapp.alive
+
+    sleep(0.5)  # Wait for logs to be created
+
+    mock_fname = asset_path(f"mock_{file_type}_file.txt")
+
+    iterator = dapp.read_file_follow(file_type)
+
+    try:
+        with open(mock_fname) as f:
+            # read to end of file
+            assert next(iterator) == f.read()
+
+        # file should be closed, so we can externally remove log file
+        dapp.storage.file_name(file_type).unlink()
+
+        with pytest.raises(StopIteration):
+            # as log file does not exist, StopIteraton should be raised
+            next(iterator)
+
+    finally:
+        iterator.close()
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+@pytest.mark.parametrize("file_type", ("state", "data"))
+def test_read_file_follow_not_running_after_some_time(get_dapp, file_type):
+    dapp = get_dapp(
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
+    )
+    assert dapp.alive
+
+    sleep(0.5)  # Wait for logs to be created
+
+    mock_fname = asset_path(f"mock_{file_type}_file.txt")
+
+    iterator = dapp.read_file_follow(file_type)
+
+    try:
+        with open(mock_fname) as f:
+            # read to end of file
+            assert next(iterator) == f.read()
+
+        dapp.kill()
+
+        with pytest.raises(StopIteration):
+            # as app is not running, StopIteraton should be raised
+            next(iterator)
+
+    finally:
+        iterator.close()
+
+
+@pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
+def test_read_file_follow_chunk_size(get_dapp, mocker):
+    mocker.patch("dapp_manager.dapp_manager.READ_FILE_CHUNK_SIZE", 5)
+
+    dapp = get_dapp(
+        [sys.executable, asset_path("worker_with_log_files.py")], state_file=True, data_file=True
+    )
+
+    assert dapp.alive
+
+    sleep(0.5)  # Give some time to have log files prepared
+
+    file_type = "state"
+    additional_line = f"some\nmore\n{file_type}\nlines!"
+
+    iterator = dapp.read_file_follow(file_type)
+
+    try:
+        # Content for following asserts are taken from "some\nmore\n{file_type}\nlines!" file
+        assert next(iterator) == "THIS "
+        assert next(iterator) == "IS\nA\n"
+        assert next(iterator) == "STATE"
+        assert next(iterator) == " FILE"
+        assert next(iterator) == "!\n"
+
+        with dapp.storage.file_name(file_type).open("a") as file:
+            file.write(additional_line)
+
+        # But for following asserts are taken from additional_line variable
+        assert next(iterator) == "some\n"
+        assert next(iterator) == "more\n"
+        assert next(iterator) == file_type
+        assert next(iterator) == "\nline"
+        assert next(iterator) == "s!"
+
+    finally:
+        iterator.close()
 
 
 @pytest.mark.parametrize(
@@ -124,7 +278,11 @@ def test_unknown_app(method_name_args):
         # NOTE: we have both properties and methods here, exceptions for properties are
         #  raised in getattr, for methods when they are executed (*args), but both are
         #  fine so this doesn't really matter
-        getattr(dapp, method_name)(*args)
+        data = getattr(dapp, method_name)(*args)
+
+        if isinstance(data, Iterator):
+            "".join(data)
+
     assert invalid_app_id in str(exc_info.value)
 
 
@@ -138,28 +296,29 @@ def test_app_not_running(method_name_args):
     dapp = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
     sleep(0.5)
     with pytest.raises(AppNotRunning) as exc_info:
-        getattr(dapp, method_name)(*args)
+        data = getattr(dapp, method_name)(*args)
+
+        if isinstance(data, Iterator):
+            "".join(data)
     assert dapp.app_id in str(exc_info.value)
 
 
 @pytest.mark.parametrize("file_type", ("state", "data"))
 @pytest.mark.parametrize(
-    "kwargs, raises",
+    "ensure_alive, exception_class",
     (
-        ({"ensure_alive": True}, True),
-        ({"ensure_alive": False}, False),
+        (True, AppNotRunning),
+        (False, FileNotFoundError),
     ),
 )
-def test_app_not_running_ensure_alive(file_type, kwargs, raises):
+def test_ensure_alive(file_type, ensure_alive, exception_class):
     dapp = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
-    sleep(0.5)
+    sleep(1)
 
-    if raises:
-        with pytest.raises(AppNotRunning) as exc_info:
-            dapp.read_file(file_type, **kwargs)
-        assert dapp.app_id in str(exc_info.value)
-    else:
-        dapp.read_file(file_type, **kwargs)
+    with pytest.raises(exception_class) as exc_info:
+        "".join(dapp.read_file(file_type, ensure_alive=ensure_alive))
+
+    assert dapp.app_id in str(exc_info.value)
 
 
 def test_startup_failed():

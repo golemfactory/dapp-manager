@@ -33,7 +33,7 @@ python = "^3.8"
 
 psutil = "^5.9"
 appdirs = "^1.4"
-click = "^8.1"
+click = "^7.0"  # requires bump to goth's dependencies https://github.com/golemfactory/goth/issues/605
 dapp-runner = { git = "https://github.com/golemfactory/dapp-runner.git", branch = "main" }
 pydantic = "^1.9"
 
@@ -42,7 +42,7 @@ setuptools = "*"  # implicitly required by liccehck
 pip = "*"  # implicitly required by liccehck
 
 autoflake = "^1"
-black = "^22.1"
+black = "^21.0b0"  # requires bump to goth's dependencies https://github.com/golemfactory/goth/issues/605
 mypy = "^0.942"
 isort = "^5.11.3"
 poethepoet = "^0.13"
@@ -73,7 +73,7 @@ _format_autoflake = "autoflake ."
 _format_isort = "isort ."
 _format_black = "black ."
 tests = {sequence = ["tests_unit"], help = "Run all available tests"}
-tests_unit = {cmd = "pytest --cov --cov-report html --cov-report term -sv tests", help = "Run only unit tests"}
+tests_unit = {cmd = "pytest", help = "Run only unit tests"}
 
 [tool.liccheck]
 authorized_licenses = [
@@ -128,3 +128,10 @@ line_length = 100
 [tool.black]
 line-length = 100
 target-version = ['py38']
+
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report html --cov-report term-missing -sv"
+testspaths = [
+    "tests"
+]
