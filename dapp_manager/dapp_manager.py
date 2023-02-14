@@ -89,9 +89,7 @@ class DappManager:
 
     ###########################
     #   PUBLIC INSTANCE METHODS
-    def read_file(
-        self, file_type: RunnerReadFileType, *, ensure_alive: bool = True
-    ) -> Iterator[str]:
+    def read_file(self, file_type: RunnerReadFileType, *, ensure_alive: bool = True) -> str:
         """Yield raw, unparsed contents of the `file_type` stream.
 
         If ensure_alive is True, AppNotRunning exception will be raised if the app is
@@ -103,8 +101,7 @@ class DappManager:
         if ensure_alive:
             self._ensure_alive()
 
-        for _, data in self.storage.iter_file_chunks(file_type, chunk_size=READ_FILE_CHUNK_SIZE):
-            yield data
+        return self.storage.read_file(file_type)
 
     def read_file_follow(
         self, file_type: RunnerReadFileType, *, ensure_alive: bool = True

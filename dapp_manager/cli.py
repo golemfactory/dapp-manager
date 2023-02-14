@@ -1,7 +1,7 @@
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Callable, Tuple
+from typing import Tuple
 
 import click
 
@@ -158,10 +158,11 @@ def read(app_id: str, file_type: RunnerReadFileType, ensure_alive: bool, follow:
 
     dapp = DappManager(app_id)
 
-    read_function: Callable = dapp.read_file_follow if follow else dapp.read_file
-
-    for chunk in read_function(file_type, ensure_alive=ensure_alive):
-        print(chunk, end="")
+    if follow:
+        for chunk in dapp.read_file_follow(file_type, ensure_alive=ensure_alive):
+            print(chunk, end="")
+    else:
+        print(dapp.read_file(file_type, ensure_alive=ensure_alive))
 
 
 @cli.command()

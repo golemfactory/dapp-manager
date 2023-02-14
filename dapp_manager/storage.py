@@ -54,6 +54,10 @@ class SimpleStorage:
         with self.file_name(file_type).open(mode) as f:
             yield f
 
+    def read_file(self, file_type: RunnerFileType) -> str:
+        with self.open(file_type, "r") as f:
+            return f.read()
+
     def iter_file_chunks(
         self,
         file_type: RunnerReadFileType,

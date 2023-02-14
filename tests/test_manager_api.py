@@ -3,7 +3,7 @@ import string
 import sys
 from datetime import datetime, timedelta, timezone
 from time import sleep
-from typing import Iterator
+from typing import Iterator, Literal
 from unittest import mock
 
 import psutil
@@ -109,7 +109,7 @@ def test_read_file(get_dapp, file_type):
 
     mock_fname = asset_path(f"mock_{file_type}_file.txt")
     with open(mock_fname) as f:
-        assert "".join(dapp.read_file(file_type)) == f.read()
+        assert dapp.read_file(file_type) == f.read()
 
 
 @pytest.mark.parametrize("get_dapp", get_dapp_scenarios)
@@ -311,12 +311,12 @@ def test_app_not_running(method_name_args):
         (False, FileNotFoundError),
     ),
 )
-def test_ensure_alive(file_type, ensure_alive, exception_class):
+def test_ensure_alive(file_type: Literal["state", "data"], ensure_alive, exception_class):
     dapp = start_dapp([sys.executable, asset_path("echo.py"), "foo"])
     sleep(1)
 
     with pytest.raises(exception_class) as exc_info:
-        "".join(dapp.read_file(file_type, ensure_alive=ensure_alive))
+        dapp.read_file(file_type, ensure_alive=ensure_alive)
 
     assert dapp.app_id in str(exc_info.value)
 
