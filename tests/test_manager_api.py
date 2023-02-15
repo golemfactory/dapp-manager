@@ -175,7 +175,7 @@ def test_read_file_follow_logs_not_accessible_after_some_time(get_dapp, file_typ
     )
     assert dapp.alive
 
-    sleep(0.5)  # Wait for logs to be created
+    sleep(1)  # Wait for logs to be created
 
     mock_fname = asset_path(f"mock_{file_type}_file.txt")
 
