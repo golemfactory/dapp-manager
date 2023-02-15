@@ -36,8 +36,15 @@ class DappStarter:
 
         success, stdout, stderr = self._check_succesful_startup(proc, timeout)
         if not success:
-            runner_stdout = self.storage.read_file("stdout")
-            runner_stderr = self.storage.read_file("stderr")
+            try:
+                runner_stdout = self.storage.read_file("stdout")
+            except FileNotFoundError:
+                runner_stdout = None
+
+            try:
+                runner_stderr = self.storage.read_file("stderr")
+            except FileNotFoundError:
+                runner_stderr = None
 
             self.storage.delete()
 

@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class DappManagerException(Exception):
     """Base exception for all dapp-manager exceptions."""
 
@@ -16,7 +19,7 @@ class UnknownApp(DappManagerException):
     SHELL_EXIT_CODE = 4
 
     def __init__(self, app_id):
-        return super().__init__(f"{app_id} is not an id of any known app")
+        super().__init__(f"{app_id} is not an id of any known app")
 
 
 class AppNotRunning(DappManagerException):
@@ -30,7 +33,7 @@ class AppNotRunning(DappManagerException):
     SHELL_EXIT_CODE = 5
 
     def __init__(self, app_id):
-        return super().__init__(f"App {app_id} is not running.")
+        super().__init__(f"App {app_id} is not running.")
 
 
 class StartupFailed(DappManagerException):
@@ -42,17 +45,27 @@ class StartupFailed(DappManagerException):
 
     SHELL_EXIT_CODE = 6
 
-    def __init__(self, stdout, stderr, runner_stdout, runner_stderr):
-        msg = (
-            "Dapp startup failed.\n"
-            "--- dapp-runner stderr ---\n"
-            f"{runner_stderr}\n\n"
-            "--- dapp-runner stdout ---\n"
-            f"{runner_stdout}\n\n"
-            "--- pre-runner stderr ---\n"
-            f"{stderr}\n\n"
-            "--- pre-runner stdout ---\n"
-            f"{runner_stdout}\n\n"
+    def __init__(self, stdout, stderr, runner_stdout: Optional[str], runner_stderr: Optional[str]):
+        if runner_stderr is None:
+            runner_stderr_text = "--- no dapp-runner stderr ---"
+        else:
+            runner_stderr_text = f"--- dapp-runner stderr ---\n{runner_stderr}"
+
+        if runner_stdout is None:
+            runner_stdout_text = "--- no dapp-runner stdout ---"
+        else:
+            runner_stdout_text = f"--- dapp-runner stdout ---\n{runner_stdout}"
+
+        msg = "\n".join(
+            [
+                "Dapp startup failed.",
+                runner_stderr_text,
+                runner_stdout_text,
+                "--- pre-runner stderr ---",
+                stderr,
+                "--- pre-runner stdout ---",
+                stdout,
+            ]
         )
 
-        return super().__init__(msg)
+        super().__init__(msg)

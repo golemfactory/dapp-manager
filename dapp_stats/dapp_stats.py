@@ -15,7 +15,7 @@ class DappStats:
         self._app_id = app_id
 
     def _iter_app_states(self):
-        return DappManager(self._app_id).storage.iter_file("state")
+        return DappManager(self._app_id).storage.iter_file_lines("state")
 
     def get_stats(self) -> Dict:
         nodes_stats: DefaultDict[str, Dict[int, NodeStatistics]] = defaultdict(dict)
