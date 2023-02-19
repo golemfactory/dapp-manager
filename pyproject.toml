@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dapp-manager"
-version = "0.0.0a4"
+version = "0.1.0a0"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
@@ -34,8 +34,8 @@ python = "^3.8"
 psutil = "^5.9"
 appdirs = "^1.4"
 click = "^7.0"  # requires bump to goth's dependencies https://github.com/golemfactory/goth/issues/605
-dapp-runner = { git = "https://github.com/golemfactory/dapp-runner.git", branch = "main" }
 pydantic = "^1.9"
+dapp-runner = "0.1.0a0"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"  # implicitly required by liccehck
