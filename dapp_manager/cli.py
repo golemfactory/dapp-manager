@@ -1,9 +1,10 @@
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 
 import click
+from dapp_runner.log import LOG_CHOICES
 
 from dapp_manager import DappManager
 from dapp_manager.exceptions import DappManagerException
@@ -54,10 +55,14 @@ def cli():
     required=True,
     type=Path,
 )
+@click.option(
+    "--log-level",
+    type=click.Choice(LOG_CHOICES, case_sensitive=False),
+)
 @_capture_api_exceptions
-def start(descriptors: Tuple[Path], *, config: Path):
+def start(descriptors: Tuple[Path], *, config: Path, log_level: Optional[str]):
     """Start a new app using the provided descriptor and config files."""
-    dapp = DappManager.start(*descriptors, config=config)
+    dapp = DappManager.start(*descriptors, config=config, log_level=log_level)
     print(dapp.app_id)
 
 

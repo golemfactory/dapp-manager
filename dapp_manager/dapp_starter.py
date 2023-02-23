@@ -3,7 +3,7 @@ import subprocess
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from .exceptions import StartupFailed
 from .storage import RunnerFileType, SimpleStorage
@@ -12,10 +12,17 @@ DEFAULT_EXEC_STR = "dapp-runner"
 
 
 class DappStarter:
-    def __init__(self, descriptors: List[Path], config: Path, storage: SimpleStorage):
+    def __init__(
+        self,
+        descriptors: List[Path],
+        config: Path,
+        storage: SimpleStorage,
+        log_level: Optional[str] = None,
+    ):
         self.descriptors = descriptors
         self.config = config
         self.storage = storage
+        self.log_level = log_level
 
     def start(self, timeout: float) -> None:
         """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not running."""
@@ -85,6 +92,9 @@ class DappStarter:
         # TODO: https://github.com/golemfactory/dapp-manager/issues/5
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
+
+        if self.log_level:
+            args += ["--log-level", self.log_level]
 
         # TODO: is there's a better way to iterate over elements of a Literal type?
         for file_type in RunnerFileType.__args__:  # type: ignore [attr-defined]
