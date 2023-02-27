@@ -94,7 +94,7 @@ the form of a hexadecimal string. You can use this ID to query the state and oth
 using `dapp-manager`'s `read` command, e.g.:
 
 ```bash
-dapp-manager read state <the-hex-string>
+dapp-manager read <the-hex-string> state
 ```
 
 will display the contents of the `state` stream of the running app:
@@ -114,7 +114,7 @@ Whatever the reason, you can still query the various streams of a terminated dap
 `--no-ensure-alive` option, e.g.:
 
 ```bash
-dapp-manager read stderr <the-hex-string> --no-ensure-alive
+dapp-manager read <the-hex-string> --no-ensure-alive stderr
 ```
 
 ## Full usage
@@ -188,19 +188,14 @@ The `read` command outputs the full contents of the specified stream. There are 
 specified by the usage below:
 
 ```shell
-Usage: dapp-manager read [OPTIONS] COMMAND [ARGS]...
+Usage: dapp-manager read [OPTIONS] APP_ID [state|data|log|stdout|stderr]
 
   Read output from the given app.
 
 Options:
-  --help  Show this message and exit.
-
-Commands:
-  data    Read the data stream of the given app.
-  log     Read the log stream of a given app.
-  state   Read the state stream of the given app.
-  stderr  Read the stderr of a given app.
-  stdout  Read the stdout of a given app.
+  --ensure-alive / --no-ensure-alive
+  -f, --follow
+  --help                          Show this message and exit.
 ```
 
 By default, the stream will only be output if the app is currently running. Otherwise, you'll get
