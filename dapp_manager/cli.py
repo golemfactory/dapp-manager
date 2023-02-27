@@ -7,18 +7,17 @@ import click
 from dapp_runner.log import LOG_CHOICES
 
 from dapp_manager import DappManager
+from dapp_manager.autocomplete import install_autocomplete
 from dapp_manager.exceptions import DappManagerException
 from dapp_manager.storage import RunnerReadFileType
 
-# from dapp_manager.autocomplete import install_autocomplete
 
-
-def _app_id_autocomplete(_ctx, _param, incomplete):
+def _app_id_autocomplete(ctx, args, incomplete):  # noqa
     return [app_id for app_id in DappManager.list() if app_id.startswith(incomplete)]
 
 
 def _with_app_id(wrapped_func):
-    wrapped_func = click.argument("app-id", type=str)(  # shell_complete=_app_id_autocomplete)(
+    wrapped_func = click.argument("app-id", type=click.STRING, autocompletion=_app_id_autocomplete)(
         wrapped_func
     )
     return wrapped_func
@@ -171,27 +170,27 @@ def read(app_id: str, file_type: RunnerReadFileType, ensure_alive: bool, follow:
         print(dapp.read_file(file_type, ensure_alive=ensure_alive))
 
 
-# @cli.command()
-# @click.argument("shell", type=click.Choice(["bash", "fish", "zsh"]))
-# @click.option(
-#     "--path",
-#     "-p",
-#     type=Path,
-#     default=None,
-#     help="Path to the file to which the shell completion function should be added.",
-# )
-# def autocomplete(shell: str, path: Path):
-#     """Enable CLI shell completion for the given shell.
-#
-#     This command works by appending a pre-defined piece of shell code to the user's shell
-#     configuration file.
-#
-#     The default target file will depend on the selected shell type (bash, fish or zsh):
-#         - bash: `~/.bashrc`
-#         - fish: `~/.config/fish/completions/{script_name}.fish`
-#         - zsh: `~/.zshrc`
-#     Use the `--path` flag to override the default target file.
-#
-#     The command does nothing if the target file already contains the completion code.
-#     """
-#     install_autocomplete(shell, path)
+@cli.command()
+@click.argument("shell", type=click.Choice(["bash", "fish", "zsh"]))
+@click.option(
+    "--path",
+    "-p",
+    type=Path,
+    default=None,
+    help="Path to the file to which the shell completion function should be added.",
+)
+def autocomplete(shell: str, path: Path):
+    """Enable CLI shell completion for the given shell.
+
+    This command works by appending a pre-defined piece of shell code to the user's shell
+    configuration file.
+
+    The default target file will depend on the selected shell type (bash, fish or zsh):
+        - bash: `~/.bashrc`
+        - fish: `~/.config/fish/completions/{script_name}.fish`
+        - zsh: `~/.zshrc`
+    Use the `--path` flag to override the default target file.
+
+    The command does nothing if the target file already contains the completion code.
+    """
+    install_autocomplete(shell, path)

@@ -1,4 +1,3 @@
-
 #compdef dapp-manager
 
 _dapp_manager_completion() {
@@ -7,20 +6,17 @@ _dapp_manager_completion() {
     local -a response
     (( ! $+commands[dapp-manager] )) && return 1
 
-    response=("${(@f)$(env COMP_WORDS="${words[*]}" COMP_CWORD=$((CURRENT-1)) _DAPP_MANAGER_COMPLETE=zsh_complete dapp-manager)}")
+    response=("${(@f)$( env COMP_WORDS="${words[*]}" \
+                        COMP_CWORD=$((CURRENT-1)) \
+                        _DAPP_MANAGER_COMPLETE="complete_zsh" \
+                        dapp-manager )}")
 
-    for type key descr in ${response}; do
-        if [[ "$type" == "plain" ]]; then
-            if [[ "$descr" == "_" ]]; then
-                completions+=("$key")
-            else
-                completions_with_descriptions+=("$key":"$descr")
-            fi
-        elif [[ "$type" == "dir" ]]; then
-            _path_files -/
-        elif [[ "$type" == "file" ]]; then
-            _path_files -f
-        fi
+    for key descr in ${(kv)response}; do
+      if [[ "$descr" == "_" ]]; then
+          completions+=("$key")
+      else
+          completions_with_descriptions+=("$key":"$descr")
+      fi
     done
 
     if [ -n "$completions_with_descriptions" ]; then
@@ -30,7 +26,7 @@ _dapp_manager_completion() {
     if [ -n "$completions" ]; then
         compadd -U -V unsorted -a completions
     fi
+    compstate[insert]="automenu"
 }
 
 compdef _dapp_manager_completion dapp-manager;
-
