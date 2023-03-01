@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dapp-manager"
-version = "0.1.0a2"
+version = "0.2.0-dev"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
