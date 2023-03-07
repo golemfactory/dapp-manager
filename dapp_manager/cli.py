@@ -1,9 +1,10 @@
 import sys
 from functools import wraps
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 
 import click
+from dapp_runner.log import LOG_CHOICES
 
 from dapp_manager import DappManager
 from dapp_manager.autocomplete import install_autocomplete
@@ -11,12 +12,12 @@ from dapp_manager.exceptions import DappManagerException
 from dapp_manager.storage import RunnerReadFileType
 
 
-def _app_id_autocomplete(_ctx, _param, incomplete):
+def _app_id_autocomplete(ctx, args, incomplete):  # noqa
     return [app_id for app_id in DappManager.list() if app_id.startswith(incomplete)]
 
 
 def _with_app_id(wrapped_func):
-    wrapped_func = click.argument("app-id", type=str, shell_complete=_app_id_autocomplete)(
+    wrapped_func = click.argument("app-id", type=click.STRING, autocompletion=_app_id_autocomplete)(
         wrapped_func
     )
     return wrapped_func
@@ -53,10 +54,14 @@ def cli():
     required=True,
     type=Path,
 )
+@click.option(
+    "--log-level",
+    type=click.Choice(LOG_CHOICES, case_sensitive=False),
+)
 @_capture_api_exceptions
-def start(descriptors: Tuple[Path], *, config: Path):
+def start(descriptors: Tuple[Path], *, config: Path, log_level: Optional[str]):
     """Start a new app using the provided descriptor and config files."""
-    dapp = DappManager.start(*descriptors, config=config)
+    dapp = DappManager.start(*descriptors, config=config, log_level=log_level)
     print(dapp.app_id)
 
 

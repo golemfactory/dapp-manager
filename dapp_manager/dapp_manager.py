@@ -7,7 +7,7 @@ import uuid
 from datetime import datetime, timedelta
 from pathlib import Path
 from time import sleep
-from typing import Iterator, List, Union
+from typing import Iterator, List, Optional, Union
 
 import appdirs
 import psutil
@@ -53,6 +53,7 @@ class DappManager:
         descriptor: PathType,
         *other_descriptors: PathType,
         config: PathType,
+        log_level: Optional[str] = None,
         timeout: float = 1,
     ) -> "DappManager":
         """Start a new app."""
@@ -64,7 +65,7 @@ class DappManager:
         storage = cls._create_storage(app_id)
         storage.init()
 
-        starter = DappStarter(descriptor_paths, config_path, storage)
+        starter = DappStarter(descriptor_paths, config_path, storage, log_level=log_level)
         starter.start(timeout=timeout)
 
         return cls(app_id)
