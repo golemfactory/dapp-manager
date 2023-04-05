@@ -167,7 +167,7 @@ def read(app_id: str, file_type: RunnerReadFileType, ensure_alive: bool, follow:
         for chunk in dapp.read_file_follow(file_type, ensure_alive=ensure_alive):
             print(chunk, end="")
     else:
-        print(dapp.read_file(file_type, ensure_alive=ensure_alive))
+        print(dapp.read_file(file_type, ensure_alive=ensure_alive), end="")
 
 
 @cli.command()
