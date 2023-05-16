@@ -33,6 +33,14 @@ class SimpleStorage:
         with open(self.pid_file, "w") as f:
             f.write(str(pid))
 
+    def save_api_host(self, api_host: str) -> None:
+        with open(self.api_host_file, "w") as f:
+            f.write(api_host)
+
+    def save_api_port(self, api_port: int) -> None:
+        with open(self.api_port_file, "w") as f:
+            f.write(str(api_port))
+
     def set_not_running(self) -> None:
         try:
             os.rename(self.pid_file, self.archived_pid_file)
@@ -138,7 +146,28 @@ class SimpleStorage:
     def archived_pid_file(self) -> Path:
         return self.file_name("_old_pid")
 
-    def file_name(self, name: Union[RunnerFileType, Literal["pid", "_old_pid"]]) -> Path:
+    @property
+    def api(self) -> Optional[str]:
+        try:
+            with open(self.api_host_file, "r") as f:
+                host = f.read()
+            with open(self.api_port_file, "r") as f:
+                port = int(f.read())
+            return f"http://{host}:{port}"
+        except FileNotFoundError:
+            return None
+
+    @property
+    def api_host_file(self) -> Path:
+        return self.file_name("api_host")
+
+    @property
+    def api_port_file(self) -> Path:
+        return self.file_name("api_port")
+
+    def file_name(
+        self, name: Union[RunnerFileType, Literal["pid", "_old_pid", "api_host", "api_port"]]
+    ) -> Path:
         # NOTE: "Known app" test here is sufficient - this method will be called whenever any piece
         # of information related to self.app_id is retrieved or changed
         self._ensure_known_app()

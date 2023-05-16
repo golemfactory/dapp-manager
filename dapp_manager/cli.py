@@ -58,10 +58,32 @@ def cli():
     "--log-level",
     type=click.Choice(LOG_CHOICES, case_sensitive=False),
 )
+@click.option("--api-port", type=int, help="Enable the GAOM API on a given port.")
+@click.option(
+    "--api-host",
+    type=str,
+    default="127.0.0.1",
+    show_default=True,
+    help="Specify a host address for the GAOM API to bind to. "
+    "Requires `--api-port` to also be specified.",
+)
 @_capture_api_exceptions
-def start(descriptors: Tuple[Path], *, config: Path, log_level: Optional[str]):
+def start(
+    descriptors: Tuple[Path],
+    *,
+    config: Path,
+    log_level: Optional[str],
+    api_port: Optional[int],
+    api_host: str,
+):
     """Start a new app using the provided descriptor and config files."""
-    dapp = DappManager.start(*descriptors, config=config, log_level=log_level)
+    if api_port:
+        api_kwargs = {"api_host": api_host, "api_port": api_port}
+    elif api_host:
+        raise DappManagerException("Please specify the `--api-port` too to enable the API.")
+    else:
+        api_kwargs = {}
+    dapp = DappManager.start(*descriptors, config=config, log_level=log_level, **api_kwargs)  # type: ignore [arg-type]  # noqa
     print(dapp.app_id)
 
 
