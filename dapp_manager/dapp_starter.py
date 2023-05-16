@@ -18,11 +18,13 @@ class DappStarter:
         config: Path,
         storage: SimpleStorage,
         log_level: Optional[str] = None,
+        skip_manifest_validation: bool = False,
     ):
         self.descriptors = descriptors
         self.config = config
         self.storage = storage
         self.log_level = log_level
+        self.skip_manifest_validation = skip_manifest_validation
 
     def start(self, timeout: float) -> None:
         """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not running."""
@@ -102,6 +104,10 @@ class DappStarter:
             args += [f"--{file_type}", file_name]
 
         args += [str(d.resolve()) for d in self.descriptors]
+
+        if self.skip_manifest_validation:
+            args += ["--skip-manifest-validation"]
+
         return args
 
     def _executable(self) -> List[str]:
