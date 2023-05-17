@@ -168,6 +168,14 @@ def exec(*, app_id, service, command, timeout):
 
 @cli.command()
 @_with_app_id
+@_capture_api_exceptions
+def inspect(*, app_id):
+    dapp = DappManager(app_id)
+    print(dapp.inspect())
+
+
+@cli.command()
+@_with_app_id
 @click.argument("file-type", type=click.Choice(["state", "data", "log", "stdout", "stderr"]))
 @click.option(
     "--ensure-alive/--no-ensure-alive",
