@@ -30,15 +30,15 @@ class SimpleStorage:
 
     def save_pid(self, pid: int) -> None:
         # TODO: https://github.com/golemfactory/dapp-manager/issues/12
-        with open(self.pid_file, "w") as f:
+        with self.pid_file.open("w") as f:
             f.write(str(pid))
 
     def save_api_host(self, api_host: str) -> None:
-        with open(self.api_host_file, "w") as f:
+        with self.api_host_file.open("w") as f:
             f.write(api_host)
 
     def save_api_port(self, api_port: int) -> None:
-        with open(self.api_port_file, "w") as f:
+        with self.api_port_file.open("w") as f:
             f.write(str(api_port))
 
     def set_not_running(self) -> None:
