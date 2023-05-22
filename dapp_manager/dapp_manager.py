@@ -56,6 +56,7 @@ class DappManager:
         log_level: Optional[str] = None,
         api_host: Optional[str] = None,
         api_port: Optional[int] = None,
+        skip_manifest_validation: bool = False,
         timeout: float = 1,
     ) -> "DappManager":
         """Start a new app."""
@@ -74,6 +75,7 @@ class DappManager:
             log_level=log_level,
             api_host=api_host,
             api_port=api_port,
+            skip_manifest_validation=skip_manifest_validation,
         )
         starter.start(timeout=timeout)
 

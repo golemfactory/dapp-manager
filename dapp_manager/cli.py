@@ -67,6 +67,11 @@ def cli():
     help="Specify a host address for the GAOM API to bind to. "
     "Requires `--api-port` to also be specified.",
 )
+@click.option(
+    "--skip-manifest-validation",
+    is_flag=True,
+    default=False,
+)
 @_capture_api_exceptions
 def start(
     descriptors: Tuple[Path],
@@ -75,6 +80,7 @@ def start(
     log_level: Optional[str],
     api_port: Optional[int],
     api_host: str,
+    skip_manifest_validation: bool,
 ):
     """Start a new app using the provided descriptor and config files."""
     if api_port:
@@ -83,7 +89,13 @@ def start(
         raise DappManagerException("Please specify the `--api-port` too to enable the API.")
     else:
         api_kwargs = {}
-    dapp = DappManager.start(*descriptors, config=config, log_level=log_level, **api_kwargs)  # type: ignore [arg-type]  # noqa
+    dapp = DappManager.start(
+        *descriptors,
+        config=config,
+        log_level=log_level,
+        skip_manifest_validation=skip_manifest_validation,
+        **api_kwargs,  # type: ignore [arg-type] # noqa
+    )
     print(dapp.app_id)
 
 
