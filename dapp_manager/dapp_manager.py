@@ -54,6 +54,7 @@ class DappManager:
         *other_descriptors: PathType,
         config: PathType,
         log_level: Optional[str] = None,
+        skip_manifest_validation: bool = False,
         timeout: float = 1,
     ) -> "DappManager":
         """Start a new app."""
@@ -65,7 +66,13 @@ class DappManager:
         storage = cls._create_storage(app_id)
         storage.init()
 
-        starter = DappStarter(descriptor_paths, config_path, storage, log_level=log_level)
+        starter = DappStarter(
+            descriptor_paths,
+            config_path,
+            storage,
+            log_level=log_level,
+            skip_manifest_validation=skip_manifest_validation,
+        )
         starter.start(timeout=timeout)
 
         return cls(app_id)

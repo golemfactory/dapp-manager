@@ -58,10 +58,26 @@ def cli():
     "--log-level",
     type=click.Choice(LOG_CHOICES, case_sensitive=False),
 )
+@click.option(
+    "--skip-manifest-validation",
+    is_flag=True,
+    default=False,
+)
 @_capture_api_exceptions
-def start(descriptors: Tuple[Path], *, config: Path, log_level: Optional[str]):
+def start(
+    descriptors: Tuple[Path],
+    *,
+    config: Path,
+    log_level: Optional[str],
+    skip_manifest_validation: bool,
+):
     """Start a new app using the provided descriptor and config files."""
-    dapp = DappManager.start(*descriptors, config=config, log_level=log_level)
+    dapp = DappManager.start(
+        *descriptors,
+        config=config,
+        log_level=log_level,
+        skip_manifest_validation=skip_manifest_validation,
+    )
     print(dapp.app_id)
 
 
