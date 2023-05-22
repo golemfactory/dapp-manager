@@ -86,7 +86,7 @@ def start(
     if api_port:
         api_kwargs = {"api_host": api_host, "api_port": api_port}
     elif api_host:
-        raise DappManagerException("Please specify the `--api-port` too to enable the API.")
+        raise DappManagerException("To enable the API, please specify the `--api-port` too.")
     else:
         api_kwargs = {}
     dapp = DappManager.start(
