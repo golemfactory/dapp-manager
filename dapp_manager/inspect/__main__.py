@@ -18,11 +18,22 @@ class Inspect:
         lookup = TemplateLookup(directories=[Path(__file__).parent / "templates"])
         return lookup.get_template(name)
 
+    def fetch_gaom(self):
+        """Retrieve the current Golem Application Object Model data."""
+
+        data = requests.get(f"{self.api_address}/gaom/")
+        self._gaom = data.json()
+
     @property
     def gaom(self):
+        """Golem Application Object Model data.
+
+        Will retrieve the data if there's none or provide the cached copy
+        if GAOM had already been retrieved.
+        """
+
         if not self._gaom:
-            data = requests.get(f"{self.api_address}/gaom/")
-            self._gaom = data.json()
+            self.fetch_gaom()
         return self._gaom
 
     def display_app_structure(self):
