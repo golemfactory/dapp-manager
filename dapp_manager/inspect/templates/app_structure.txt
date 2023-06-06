@@ -1,0 +1,31 @@
+% if meta:
+% if meta.get('name'):
+
+${meta['name']}
+======================================================================================
+% endif
+% if meta.get('description'):
+
+${meta['description']}
+
+% endif
+% endif
+
+
+    Payloads
+    ===================
+% for name, payload in payloads.items():
+    <%include file="app_structure/payload.txt" args="name=name, payload=payload" />
+% endfor
+
+    Services
+    ===================
+% for name, service in nodes.items():
+<%include file="app_structure/node.txt" args="name=name, service=service" />
+% endfor
+
+    Networks
+    ===================
+% for name, network in networks.items():
+<%include file="app_structure/network.txt" args="name=name, network=network" />
+% endfor

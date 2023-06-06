@@ -1,0 +1,7 @@
+<%page args="name, network" />
+        ${name}
+        ------------------
+
+        IP:          ${network.get("ip")}
+        Owner's IP:  ${network.get("owner_ip")}
+        Netmask:     ${network.get("mask")}

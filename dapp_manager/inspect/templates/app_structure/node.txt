@@ -1,0 +1,39 @@
+<%def name="print_state(state)">\
+%if state == "running":
+${colors.green(state)}\
+%elif state == "pending" or state == "starting":
+${colors.yellow(state)}\
+%else:
+${colors.red(state)}\
+%endif
+</%def>\
+<%def name="print_agreement(agreement)">\
+            on: ${colors.cyan(agreement.get("provider_name"))} (${agreement.get("provider_id")})
+</%def>\
+<%def name="print_proxy(name, proxy)">\
+%for p in proxy.get("ports"):
+            ${name}: ${colors.magenta(p.get("address"))}
+%endfor
+</%def>\
+<%page args="name, service" />
+        ${name}
+        ------------------
+
+        Payload: ${service['payload']}
+        Init:
+%for cmd in service['init']:
+            - ${cmd["cmd"]}: ${cmd["params"]}
+%endfor
+%if service.get("network"):
+        Network: ${service.get("network")}
+%if service.get("network_node"):
+            IP: ${service.get("network_node").get("ip")}
+%endif
+%endif
+        State: ${print_state(service['state'])}
+%if service.get("agreement"):
+${print_agreement(service.get("agreement"))}
+%endif
+%if service.get("http_proxy"):
+${print_proxy("HTTP proxy", service.get("http_proxy"))}
+%endif

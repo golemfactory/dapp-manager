@@ -69,3 +69,18 @@ class StartupFailed(DappManagerException):
         )
 
         super().__init__(msg)
+
+
+class GaomApiUnavailable(DappManagerException):
+    """Exception raised the command requires the GAOM API to be available but is not present.
+
+    For the API to be available, the `dapp-manager` must be invoked with the `--api` option
+    specifying the hostname and port.
+    """
+
+    SHELL_EXIT_CODE = 7
+
+    def __init__(self, app_id):
+        super().__init__(
+            f"GAOM API unavailable for {app_id}. Please start the app with the `--app-port` option."
+        )

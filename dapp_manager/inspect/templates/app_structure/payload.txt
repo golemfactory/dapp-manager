@@ -1,0 +1,6 @@
+<%page args="name, payload" />
+        ${name}
+        ------------------
+
+        Runtime: ${payload['runtime']}
+            Parameters: ${payload['params']}
