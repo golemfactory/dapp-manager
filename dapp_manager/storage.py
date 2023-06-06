@@ -15,6 +15,8 @@ RunnerReadFileType = Literal["data", "state", "log", "stdout", "stderr"]
 
 
 class SimpleStorage:
+    _api_address: Optional[str]
+
     def __init__(self, app_id: str, data_dir: str):
         self.app_id = re.sub("[\n\r/\\\\.]", "", app_id)
         self.base_dir = Path(data_dir).resolve()
@@ -146,16 +148,21 @@ class SimpleStorage:
     def archived_pid_file(self) -> Path:
         return self.file_name("_old_pid")
 
+    def fetch_api_address(self):
+        try:
+            with self.api_host_file.open("r") as f:
+                host = f.read()
+            with self.api_port_file.open("r") as f:
+                port = int(f.read())
+            self._api_address = f"http://{host}:{port}"
+        except FileNotFoundError:
+            pass
+
     @property
     def api(self) -> Optional[str]:
-        try:
-            with open(self.api_host_file, "r") as f:
-                host = f.read()
-            with open(self.api_port_file, "r") as f:
-                port = int(f.read())
-            return f"http://{host}:{port}"
-        except FileNotFoundError:
-            return None
+        if not self._api_address:
+            self.fetch_api_address()
+        return self._api_address
 
     @property
     def api_host_file(self) -> Path:
