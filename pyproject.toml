@@ -37,6 +37,7 @@ click = "^7.0"  # requires bump to goth's dependencies https://github.com/golemf
 pydantic = "^1.9"
 dapp-runner = { git = "https://github.com/golemfactory/dapp-runner.git", branch = "main" }
 mako = "^1.2.4"
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 setuptools = "*"  # implicitly required by liccehck
