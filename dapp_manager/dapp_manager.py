@@ -209,9 +209,7 @@ class DappManager:
                 raise TimeoutError()
 
     def inspect(self) -> str:
-        """
-        Query the GAOM API and present a comprehensive report.
-        """
+        """Query the GAOM API and present a comprehensive report."""
         self._ensure_alive()
         api = self._ensure_api()
         inspect = Inspect(api)
