@@ -18,12 +18,16 @@ class DappStarter:
         config: Path,
         storage: SimpleStorage,
         log_level: Optional[str] = None,
+        api_host: Optional[str] = None,
+        api_port: Optional[int] = None,
         skip_manifest_validation: bool = False,
     ):
         self.descriptors = descriptors
         self.config = config
         self.storage = storage
         self.log_level = log_level
+        self.api_host = api_host
+        self.api_port = api_port
         self.skip_manifest_validation = skip_manifest_validation
 
     def start(self, timeout: float) -> None:
@@ -60,6 +64,9 @@ class DappStarter:
             raise StartupFailed(stdout, stderr, runner_stdout, runner_stderr)
 
         self.storage.save_pid(proc.pid)
+        if self.api_host and self.api_port:
+            self.storage.save_api_host(self.api_host)
+            self.storage.save_api_port(self.api_port)
 
     def _check_succesful_startup(
         self, proc: subprocess.Popen, timeout: float
@@ -102,6 +109,9 @@ class DappStarter:
         for file_type in RunnerFileType.__args__:  # type: ignore [attr-defined]
             file_name = str(self.storage.file_name(file_type).resolve())
             args += [f"--{file_type}", file_name]
+
+        if self.api_host and self.api_port:
+            args += ["--enable-api", "--api-host", self.api_host, "--api-port", str(self.api_port)]
 
         args += [str(d.resolve()) for d in self.descriptors]
 

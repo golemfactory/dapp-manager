@@ -58,6 +58,15 @@ def cli():
     "--log-level",
     type=click.Choice(LOG_CHOICES, case_sensitive=False),
 )
+@click.option("--api-port", type=int, help="Enable the GAOM API on a given port.")
+@click.option(
+    "--api-host",
+    type=str,
+    default="127.0.0.1",
+    show_default=True,
+    help="Specify a host address for the GAOM API to bind to. "
+    "Requires `--api-port` to also be specified.",
+)
 @click.option(
     "--skip-manifest-validation",
     is_flag=True,
@@ -69,14 +78,23 @@ def start(
     *,
     config: Path,
     log_level: Optional[str],
+    api_port: Optional[int],
+    api_host: str,
     skip_manifest_validation: bool,
 ):
     """Start a new app using the provided descriptor and config files."""
+    if api_port:
+        api_kwargs = {"api_host": api_host, "api_port": api_port}
+    elif api_host:
+        raise DappManagerException("To enable the API, please specify the `--api-port` too.")
+    else:
+        api_kwargs = {}
     dapp = DappManager.start(
         *descriptors,
         config=config,
         log_level=log_level,
         skip_manifest_validation=skip_manifest_validation,
+        **api_kwargs,  # type: ignore [arg-type] # noqa
     )
     print(dapp.app_id)
 
@@ -158,6 +176,14 @@ def kill(*, app_id):
 def exec(*, app_id, service, command, timeout):
     dapp = DappManager(app_id)
     dapp.exec_command(service, command, timeout)
+
+
+@cli.command()
+@_with_app_id
+@_capture_api_exceptions
+def inspect(*, app_id):
+    dapp = DappManager(app_id)
+    print(dapp.inspect())
 
 
 @cli.command()

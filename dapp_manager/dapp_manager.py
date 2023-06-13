@@ -13,7 +13,8 @@ import appdirs
 import psutil
 
 from .dapp_starter import DappStarter
-from .exceptions import AppNotRunning
+from .exceptions import AppNotRunning, GaomApiUnavailable
+from .inspect import Inspect
 from .storage import RunnerReadFileType, SimpleStorage
 
 PathType = Union[str, os.PathLike]
@@ -54,6 +55,8 @@ class DappManager:
         *other_descriptors: PathType,
         config: PathType,
         log_level: Optional[str] = None,
+        api_host: Optional[str] = None,
+        api_port: Optional[int] = None,
         skip_manifest_validation: bool = False,
         timeout: float = 1,
     ) -> "DappManager":
@@ -71,6 +74,8 @@ class DappManager:
             config_path,
             storage,
             log_level=log_level,
+            api_host=api_host,
+            api_port=api_port,
             skip_manifest_validation=skip_manifest_validation,
         )
         starter.start(timeout=timeout)
@@ -203,6 +208,13 @@ class DappManager:
 
                 raise TimeoutError()
 
+    def inspect(self) -> str:
+        """Query the GAOM API and present a comprehensive report."""
+        self._ensure_alive()
+        api = self._ensure_api()
+        inspect = Inspect(api)
+        return inspect.display_app_structure()
+
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
@@ -264,6 +276,11 @@ class DappManager:
     def _ensure_alive(self) -> None:
         if not self.alive:
             raise AppNotRunning(self.app_id)
+
+    def _ensure_api(self) -> str:
+        if not self.storage.api:
+            raise GaomApiUnavailable(self.app_id)
+        return self.storage.api
 
     def _is_running(self) -> bool:
         try:
