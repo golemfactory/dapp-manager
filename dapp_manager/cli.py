@@ -58,10 +58,44 @@ def cli():
     "--log-level",
     type=click.Choice(LOG_CHOICES, case_sensitive=False),
 )
+@click.option("--api-port", type=int, help="Enable the GAOM API on a given port.")
+@click.option(
+    "--api-host",
+    type=str,
+    default="127.0.0.1",
+    show_default=True,
+    help="Specify a host address for the GAOM API to bind to. "
+    "Requires `--api-port` to also be specified.",
+)
+@click.option(
+    "--skip-manifest-validation",
+    is_flag=True,
+    default=False,
+)
 @_capture_api_exceptions
-def start(descriptors: Tuple[Path], *, config: Path, log_level: Optional[str]):
+def start(
+    descriptors: Tuple[Path],
+    *,
+    config: Path,
+    log_level: Optional[str],
+    api_port: Optional[int],
+    api_host: str,
+    skip_manifest_validation: bool,
+):
     """Start a new app using the provided descriptor and config files."""
-    dapp = DappManager.start(*descriptors, config=config, log_level=log_level)
+    if api_port:
+        api_kwargs = {"api_host": api_host, "api_port": api_port}
+    elif api_host:
+        raise DappManagerException("To enable the API, please specify the `--api-port` too.")
+    else:
+        api_kwargs = {}
+    dapp = DappManager.start(
+        *descriptors,
+        config=config,
+        log_level=log_level,
+        skip_manifest_validation=skip_manifest_validation,
+        **api_kwargs,  # type: ignore [arg-type] # noqa
+    )
     print(dapp.app_id)
 
 
@@ -146,6 +180,14 @@ def exec(*, app_id, service, command, timeout):
 
 @cli.command()
 @_with_app_id
+@_capture_api_exceptions
+def inspect(*, app_id):
+    dapp = DappManager(app_id)
+    print(dapp.inspect())
+
+
+@cli.command()
+@_with_app_id
 @click.argument("file-type", type=click.Choice(["state", "data", "log", "stdout", "stderr"]))
 @click.option(
     "--ensure-alive/--no-ensure-alive",
@@ -167,7 +209,7 @@ def read(app_id: str, file_type: RunnerReadFileType, ensure_alive: bool, follow:
         for chunk in dapp.read_file_follow(file_type, ensure_alive=ensure_alive):
             print(chunk, end="")
     else:
-        print(dapp.read_file(file_type, ensure_alive=ensure_alive))
+        print(dapp.read_file(file_type, ensure_alive=ensure_alive), end="")
 
 
 @cli.command()
