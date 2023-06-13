@@ -62,7 +62,7 @@ class DappSizeResolver:
             raise DappSizeResolverError(f"Failed to load descriptor files: {e}")
 
         try:
-            return DappDescriptor.load(dapp_dict)
+            return DappDescriptor(**dapp_dict)
         except Exception as e:
             raise DappSizeResolverError(f"Failed to validate descriptor files: {e}")
 
