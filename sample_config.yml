@@ -8,4 +8,4 @@ yagna:
 payment:
   budget: 1.0
   driver: "erc20"
-  network: "rinkeby"
+  network: "goerli"
