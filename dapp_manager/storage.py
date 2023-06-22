@@ -20,6 +20,7 @@ class SimpleStorage:
     def __init__(self, app_id: str, data_dir: str):
         self.app_id = re.sub("[\n\r/\\\\.]", "", app_id)
         self.base_dir = Path(data_dir).resolve()
+        self._api_address = None
 
     def init(self) -> None:
         """Initialize storage for `self.app_id`.
