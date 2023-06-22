@@ -62,9 +62,7 @@ def cli():
 @click.option(
     "--api-host",
     type=str,
-    default="127.0.0.1",
-    show_default=True,
-    help="Specify a host address for the GAOM API to bind to. "
+    help="Specify a host address for the GAOM API to bind to. (default: 127.0.0.1)"
     "Requires `--api-port` to also be specified.",
 )
 @click.option(
@@ -84,7 +82,7 @@ def start(
 ):
     """Start a new app using the provided descriptor and config files."""
     if api_port:
-        api_kwargs = {"api_host": api_host, "api_port": api_port}
+        api_kwargs = {"api_host": api_host or "127.0.0.1", "api_port": api_port}
     elif api_host:
         raise DappManagerException("To enable the API, please specify the `--api-port` too.")
     else:
