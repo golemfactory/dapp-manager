@@ -97,6 +97,61 @@ def start(
     print(dapp.app_id)
 
 
+@_with_app_id
+@cli.command()
+@click.option(
+    "--config",
+    "-c",
+    required=True,
+    type=Path,
+    help="Path to the file containing yagna-specific config.",
+)
+@click.option(
+    "--log-level",
+    type=click.Choice(LOG_CHOICES, case_sensitive=False),
+)
+@click.option("--api-port", type=int, help="Enable the GAOM API on a given port.")
+@click.option(
+    "--api-host",
+    type=str,
+    help="Specify a host address for the GAOM API to bind to. (default: 127.0.0.1)"
+    "Requires `--api-port` to also be specified.",
+)
+@click.option(
+    "--skip-manifest-validation",
+    is_flag=True,
+    default=False,
+)
+@_capture_api_exceptions
+def resume(
+    app_id: str,
+    *,
+    config: Path,
+    log_level: Optional[str],
+    api_port: Optional[int],
+    api_host: str,
+    skip_manifest_validation: bool,
+):
+    """Resume an application from the saved state."""
+    if api_port:
+        api_kwargs = {"api_host": api_host or "127.0.0.1", "api_port": api_port}
+    elif api_host:
+        raise DappManagerException("To enable the API, please specify the `--api-port` too.")
+    else:
+        api_kwargs = {}
+
+    dapp = DappManager(app_id)
+
+    print(
+        dapp.resume(
+            config=config,
+            log_level=log_level,
+            skip_manifest_validation=skip_manifest_validation,
+            **api_kwargs,  # type: ignore [arg-type] # noqa
+        )
+    )
+
+
 @cli.command()
 @_capture_api_exceptions
 def list():
@@ -180,8 +235,18 @@ def exec(*, app_id, service, command, timeout):
 @_with_app_id
 @_capture_api_exceptions
 def inspect(*, app_id):
+    """Display detailed information about the running application's state."""
     dapp = DappManager(app_id)
     print(dapp.inspect())
+
+
+@cli.command()
+@_with_app_id
+@_capture_api_exceptions
+def suspend(*, app_id):
+    """Suspend a running application and save its state."""
+    dapp = DappManager(app_id)
+    print(dapp.suspend())
 
 
 @cli.command()

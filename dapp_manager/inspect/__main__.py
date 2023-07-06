@@ -21,7 +21,7 @@ class Inspect:
     def fetch_gaom(self):
         """Retrieve the current Golem Application Object Model data."""
 
-        data = requests.get(f"{self.api_address}/gaom/")
+        data = requests.get(f"{self.api_address}/gaom")
         self._gaom = data.json()
 
     @property

@@ -11,9 +11,10 @@ from typing import Iterator, List, Optional, Union
 
 import appdirs
 import psutil
+import requests
 
 from .dapp_starter import DappStarter
-from .exceptions import AppNotRunning, GaomApiUnavailable
+from .exceptions import AppNotRunning, AppRunning, GaomApiError, GaomApiUnavailable, NoGaomSaveFile
 from .inspect import Inspect
 from .storage import RunnerReadFileType, SimpleStorage
 
@@ -95,7 +96,7 @@ class DappManager:
         pruned = []
         for app_id in cls.list():
             storage = cls._create_storage(app_id)
-            if not storage.alive:
+            if not storage.alive and not storage.gaom_saved:
                 storage.delete()
                 pruned.append(app_id)
         return pruned
@@ -215,6 +216,53 @@ class DappManager:
         inspect = Inspect(api)
         return inspect.display_app_structure()
 
+    def suspend(self) -> str:
+        """Signal the runner to suspend its operation and preserve the app's state."""
+        self._ensure_alive()
+        api = self._ensure_api()
+        app_gaom = requests.post(f"{api}/suspend")
+        if not app_gaom.status_code == requests.codes.ok:
+            raise GaomApiError(self.app_id)
+
+        self.storage.write_file("gaom_save", app_gaom.text)
+        return "App suspended"
+
+    def resume(
+        self,
+        config: PathType,
+        log_level: Optional[str] = None,
+        api_host: Optional[str] = None,
+        api_port: Optional[int] = None,
+        skip_manifest_validation: bool = False,
+        timeout: float = 1,
+    ) -> str:
+        """Resume the application from its saved state."""
+
+        self._ensure_stopped()
+        gaom_save = self.storage.file_name("gaom_save")
+        gaom_resume = self.storage.file_name("gaom_resume")
+        try:
+            gaom_save.replace(gaom_resume)
+        except FileNotFoundError:
+            raise NoGaomSaveFile(self.app_id)
+
+        descriptor_paths = [Path(gaom_resume)]
+        config_path = Path(config)
+
+        starter = DappStarter(
+            descriptor_paths,
+            config_path,
+            self.storage,
+            log_level=log_level,
+            api_host=api_host,
+            api_port=api_port,
+            skip_manifest_validation=skip_manifest_validation,
+            resume=True,
+        )
+        starter.start(timeout=timeout)
+
+        return "App resumed"
+
     def stop(self, timeout: int) -> bool:
         """Stop the dapp gracefully (SIGINT), waiting at most `timeout` seconds.
 
@@ -276,6 +324,10 @@ class DappManager:
     def _ensure_alive(self) -> None:
         if not self.alive:
             raise AppNotRunning(self.app_id)
+
+    def _ensure_stopped(self) -> None:
+        if self.alive:
+            raise AppRunning(self.app_id)
 
     def _ensure_api(self) -> str:
         if not self.storage.api:

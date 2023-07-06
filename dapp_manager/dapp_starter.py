@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .exceptions import StartupFailed
-from .storage import RunnerFileType, SimpleStorage
+from .storage import PublicRunnerFileType, SimpleStorage
 
 DEFAULT_EXEC_STR = "dapp-runner"
 
@@ -21,6 +21,7 @@ class DappStarter:
         api_host: Optional[str] = None,
         api_port: Optional[int] = None,
         skip_manifest_validation: bool = False,
+        resume: bool = False,
     ):
         self.descriptors = descriptors
         self.config = config
@@ -29,6 +30,7 @@ class DappStarter:
         self.api_host = api_host
         self.api_port = api_port
         self.skip_manifest_validation = skip_manifest_validation
+        self.resume = resume
 
     def start(self, timeout: float) -> None:
         """Start a dapp. Wait TIMEOUT seconds. Raise StartupFailed if process is not running."""
@@ -48,6 +50,7 @@ class DappStarter:
         proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
 
         success, stdout, stderr = self._check_succesful_startup(proc, timeout)
+
         if not success:
             try:
                 runner_stdout = self.storage.read_file("stdout")
@@ -102,11 +105,16 @@ class DappStarter:
         args = ["start"]
         args += ["--config", str(self.config.resolve())]
 
+        if self.resume:
+            args += [
+                "--resume",
+            ]
+
         if self.log_level:
             args += ["--log-level", self.log_level]
 
         # TODO: is there's a better way to iterate over elements of a Literal type?
-        for file_type in RunnerFileType.__args__:  # type: ignore [attr-defined]
+        for file_type in PublicRunnerFileType.__args__:  # type: ignore [attr-defined]
             file_name = str(self.storage.file_name(file_type).resolve())
             args += [f"--{file_type}", file_name]
 
