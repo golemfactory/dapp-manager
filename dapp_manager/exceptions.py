@@ -84,3 +84,34 @@ class GaomApiUnavailable(DappManagerException):
         super().__init__(
             f"GAOM API unavailable for {app_id}. Please start the app with the `--app-port` option."
         )
+
+
+class AppRunning(DappManagerException):
+    """Exception raised when a given app is running but expected to have been stopped.
+
+    We expect the app to be not running (e.g. after having been suspended). We raise the exception
+    when it's running in such case.
+    """
+
+    SHELL_EXIT_CODE = 8
+
+    def __init__(self, app_id):
+        super().__init__(f"App {app_id} is running.")
+
+
+class NoGaomSaveFile(DappManagerException):
+    """Exception raised when no saved GAOM state is available when an app is about to be resumed."""
+
+    SHELL_EXIT_CODE = 9
+
+    def __init__(self, app_id):
+        super().__init__(f"No saved GAOM state available for {app_id}.")
+
+
+class GaomApiError(DappManagerException):
+    """General error while accessing the GAOM API."""
+
+    SHELL_EXIT_CODE = 10
+
+    def __init__(self, app_id):
+        super().__init__(f"GAOM API error in {app_id}. Check the logs for details")

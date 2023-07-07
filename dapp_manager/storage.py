@@ -10,7 +10,10 @@ from .exceptions import UnknownApp
 
 READ_FILE_ITER_CHUNK_SIZE = 1024
 
-RunnerFileType = Literal["data", "state", "log", "stdout", "stderr", "commands"]
+PublicRunnerFileType = Literal["data", "state", "log", "stdout", "stderr", "commands"]
+RunnerFileType = Literal[
+    "data", "state", "log", "stdout", "stderr", "commands", "gaom_save", "gaom_resume"
+]
 RunnerReadFileType = Literal["data", "state", "log", "stdout", "stderr"]
 
 
@@ -59,6 +62,10 @@ class SimpleStorage:
     @property
     def alive(self) -> bool:
         return os.path.isfile(self.pid_file)
+
+    @property
+    def gaom_saved(self) -> bool:
+        return os.path.isfile(self.file_name("gaom_save"))
 
     @contextmanager
     def open(self, file_type: RunnerFileType, mode):
