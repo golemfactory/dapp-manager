@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dapp-manager"
-version = "0.3.0-dev"
+version = "0.3.0-alpha.0"
 description = "Golem dapp-manager - run decetralized apps on the Golem Network using a 'docker-compose'-like interface"
 authors = ["Golem Factory <contact@golem.network>"]
 license = "LGPL-3.0"
@@ -23,10 +23,13 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
+
+[[tool.poetry.source]]
 name = "testpypi"
 url = "https://test.pypi.org/simple/"
-default = false
-secondary = true
+priority = "supplemental"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -35,7 +38,7 @@ psutil = "^5.9"
 appdirs = "^1.4"
 click = "^7.0"  # requires bump to goth's dependencies https://github.com/golemfactory/goth/issues/605
 pydantic = "^1.9"
-dapp-runner = { git = "https://github.com/golemfactory/dapp-runner.git", branch = "main" }
+dapp-runner = "0.3.0a0"
 mako = "^1.2.4"
 requests = "^2.31.0"
 
