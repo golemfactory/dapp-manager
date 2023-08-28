@@ -9,7 +9,7 @@ from dapp_runner.descriptor import DappDescriptor
 from dapp_runner.descriptor.dapp import PayloadDescriptor
 from dapp_runner.descriptor.parser import load_yamls
 
-from yapapi.payload.vm import _DEFAULT_REPO_SRV, resolve_repo_srv
+from yapapi.payload.vm import DEFAULT_REPOSITORY_URL
 
 
 class DappSizeResolverError(Exception):
@@ -106,8 +106,7 @@ class DappSizeResolver:
 
     @classmethod
     def _fetch_image_url_from_image_hash(cls, image_hash: str) -> str:
-        repo_url = resolve_repo_srv(_DEFAULT_REPO_SRV)
-        repo_package_url = f"{repo_url}/image.{image_hash}.link"
+        repo_package_url = f"{DEFAULT_REPOSITORY_URL}/image.{image_hash}.link"
 
         try:
             return cls._fetch_http_response_body(repo_package_url).decode("utf-8")
