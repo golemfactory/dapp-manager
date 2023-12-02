@@ -12,7 +12,7 @@ care of spawning, interacting with, and stopping the running instances of the `d
 As the `dapp-manager` uses the `dapp-runner`, which in turn requires a properly configured
 [yagna](https://github.com/golemfactory/yagna) daemon, you'll need to have it set up.
 
-For now, please follow the ["Requestor development: a quick primer"](https://handbook.golem.network/requestor-tutorials/flash-tutorial-of-requestor-development)
+For now, please follow the ["Requestor development: a quickstart"](https://docs.golem.network/docs/creators/python/quickstarts/run-first-task-on-golem)
 tutorial and ensure that your `yagna` is up and running. Only the first part of this
 tutorial is required - you don't need to run the blender example.
 
